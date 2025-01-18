@@ -1,0 +1,81 @@
+
+# Archivo de salida
+OUTPUT_FILE="kivy_environment_info.txt"
+
+# Borrar el archivo anterior si existe
+if [ -f $OUTPUT_FILE ]; then
+    rm $OUTPUT_FILE
+fi
+
+# Agregar información del sistema
+echo "===== Información del Sistema =====" >> $OUTPUT_FILE
+uname -a >> $OUTPUT_FILE
+echo "" >> $OUTPUT_FILE
+
+# Versión de Python
+echo "===== Versión de Python =====" >> $OUTPUT_FILE
+python --version >> $OUTPUT_FILE
+echo "" >> $OUTPUT_FILE
+
+# Paquetes instalados con pip
+echo "===== Paquetes instalados con pip =====" >> $OUTPUT_FILE
+pip freeze >> $OUTPUT_FILE
+echo "" >> $OUTPUT_FILE
+
+# Información de Buildozer
+echo "===== Versión de Buildozer =====" >> $OUTPUT_FILE
+buildozer -v >> $OUTPUT_FILE 2>&1 || echo "Buildozer no está instalado o hay un error." >> $OUTPUT_FILE
+echo "" >> $OUTPUT_FILE
+
+# Información de python-for-android
+echo "===== Versión de python-for-android =====" >> $OUTPUT_FILE
+p4a --version >> $OUTPUT_FILE 2>&1 || echo "python-for-android no está instalado o hay un error." >> $OUTPUT_FILE
+echo "" >> $OUTPUT_FILE
+
+# Configuración del SDK de Android
+echo "===== Android SDK =====" >> $OUTPUT_FILE
+if [ -z "$ANDROIDSDK" ]; then
+    echo "ANDROIDSDK no está configurado." >> $OUTPUT_FILE
+else
+    echo "ANDROIDSDK: $ANDROIDSDK" >> $OUTPUT_FILE
+    ls $ANDROIDSDK >> $OUTPUT_FILE 2>&1
+fi
+echo "" >> $OUTPUT_FILE
+
+# Configuración del NDK de Android
+echo "===== Android NDK =====" >> $OUTPUT_FILE
+if [ -z "$ANDROIDNDK" ]; then
+    echo "ANDROIDNDK no está configurado." >> $OUTPUT_FILE
+else
+    echo "ANDROIDNDK: $ANDROIDNDK" >> $OUTPUT_FILE
+    ls $ANDROIDNDK >> $OUTPUT_FILE 2>&1
+fi
+echo "" >> $OUTPUT_FILE
+
+# Información de Kivy
+echo "===== Versión de Kivy =====" >> $OUTPUT_FILE
+python -c "import kivy; print(kivy.__version__)" >> $OUTPUT_FILE 2>&1 || echo "Kivy no está instalado o hay un error." >> $OUTPUT_FILE
+echo "" >> $OUTPUT_FILE
+
+# Información de PyJNIus
+echo "===== Versión de PyJNIus =====" >> $OUTPUT_FILE
+python -c "import jnius; print(jnius.__version__)" >> $OUTPUT_FILE 2>&1 || echo "PyJNIus no está instalado o hay un error." >> $OUTPUT_FILE
+echo "" >> $OUTPUT_FILE
+
+# Información del entorno virtual
+echo "===== Entorno Virtual =====" >> $OUTPUT_FILE
+if [ -z "$VIRTUAL_ENV" ]; then
+    echo "No se está utilizando un entorno virtual." >> $OUTPUT_FILE
+else
+    echo "Entorno virtual activo: $VIRTUAL_ENV" >> $OUTPUT_FILE
+fi
+echo "" >> $OUTPUT_FILE
+
+# Variables de entorno actuales
+echo "===== Variables de Entorno =====" >> $OUTPUT_FILE
+printenv >> $OUTPUT_FILE
+echo "" >> $OUTPUT_FILE
+
+# Finalización
+echo "===== Finalizado ====="
+echo "La información se ha guardado en $OUTPUT_FILE"
