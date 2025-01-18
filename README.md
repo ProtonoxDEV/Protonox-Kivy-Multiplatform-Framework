@@ -1,44 +1,48 @@
-Kivy Environment Diagnostic Tool
+Kivy Tools for Developers
 
 Descripción
 
-Este repositorio contiene un script de diagnóstico para entornos de desarrollo con Kivy. El script recopila información detallada del entorno, como:
+Este repositorio, liderado por ProtonoxDEV, tiene como objetivo invitar a la comunidad a desarrollar y compartir herramientas que faciliten el desarrollo de aplicaciones con Kivy. Además, en este proyecto encontrarás herramientas simples, integradas con inteligencia artificial, para mejorar la experiencia de desarrollo.
 
-🐍 Versión de Python y paquetes instalados.
+El repositorio incluye herramientas como:
 
-🖥️ Detalles del sistema operativo.
+🐍 Diagnóstico de versiones de Python y paquetes instalados.
 
-🛠️ Configuración de herramientas de desarrollo como Buildozer y python-for-android.
+🖥️ Información detallada del sistema operativo.
+
+🛠️ Configuraciones esenciales para Buildozer y python-for-android.
 
 📂 Rutas y configuraciones de Android SDK y NDK.
 
 🌐 Variables de entorno activas.
 
-🎨 Versión de Kivy y PyJNIus.
+🎨 Verificación de versiones de Kivy y PyJNIus.
 
 🧪 Estado del entorno virtual (si aplica).
 
-El archivo generado puede ser utilizado para depuración, compartir configuraciones del entorno o resolver problemas al compilar aplicaciones Kivy para Android.
+El objetivo es crear una colección de herramientas que optimicen el flujo de trabajo y faciliten la integración de inteligencia artificial en aplicaciones construidas con Kivy.
 
 Description
 
-This repository contains a diagnostic script for Kivy development environments. The script collects detailed information about the environment, such as:
+This repository, led by ProtonoxDEV, aims to invite the community to develop and share tools that make building applications with Kivy easier. Additionally, this project provides simple tools integrated with artificial intelligence to enhance the development experience.
 
-🐍 Python version and installed packages.
+Included tools:
 
-🖥️ Operating system details.
+🐍 Diagnostic for Python versions and installed packages.
 
-🛠️ Development tools configuration, including Buildozer and python-for-android.
+🖥️ Detailed operating system information.
+
+🛠️ Essential configurations for Buildozer and python-for-android.
 
 📂 Android SDK and NDK paths and configurations.
 
 🌐 Active environment variables.
 
-🎨 Kivy and PyJNIus versions.
+🎨 Verification of Kivy and PyJNIus versions.
 
 🧪 Virtual environment status (if applicable).
 
-The generated file can be used for debugging, sharing environment configurations, or resolving issues when building Kivy applications for Android.
+The goal is to create a collection of tools to optimize workflows and simplify AI integration into Kivy-built applications.
 
 Uso / Usage
 
@@ -88,6 +92,6 @@ Opcional: Buildozer, python-for-android, Android SDK/NDK 🛠️
 
 Contribuciones / Contributions
 
-💡 Las contribuciones son bienvenidas. Si deseas agregar nuevas características o mejorar el script, abre un pull request o reporta un problema en la sección de issues.
+💡 ¡Te invitamos a participar! Si tienes ideas para herramientas que faciliten el desarrollo con Kivy, este es tu espacio. Agrega nuevas funcionalidades, mejora las existentes o comparte herramientas relacionadas con inteligencia artificial. Abre un pull request o reporta un problema en la sección de issues.
 
-💡 Contributions are welcome. If you want to add new features or improve the script, please open a pull request or report an issue in the issues section.
+💡 Join us! If you have ideas for tools to simplify Kivy development, this is your space. Add new features, improve existing ones, or share AI-related tools. Open a pull request or report an issue in the issues section.
