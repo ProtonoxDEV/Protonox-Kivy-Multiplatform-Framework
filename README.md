@@ -2,96 +2,80 @@ Kivy Tools for Developers
 
 Descripción
 
-Este repositorio, liderado por ProtonoxDEV, tiene como objetivo invitar a la comunidad a desarrollar y compartir herramientas que faciliten el desarrollo de aplicaciones con Kivy. Además, en este proyecto encontrarás herramientas simples, integradas con inteligencia artificial, para mejorar la experiencia de desarrollo.
+Este repositorio, liderado por ProtonoxDEV, tiene como objetivo invitar a la comunidad a desarrollar y compartir herramientas que faciliten el desarrollo de aplicaciones con Kivy. Además, encontrarás herramientas integradas con inteligencia artificial que mejoran la experiencia de desarrollo.
 
-El repositorio incluye herramientas como:
+Herramientas incluidas:
 
-🐍 Diagnóstico de versiones de Python y paquetes instalados.
+🐍 Diagnóstico del entorno de desarrollo:
+  Versión de Python y paquetes instalados.
+  Estado del entorno virtual.
 
-🖥️ Información detallada del sistema operativo.
-
-🛠️ Configuraciones esenciales para Buildozer y python-for-android.
-
-📂 Rutas y configuraciones de Android SDK y NDK.
-
-🌐 Variables de entorno activas.
-
+🖥️ Información del sistema operativo y variables de entorno.
+🛠️ Configuraciones clave para Buildozer y python-for-android.
+📂 Análisis de rutas y configuraciones del Android SDK/NDK.
 🎨 Verificación de versiones de Kivy y PyJNIus.
 
-🧪 Estado del entorno virtual (si aplica).
 
-El objetivo es crear una colección de herramientas que optimicen el flujo de trabajo y faciliten la integración de inteligencia artificial en aplicaciones construidas con Kivy.
+🧾 Análisis de archivos .kv:
+
+  Identificación de componentes duplicados o anomalías.
+  Generación de reportes en JSON, HTML, y Excel.
+
+🌐 Integración con navegadores:
+
+Visualización directa de reportes generados.
+El objetivo principal es optimizar el flujo de trabajo y facilitar la integración de inteligencia artificial en aplicaciones construidas con Kivy.
 
 Description
-
-This repository, led by ProtonoxDEV, aims to invite the community to develop and share tools that make building applications with Kivy easier. Additionally, this project provides simple tools integrated with artificial intelligence to enhance the development experience.
+This repository, led by ProtonoxDEV, invites the community to develop and share tools to simplify building Kivy applications. It also integrates artificial intelligence for an enhanced development experience.
 
 Included tools:
+🐍 Development Environment Diagnostics:
+Python version and installed packages.
+Virtual environment status.
+🖥️ Operating system and environment variables information.
+🛠️ Key configurations for Buildozer and python-for-android.
+📂 Path analysis and configurations for Android SDK/NDK.
+🎨 Kivy and PyJNIus version verification.
+🧾 Analysis of .kv files:
+Identification of duplicate or anomalous components.
+Reports in JSON, HTML, and Excel formats.
+🌐 Browser integration:
+Directly view generated reports.
+The main goal is to optimize workflows and simplify AI integration into Kivy-built applications.
 
-🐍 Diagnostic for Python versions and installed packages.
-
-🖥️ Detailed operating system information.
-
-🛠️ Essential configurations for Buildozer and python-for-android.
-
-📂 Android SDK and NDK paths and configurations.
-
-🌐 Active environment variables.
-
-🎨 Verification of Kivy and PyJNIus versions.
-
-🧪 Virtual environment status (if applicable).
-
-The goal is to create a collection of tools to optimize workflows and simplify AI integration into Kivy-built applications.
 
 Uso / Usage
 
-En Español:
 
-🔄 Clona el repositorio:
-
-git clone https://github.com/ProtonoxDEV/Kivy-Tools-For-Devs.git
-cd Kivy-Tools-For-Devs
-
-🛠️ Haz el script ejecutable:
-
-chmod +x kivy_env_info_with_env_vars.sh
-
-▶️ Ejecuta el script:
-
-./kivy_env_info_with_env_vars.sh
-
-📄 Revisa el archivo generado:
-El script generará un archivo llamado kivy_environment_info.txt con toda la información relevante del entorno.
-
-In English:
-
-🔄 Clone the repository:
+1 🔄 Clona el repositorio:    
 
 git clone https://github.com/ProtonoxDEV/Kivy-Tools-For-Devs.git
-cd Kivy-Tools-For-Devs
 
-🛠️ Make the script executable:
 
-chmod +x kivy_env_info_with_env_vars.sh
+2. 🛠️ Instala las dependencias necesarias:
 
-▶️ Run the script:
+pip install -r requirements.txt
 
-./kivy_env_info_with_env_vars.sh
+3. ▶️ Ejecuta la aplicación:
 
-📄 Check the generated file:
-The script will generate a file named kivy_environment_info.txt with all relevant environment information.
+python main.py
+
+
+4. 📄 Generate reports:
+
+Use the graphical interface to generate environment diagnostic reports and .kv component analysis.
+
+
+
 
 Requisitos / Requirements
-
 Python 3.x 🐍
-
 Kivy 🎨
-
-Opcional: Buildozer, python-for-android, Android SDK/NDK 🛠️
-
+Opcional:
+Buildozer
+python-for-android
+Android SDK/NDK 🛠️
 Contribuciones / Contributions
-
-💡 ¡Te invitamos a participar! Si tienes ideas para herramientas que faciliten el desarrollo con Kivy, este es tu espacio. Agrega nuevas funcionalidades, mejora las existentes o comparte herramientas relacionadas con inteligencia artificial. Abre un pull request o reporta un problema en la sección de issues.
-
-💡 Join us! If you have ideas for tools to simplify Kivy development, this is your space. Add new features, improve existing ones, or share AI-related tools. Open a pull request or report an issue in the issues section.
+💡 Te invitamos a participar: Si tienes ideas para herramientas que faciliten el desarrollo con Kivy, este es tu espacio. Agrega nuevas funcionalidades, mejora las existentes o comparte herramientas relacionadas con inteligencia artificial. Abre un pull request o reporta un problema en la sección de issues.
+💡 Join us: If you have ideas for tools to simplify Kivy development, this is your space. Add new features, improve existing ones, or share AI-related tools. Open a pull request or report an issue in the issues section.
