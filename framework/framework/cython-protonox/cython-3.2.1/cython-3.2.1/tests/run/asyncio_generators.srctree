@@ -1,0 +1,192 @@
+# mode: run
+# tag: asyncio, pep492
+
+"""
+PYTHON setup.py build_ext -i
+PYTHON test_from_import.py
+PYTHON test_import.py
+PYTHON test_async_def.py
+PYTHON test_async_def_future.py
+PYTHON test_all.py
+"""
+
+######## setup.py ########
+
+from Cython.Build.Dependencies import cythonize
+from distutils.core import setup
+
+setup(
+  ext_modules = cythonize("*.pyx"),
+)
+
+
+######## test_from_import.py ########
+
+import from_asyncio_import
+import asyncio
+from contextlib import closing
+new_event_loop = asyncio.new_event_loop
+
+def runloop(task):
+    with closing(new_event_loop()) as loop:
+        result = loop.run_until_complete(task())
+        assert 3 == result, result
+
+
+######## test_import.py ########
+
+import import_asyncio
+import asyncio
+from contextlib import closing
+new_event_loop = asyncio.new_event_loop
+
+def runloop(task):
+    with closing(new_event_loop()) as loop:
+        result = loop.run_until_complete(task())
+        assert 3 == result, result
+
+
+######## test_async_def.py ########
+
+import async_def
+import asyncio
+from contextlib import closing
+
+def runloop(task):
+    with closing(asyncio.new_event_loop()) as loop:
+        result = loop.run_until_complete(task())
+        assert 3 == result, result
+
+runloop(async_def.wait3)
+
+
+######## test_async_def_future.py ########
+
+from async_def_future import await_future
+import asyncio
+from contextlib import closing
+
+def runloop():
+    with closing(asyncio.new_event_loop()) as loop:
+        task, events, expected = await_future(loop)
+        result = loop.run_until_complete(task())
+        assert events == expected, 'expected %s, got %s' % (expected, events)
+
+runloop()
+
+
+######## test_all.py ########
+
+import asyncio
+from contextlib import closing
+new_event_loop = asyncio.new_event_loop
+
+def runloop(task):
+    with closing(new_event_loop()) as loop:
+        result = loop.run_until_complete(task())
+        assert 3 == result, result
+
+import import_asyncio
+import from_asyncio_import
+
+import async_def
+runloop(async_def.wait3)                # 1c)
+
+runloop(async_def.wait3)                # 2c)
+
+runloop(async_def.wait3)                # 3c)
+
+from collections.abc import Generator
+assert isinstance(from_asyncio_import.wait3(), Generator)
+assert isinstance(import_asyncio.wait3(), Generator)
+assert isinstance((lambda:(yield))(), Generator)
+
+from collections.abc import Awaitable
+assert isinstance(async_def.wait3(), Awaitable)
+
+from collections.abc import Coroutine
+assert isinstance(async_def.wait3(), Coroutine)
+
+
+######## import_asyncio.pyx ########
+# cython: binding=True
+
+try:
+    from types import coroutine as types_coroutine
+except ImportError:
+    types_coroutine = lambda f:f
+
+import asyncio
+
+@types_coroutine
+def wait3():
+    counter = 0
+    for i in range(3):
+        print(counter)
+        yield from asyncio.sleep(0.01)
+        counter += 1
+    return counter
+
+
+######## from_asyncio_import.pyx ########
+# cython: binding=True
+
+try:
+    from types import coroutine as types_coroutine
+except ImportError:
+    types_coroutine = lambda f:f
+
+from asyncio import sleep
+
+@types_coroutine
+def wait3():
+    counter = 0
+    for i in range(3):
+        print(counter)
+        yield from sleep(0.01)
+        counter += 1
+    return counter
+
+
+######## async_def.pyx ########
+# cython: binding=True
+
+import asyncio
+
+async def wait3():
+    counter = 0
+    for i in range(3):
+        print(counter)
+        await asyncio.sleep(0.01)
+        counter += 1
+    return counter
+
+
+######## async_def_future.pyx ########
+# cython: binding=True
+
+import asyncio
+
+def await_future(loop):
+    events = []
+    async def worker():
+        print("worker running")
+        fut = asyncio.Future()
+
+        def setval():
+            print("setval running")
+            events.append('setval')
+            fut.set_result(123)
+            print("setval done")
+
+        events.append('setup')
+        loop.call_later(0.2, setval)
+        events.append(await fut)
+        print("worker done")
+
+    async def test():
+        print("Test running")
+        await worker()
+
+    expected = ['setup', 'setval', 123]
+    return test, events, expected
