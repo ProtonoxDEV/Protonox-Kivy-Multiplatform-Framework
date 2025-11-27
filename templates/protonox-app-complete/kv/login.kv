@@ -1,0 +1,17 @@
+<RecoverView>:
+    name: 'recover'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: '16dp'
+        spacing: '12dp'
+        Label:
+            text: 'Recuperar acceso'
+        TextInput:
+            id: email
+            hint_text: 'Email'
+        Button:
+            text: 'Enviar enlace'
+            on_release: root.on_recover(email.text)
+        Button:
+            text: 'Volver'
+            on_release: app.nav_manager.navigate('login')

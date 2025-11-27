@@ -1,0 +1,13 @@
+[tool.protonox]
+name = "protonox-app-complete"
+python = "3.11"
+
+[project]
+name = "protonox-app-complete"
+version = "0.1.0"
+description = "Kivy template with Firebase and Render integrations"
+requires-python = ">=3.11"
+dependencies = [
+    "kivy~=2.3.1",
+    "requests>=2.31.0",
+]

@@ -1,0 +1,1 @@
+# Protonox Bot Ready Template
