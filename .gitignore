@@ -1,0 +1,23 @@
+# Protonox framework ignores
+*.zip
+*.rar
+*.tar
+*.gz
+*.gzip
+*.7z
+*.apk
+*.keystore
+*.log
+*.tmp
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.DS_Store
+Thumbs.db
+build/
+dist/
+android-*
+*.egg-info
+venv/
+.venv/

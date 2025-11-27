@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "protonox-kivy-framework"
+version = "0.1.0"
+description = "Normalized Protonox Kivy toolchain, templates, and build utilities"
+authors = [ { name = "Protonox" } ]
+readme = "README.md"
+requires-python = ">=3.11"
+keywords = ["kivy", "android", "buildozer", "python-for-android", "pyjnius"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
+
+[project.urls]
+Homepage = "https://example.com/protonox"
+Documentation = "https://example.com/protonox/docs"
+Source = "https://example.com/protonox/repo"
+
+[tool.setuptools]
+include-package-data = true
+packages = []

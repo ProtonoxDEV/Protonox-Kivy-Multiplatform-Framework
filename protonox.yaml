@@ -1,0 +1,29 @@
+name: protonox-kivy-framework
+version: 0.1.0
+maintainer: Protonox
+summary: Normalized Protonox Kivy toolchain, templates, and build utilities
+components:
+  framework:
+    kivy: kivy
+    python-for-android: python-for-android
+    pyjnius: pyjnius
+    cython: cython
+    windowser: windowser
+    kibit3: kibit3
+    bkibit: bkibit
+    build-tools: build-tools
+    protonox-devtools: protonox-devtools
+  templates:
+    - protonox-app-basic
+    - protonox-app-complete
+    - protonox-app-bot-ready
+    - protonox-app-dashboard
+  tools:
+    - tools/build_android.sh
+    - tools/build_linux.sh
+    - tools/build_windows.sh
+    - tools/create_protonox_app.py
+    - tools/setup_android_env.sh
+compatibility:
+  android: "14-15"
+  desktop: ["windows", "linux", "macos"]

@@ -2,10 +2,11 @@
 
 Protonox-Kivy Multiplatform Framework is a professional-grade toolkit for building Kivy applications that run consistently across Android, Windows, Linux, and macOS. It bundles curated forks of the Kivy toolchain, a set of developer utilities, opinionated templates, and deployment scripts tuned for Firebase and Render (FastAPI) backends.
 
-## What's inside
-- **framework/**: Protonox-maintained toolchain components (python-for-android, Kivy, Pyjnius, Cython, Buildozer, devtools, and native helpers).
+## Repository architecture
+- **framework/**: Protonox-maintained toolchain components (python-for-android, Kivy, Pyjnius, Cython, Buildozer tools, devtools, and native helpers).
 - **templates/**: Production-ready app starters, including a full intelligent template wired for Firebase and Render.
 - **tools/**: Automation scripts to set up Android/desktop build environments and generate new apps from templates.
+- **examples/**: Space for curated sample projects demonstrating specific framework features.
 - **docs/**: Guides for setup, building, troubleshooting, and roadmap planning.
 
 ## Quick start
