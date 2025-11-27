@@ -1,0 +1,70 @@
+#:kivy 2.3.1
+
+<NavigationHeader@BoxLayout>:
+    size_hint_y: None
+    height: '48dp'
+    padding: '12dp'
+    spacing: '12dp'
+    canvas.before:
+        Color:
+            rgba: (.1, .1, .1, 1)
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Label:
+        text: root.title if hasattr(root, 'title') else 'Protonox'
+        bold: True
+
+<LoadingOverlay@BoxLayout>:
+    canvas.before:
+        Color:
+            rgba: 0,0,0,.4
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    Label:
+        text: 'Cargando...'
+
+<LoginView>:
+    name: 'login'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: '16dp'
+        spacing: '12dp'
+        Label:
+            text: 'Bienvenido a Protonox'
+        TextInput:
+            id: email
+            hint_text: 'Email'
+        TextInput:
+            id: password
+            password: True
+            hint_text: 'Contraseña'
+        Button:
+            text: 'Ingresar'
+            on_release: root.on_login(email.text, password.text)
+        Button:
+            text: 'Registrarse'
+            on_release: app.nav_manager.navigate('register')
+
+<RegisterView>:
+    name: 'register'
+    BoxLayout:
+        orientation: 'vertical'
+        padding: '16dp'
+        spacing: '12dp'
+        Label:
+            text: 'Crear cuenta'
+        TextInput:
+            id: email
+            hint_text: 'Email'
+        TextInput:
+            id: password
+            password: True
+            hint_text: 'Contraseña'
+        Button:
+            text: 'Registrar'
+            on_release: root.on_register(email.text, password.text)
+        Button:
+            text: 'Volver'
+            on_release: app.nav_manager.navigate('login')

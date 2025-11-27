@@ -1,0 +1,18 @@
+<HomeView>:
+    name: 'home'
+    BoxLayout:
+        orientation: 'vertical'
+        NavigationHeader:
+            title: 'Inicio'
+        BoxLayout:
+            orientation: 'vertical'
+            padding: '16dp'
+            spacing: '12dp'
+            Label:
+                text: 'Dashboard principal'
+            Button:
+                text: 'Ir a Pagos'
+                on_release: app.nav_manager.navigate('payments')
+            Button:
+                text: 'Ver Reportes'
+                on_release: app.nav_manager.navigate('reports')
