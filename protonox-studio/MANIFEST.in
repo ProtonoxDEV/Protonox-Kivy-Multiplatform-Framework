@@ -1,0 +1,2 @@
+include LICENSE
+recursive-include src/protonox_studio *.html *.js *.json *.md *.svg
