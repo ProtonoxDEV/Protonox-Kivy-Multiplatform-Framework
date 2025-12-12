@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Protonox Studio",
+  "version": "1.0.0",
+  "description": "Edita cualquier web en vivo como si fuera tuya. El futuro del frontend.",
+  "icons": {
+    "128": "icons/icon-128.svg"
+  },
+  "action": {
+    "default_popup": "panel/panel.html",
+    "default_title": "Protonox Studio"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}

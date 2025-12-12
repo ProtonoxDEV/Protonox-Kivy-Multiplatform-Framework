@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+.build/
+build/
+dist/
+
+# Environments
+.venv/
+venv/
+.env
+.env.*
+.python-version
+
+# Tooling
+.mypy_cache/
+.pytest_cache/
+.cache/
+.coverage*
+htmlcov/
+
+# Editors/OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Protonox Studio
+.protonox/
+logs/
+protonox-export/
+
+# Kivy / build artifacts
+*.apk
+*.aab
+*.ipa
+*.exe
+*.msi
+*.spec
+.kivy/
+.kivy_modernisation/

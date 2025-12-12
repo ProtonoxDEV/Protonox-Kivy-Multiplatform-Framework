@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Protonox Studio Panel</title>
+  <style>
+    body { font-family: Inter, system-ui, -apple-system, sans-serif; margin: 0; background: #0d1117; color: #e6edf3; }
+    header { padding: 16px 20px; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
+    main { padding: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+    .pill { display: inline-flex; padding: 6px 10px; border-radius: 20px; background: #238636; color: #fff; font-size: 12px; }
+    .status { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin: 20px 0; }
+    .status .card { border-color: #23863655; }
+    .mono { font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <strong>Protonox Studio</strong>
+      <div style="font-size:12px;color:#8b949e;">Motor de diseño inteligente en tiempo real</div>
+    </div>
+    <div class="pill">Evolución activa</div>
+  </header>
+  <main>
+    <section class="status">
+      <article class="card">
+        <h3>Auditoría en vivo</h3>
+        <p>Grid 8px + baseline 4px, safe areas, contraste y proporción áurea ya calculan resultados estructurados.</p>
+        <pre class="mono" style="white-space: pre-wrap;">Armonía visual: 92/100
+Tipografía: escala detectada perfect fourth (1.333)</pre>
+      </article>
+      <article class="card">
+        <h3>One-Click Fix</h3>
+        <p>Exporta un manifest (`protonox export`) con tokens y spacing sugerido listo para aplicar como parche.</p>
+      </article>
+      <article class="card">
+        <h3>AI Nudge™</h3>
+        <p>Sugerencias inmediatas de padding/margin, tokens y contraste que pueden mostrarse como tooltip flotante.</p>
+      </article>
+    </section>
+
+    <section class="grid" style="margin-top:12px;">
+      <article class="card" style="grid-column: span 2;">
+        <h3>Onboarding instantáneo (8s)</h3>
+        <p>Ahora el propio overlay explica cómo usar Protonox al instante y ofrece un modo Alt sostenido (Alt x2) para no tener que mantener la tecla.</p>
+        <ul>
+          <li>Alt → entra a modo edición con overlay gigante y tips.</li>
+          <li>Alt x2 → bloquea el modo Protonox hasta presionar Esc.</li>
+          <li>Cheat sheet flotante con atajos, ocultable y recordado.</li>
+          <li>Tooltip contextual al hover con “Click + Drag”, esquinas y Alt+Enter → IA.</li>
+          <li>Tour inicial skippable con espacio reservado para tu demo.mp4.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h3>8px Grid Auto-Snap</h3>
+        <p>Consistencia instantánea al mover o redimensionar con ajuste automático a múltiplos de 8px.</p>
+      </article>
+      <article class="card">
+        <h3>Baseline Grid Lock</h3>
+        <p>Bloqueo vertical a 4px/8px para line-height perfecto.</p>
+      </article>
+      <article class="card">
+        <h3>Golden Ratio Suggestion</h3>
+        <p>Sugerencias 1.618 para héroes y tarjetas al redimensionar.</p>
+      </article>
+      <article class="card">
+        <h3>Auto Perfect Spacing</h3>
+        <p>Hover en padding/margin y propuesta automática del valor óptimo.</p>
+      </article>
+      <article class="card">
+        <h3>Component DNA</h3>
+        <p>Detección de patrones repetidos para generar componentes estándar.</p>
+      </article>
+      <article class="card">
+        <h3>Contrast Guardian</h3>
+        <p>Alertas inmediatas cuando el contraste baja de 4.5:1.</p>
+      </article>
+      <article class="card">
+        <h3>Responsive Breakpoint Magic</h3>
+        <p>Recomendaciones de ancho y stacking al variar el viewport.</p>
+      </article>
+      <article class="card">
+        <h3>AI Nudge™</h3>
+        <p>Tooltip constante con sugerencias de tokens, color y espaciado.</p>
+      </article>
+    </section>
+
+    <section style="margin-top: 20px;" class="grid">
+      <article class="card" style="grid-column: span 2;">
+        <div class="p-6 bg-gray-900 rounded-xl" style="background:#111827; border:1px solid #1f2937;">
+          <h3 class="text-xl font-bold text-purple-400 mb-4" style="color:#c084fc; margin-top:0;">Figma Sync</h3>
+
+          <div id="figma-connect">
+            <button onclick="location.href='/figma-auth'"
+                    style="width:100%;background:linear-gradient(90deg,#9333ea,#ec4899);color:white;font-weight:700;padding:14px 16px;border:none;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.45);cursor:pointer;">
+              Conectar con Figma
+            </button>
+          </div>
+
+          <div id="figma-connected" class="hidden space-y-4" style="display:none;margin-top:12px;">
+            <p style="color:#22c55e;font-weight:600;">Connected</p>
+            <button onclick="syncTokens()" style="width:100%;background:#16a34a;color:white;padding:12px;border:none;border-radius:10px;cursor:pointer;">Sync Design Tokens Now</button>
+            <button onclick="pushChanges()" style="width:100%;background:linear-gradient(90deg,#ec4899,#9333ea);color:white;padding:12px;border:none;border-radius:10px;cursor:pointer;">Push Live Changes to Figma</button>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    async function syncTokens() {
+      const r = await fetch('/__dev_tools', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({type: 'figma-sync-tokens'})
+      });
+      if (r.ok) {
+        alert('Tokens sincronizados! Mirá la carpeta tokens/');
+      } else {
+        const msg = await r.text();
+        alert('Figma sync falló: ' + msg);
+      }
+    }
+
+    let currentEl = null;
+    let lastPushed = null;
+
+    // Simple selection tracker so pushes have a target element
+    window.addEventListener('click', (e) => {
+      currentEl = e.target;
+    }, true);
+
+    function pushToFigma() {
+      if (!currentEl || currentEl === lastPushed) return;
+
+      const r = currentEl.getBoundingClientRect();
+      const color = getComputedStyle(currentEl).backgroundColor;
+      const rgb = color.match(/\d+/g);
+      const figmaColor = rgb ? {
+        r: parseInt(rgb[0]) / 255,
+        g: parseInt(rgb[1]) / 255,
+        b: parseInt(rgb[2]) / 255,
+        a: 1
+      } : null;
+
+      const nodeId = currentEl.getAttribute('data-figma-id') || '123:456';
+
+      fetch('/__dev_tools', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          type: 'figma-push-update',
+          node_id: nodeId,
+          updates: {
+            width: Math.round(r.width),
+            height: Math.round(r.height),
+            cornerRadius: parseInt(getComputedStyle(currentEl).borderRadius) || 0,
+            fills: figmaColor ? [{ type: 'SOLID', color: figmaColor }] : undefined
+          }
+        })
+      });
+
+      lastPushed = currentEl;
+    }
+
+    function pushChanges() {
+      pushToFigma();
+      alert('Push enviado a Figma (node_id tomado de data-figma-id o 123:456 por defecto).');
+    }
+
+    // Auto push after move/resize interactions
+    setInterval(pushToFigma, 2000);
+  </script>
+</body>
+</html>
