@@ -47,6 +47,13 @@ protonox-studio/
 - `protonox dev` levanta el servidor local con la inyección Arc Mode.
 - Compatibilidad: los comandos legacy continúan funcionando (`python protonox-studio/cli/protonox.py ...`).
 
+#### Declaración explícita del proyecto (requisito)
+- Protonox Studio no asume tu proyecto: siempre se declara `--project-type web|kivy` y `--entrypoint` (por ejemplo `index.html` o `main.py`).
+- El modo contenedor y el modo local usan el mismo flujo: `PROTONOX_PROJECT_TYPE`, `PROTONOX_BACKEND_URL` y `PROTONOX_STATE_DIR` controlan el contexto.
+- Ejemplos:
+  - `protonox audit --project-type web --entrypoint website/index.html`
+  - `protonox audit --project-type kivy --entrypoint app/main.py --png screenshots/home.png`
+
 ## Automatización diaria
 Para uso diario sin intervención manual, se incluye un script y plantillas de `systemd` para:
 - Instalar dependencias si faltan

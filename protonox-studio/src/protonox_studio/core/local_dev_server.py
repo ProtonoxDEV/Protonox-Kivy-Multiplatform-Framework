@@ -49,8 +49,7 @@ VISUAL_ERRORS: List[Dict[str, Any]] = []
 LAYOUT_CHANGES: List[Dict[str, Any]] = []
 ERROR_LOCK = threading.Lock()
 
-# TU CLAVE REAL DE OPENAI
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "YOUR_OPENAI_KEY")
+BACKEND_PROXY = os.getenv("PROTONOX_BACKEND_URL", "https://protonox-backend.onrender.com")
 
 def _is_headed_mode() -> bool:
     return os.environ.get("PLAYWRIGHT_HEADED", "0") in {"1", "true", "True"}
@@ -63,7 +62,7 @@ DEV_INJECT_SCRIPT = r"""
   // This helps when accessing the dev server using a machine name or forwarded IP.
   if (!location.hostname.includes('localhost') && location.hostname !== '127.0.0.1' && !location.search.includes('protonox=1')) return;
 
-  const API_KEY = "%OPENAI_API_KEY%";
+  const API_KEY = "PROXYED_BY_BACKEND";
   const send = (type, data = {{}}) => fetch('/__protonox', {{
     method: 'POST', keepalive: true,
     headers: {{'Content-Type': 'application/json'}},
@@ -1116,10 +1115,9 @@ def main():
     except KeyboardInterrupt:
         print("\nPROTONOX ARC MODE OFF — El mundo ya cambió para siempre.")
 
-# Inject the API key into the script without using f-strings (avoids parsing issues
-# because the JS contains many `{}` braces). This replaces the placeholder
-# with the value from the environment or the default variable above.
-DEV_INJECT_SCRIPT = DEV_INJECT_SCRIPT.replace("%OPENAI_API_KEY%", OPENAI_API_KEY)
+# Keep the injected script neutral: no claves locales, siempre proxy desde backend Protonox.
+DEV_INJECT_SCRIPT = DEV_INJECT_SCRIPT.replace("%OPENAI_API_KEY%", "PROXYED_BY_BACKEND")
+DEV_INJECT_SCRIPT = DEV_INJECT_SCRIPT.replace("%PROTONOX_BACKEND%", BACKEND_PROXY)
 # The script source uses doubled braces (`{{`/`}}`) to avoid accidental Python
 # format/f-string interpolation when editing the file. Convert doubled braces
 # back to normal JS braces so the injected code is valid JavaScript.
