@@ -31,6 +31,7 @@ KivyVersion-protonox.PATCH
   - Declarative route↔screen mapping via `--map protonox_studio.yaml` (KV/controller hints + viewport)
   - IR-based PNG render + diff commands (`render-web`, `render-kivy`, `diff`/`validate`)
   - PNG baseline/candidate validation via `protonox validate`
+- Round-trip importer to convert existing Kivy screens/widgets into the neutral UIModel for audits
 - Protonox Kivy extension surface (`kivy-protonox-version/protonox_ext`)
   - Layout engine snapshots and inspector exports gated by flags
   - Neutral UI IR + KV compiler for sandbox generation
