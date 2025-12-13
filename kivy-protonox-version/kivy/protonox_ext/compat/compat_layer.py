@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, Iterable
 
 # Flags are additive; by default nothing is enabled so behaviour matches
@@ -95,10 +96,38 @@ def enable_safe_mode() -> CompatReport:
     return enable_profile(DEFAULT_PROFILE)
 
 
+def is_protonox_runtime() -> bool:
+    """Detect whether this interpreter is running the Protonox fork.
+
+    We avoid altering behaviour for upstream Kivy installs; this helper allows
+    callers to gate any Protonox-only initialisation without guessing.
+    """
+
+    marker = "kivy-protonox-version"
+    here = Path(__file__).resolve()
+    return marker in str(here) or os.environ.get("PROTONOX_COMPAT_MODE") is not None
+
+
+def auto_enable_if_fork() -> CompatReport:
+    """Apply safe-mode defaults only when the Protonox fork is detected.
+
+    Upstream Kivy users remain untouched; Protonox fork users get the
+    compatibility guardrails unless they've already opted into a profile.
+    """
+
+    if not is_protonox_runtime():
+        return CompatReport(applied={}, flags={})
+    if os.environ.get("PROTONOX_COMPAT_MODE"):
+        return CompatReport(applied={}, flags={"PROTONOX_COMPAT_MODE": os.environ["PROTONOX_COMPAT_MODE"]})
+    return enable_safe_mode()
+
+
 __all__ = [
     "CompatReport",
     "enable_profile",
     "enable_diagnostics",
     "enable_protonox_ui",
     "enable_safe_mode",
+    "is_protonox_runtime",
+    "auto_enable_if_fork",
 ]

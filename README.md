@@ -78,6 +78,11 @@ All advanced features are **opt-in** and **development-only**.
 - `app.inspect().widget_tree()` for live widget hierarchy + bounds snapshots
 - `app.inspect().export_json(path)` to persist widget tree/state/callbacks (dev-only)
 - `app.inspect().kv_rules()` and `running_callbacks()` for diagnostics
+
+### 🛡️ Compatibility & Diagnostics (opt-in)
+- Safe-mode profile keeps the Protonox fork dormant unless explicitly enabled.
+- Diagnostic bus captures stdout/stderr/warnings/logs to structured JSON when `PROTONOX_DIAGNOSTIC_BUS=1`.
+- Runtime doctor surfaces GPU/GL/DPI/window hints without mutating app state.
 - Disabled in production unless explicitly enabled
 
 ### 🛡 Dev Safety Nets (opt-in)

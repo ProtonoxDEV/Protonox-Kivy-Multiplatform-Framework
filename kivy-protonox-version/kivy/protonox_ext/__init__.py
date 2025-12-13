@@ -15,15 +15,26 @@ from .visual_state import freeze, png_reference, snapshot
 from .android_bridge import adb
 from .ui import emoji
 from .observability import export_observability
-from .diagnostics import DiagnosticItem, DiagnosticReport, as_lines as diagnostics_as_lines, collect_runtime_diagnostics
+from .diagnostics import (
+    BUS_ENABLED,
+    DiagnosticBus,
+    DiagnosticEvent,
+    DiagnosticItem,
+    DiagnosticReport,
+    as_lines as diagnostics_as_lines,
+    collect_runtime_diagnostics,
+    get_bus,
+)
 from .compat import (
     CompatReport,
     CompatWarning,
     COMPAT_WARNINGS,
+    auto_enable_if_fork,
     enable_diagnostics,
     enable_profile,
     enable_protonox_ui,
     enable_safe_mode,
+    is_protonox_runtime,
     emit_all_warnings,
     register_shim,
 )
@@ -49,10 +60,14 @@ __all__ = [
     "adb",
     "emoji",
     "export_observability",
+    "BUS_ENABLED",
+    "DiagnosticBus",
+    "DiagnosticEvent",
     "DiagnosticItem",
     "DiagnosticReport",
     "diagnostics_as_lines",
     "collect_runtime_diagnostics",
+    "get_bus",
     "CompatReport",
     "CompatWarning",
     "COMPAT_WARNINGS",
@@ -60,6 +75,8 @@ __all__ = [
     "enable_profile",
     "enable_protonox_ui",
     "enable_safe_mode",
+    "auto_enable_if_fork",
+    "is_protonox_runtime",
     "emit_all_warnings",
     "register_shim",
 ]
