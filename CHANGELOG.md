@@ -31,6 +31,8 @@ KivyVersion-protonox.PATCH
   - Declarative route↔screen mapping via `--map protonox_studio.yaml` (KV/controller hints + viewport)
   - IR-based PNG render + diff commands (`render-web`, `render-kivy`, `diff`/`validate`)
   - PNG baseline/candidate validation via `protonox validate` con diff de bounding-box por widget + overlay opcional
+  - Layout fingerprint + symmetry heuristics (`PROTONOX_VISUAL_WARNINGS=1`) and dual PNG+JSON snapshots (`PROTONOX_UI_FREEZE=1`)
+  - Anti-pattern + DPI heuristics exported as read-only inspector payloads
 - Round-trip importer to convert existing Kivy screens/widgets into the neutral UIModel for audits
 - Protonox Kivy extension surface (`kivy-protonox-version/protonox_ext`)
   - Layout engine snapshots and inspector exports gated by flags

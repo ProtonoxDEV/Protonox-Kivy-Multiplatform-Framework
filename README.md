@@ -101,7 +101,14 @@ All advanced features are **opt-in** and **development-only**.
 ### 🖼️ Visual validation (baseline vs candidate)
 - IR-driven PNG rendering for reproducible snapshots
 - Bounding-box diff ratios per widget with optional overlay exports
+- Layout fingerprints + symmetry heuristics to detect regressions without screenshots (`PROTONOX_VISUAL_WARNINGS=1`)
+- Dual snapshots (PNG + JSON + layout report) with optional UI freeze for deterministic captures (`PROTONOX_UI_FREEZE=1`)
 - CLI: `protonox validate --baseline web.png --candidate kivy.png`
+
+### 📏 Layout health (opt-in, telemetry-gated)
+- Anti-pattern detector for nested layouts, invisible space, empty scrolls, and DPI risks
+- Dev-only inspector payloads with fingerprint, symmetry, and anti-pattern summaries
+- All diagnostics are read-only and exported to caller-provided paths
 
 ### 🎨 UI & Text Improvements (opt-in)
 - Improved Unicode handling (`PROTONOX_TEXTINPUT_UNICODE=1`)

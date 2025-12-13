@@ -20,6 +20,10 @@ núcleo de Kivy 2.3.1 intacto.
 - [x] Exportación de PNG y advertencias básicas (`kivy/protonox_ext/visual_state/png_reference.py`)
 - [x] Señales de overflow/alineación vía telemetría opt-in (`kivy/protonox_ext/telemetry.py`)
 - [x] Logs estructurados para IA sin mutar la app (`kivy/protonox_ext/hotreload_plus/hooks.py`)
+- [x] Huella de layout (hash estructural) + simetría visual (`kivy/protonox_ext/layout_engine/fingerprint.py`)
+- [x] Snapshot dual PNG + JSON + layout report (`kivy/protonox_ext/visual_state/snapshot.py`)
+- [x] Congelado de UI para análisis estable (dev-only, `PROTONOX_UI_FREEZE`) (`kivy/protonox_ext/visual_state/freeze.py`)
+- [x] Detección de anti-patrones y heurísticas multi-DPI (`kivy/protonox_ext/layout_engine/antipatterns.py`)
 
 ## Hot Reload + contexto para IA
 - [x] Hot reload por niveles con rollback seguro (`protonox-studio` y `kivy/protonox_ext/hotreload_plus`)
