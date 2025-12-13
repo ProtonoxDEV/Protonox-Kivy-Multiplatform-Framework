@@ -14,6 +14,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 from urllib.request import urlopen
 
+from .screen_map import ScreenMap, load_screen_map
 PROJECT_TYPES = {"web", "kivy"}
 
 
@@ -72,6 +73,7 @@ class ProjectContext:
     state_dir: Path
     backend_url: str
     container_mode: bool
+    screen_map: ScreenMap
     web_url: Optional[str] = None
     kv_files: List[Path] = field(default_factory=list)
 
@@ -81,6 +83,7 @@ class ProjectContext:
         path: Path,
         project_type: Optional[str] = None,
         entrypoint: Optional[str] = None,
+        map_file: Optional[str] = None,
     ) -> "ProjectContext":
         root = Path(path).resolve()
         resolved_type = (project_type or os.environ.get("PROTONOX_PROJECT_TYPE") or "web").lower()
@@ -124,6 +127,8 @@ class ProjectContext:
             for pattern in ("*.kv", "**/*.kv"):
                 kv_files.extend(Path(p).resolve() for p in root.glob(pattern))
 
+        screen_map = load_screen_map(Path(map_file).resolve() if map_file else None, root)
+
         return cls(
             root=root,
             project_type=resolved_type,
@@ -131,6 +136,7 @@ class ProjectContext:
             state_dir=state_dir,
             backend_url=backend_url,
             container_mode=container_mode,
+            screen_map=screen_map,
             web_url=web_url,
             kv_files=sorted(set(kv_files)),
         )
@@ -144,6 +150,7 @@ class ProjectContext:
             "container": self.container_mode,
             "web_url": self.web_url,
             "kv_files": [str(k) for k in self.kv_files],
+            "screen_map": str(self.screen_map.path) if self.screen_map.path else None,
         }
 
     def ensure_state_tree(self) -> None:
@@ -182,7 +189,9 @@ class ProjectContext:
         try:
             from .web_to_kivy import html_to_ui_model
 
-            return html_to_ui_model(self.entrypoint)
+            model = html_to_ui_model(self.entrypoint, screen_map=self.screen_map)
+            model.meta.setdefault("screen_map", str(self.screen_map.path) if self.screen_map.path else None)
+            return model
         except Exception:
             # Fall back to a neutral placeholder while keeping the audit path intact
             return ui_model.from_web_snapshot([], origin=self.project_type)

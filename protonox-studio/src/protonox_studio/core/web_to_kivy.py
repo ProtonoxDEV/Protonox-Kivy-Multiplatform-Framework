@@ -6,12 +6,14 @@ live outside the user's codebase.
 """
 from __future__ import annotations
 
+import copy
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from pathlib import Path
 from typing import Dict, Iterable, List, Optional, Set
 
 from .engine import Viewport
+from .screen_map import ScreenMap, ScreenRoute
 from .ui_model import Bounds, ComponentNode, ScreenModel, UIModel
 
 
@@ -183,7 +185,7 @@ def _assign_bounds(node: ComponentNode, viewport: Viewport, y_offset: float = 0.
     return y_cursor
 
 
-def html_to_ui_model(entrypoint: Path) -> UIModel:
+def html_to_ui_model(entrypoint: Path, screen_map: Optional[ScreenMap] = None) -> UIModel:
     """Parse a HTML entrypoint into the neutral UI model.
 
     This avoids executing any JS; the goal is structural mapping, not pixel-perfect
@@ -197,29 +199,52 @@ def html_to_ui_model(entrypoint: Path) -> UIModel:
     parser.feed(entrypoint.read_text(encoding="utf-8", errors="ignore"))
     viewport = parser.viewport_hint or Viewport(width=1280, height=720)
 
+    if screen_map and screen_map.routes:
+        first_route = screen_map.routes[0]
+        hint = first_route.viewport or {}
+        viewport = Viewport(width=hint.get("width", viewport.width), height=hint.get("height", viewport.height))
+
     _assign_bounds(parser.root, viewport)
-    screen = ScreenModel(name=parser.root.identifier, viewport=viewport, root=parser.root)
     meta = {"entrypoint": str(entrypoint.resolve())}
     if parser.routes:
         meta["routes_detected"] = sorted(parser.routes)
+    screens: List[ScreenModel] = []
+    if screen_map and screen_map.routes:
+        for route_cfg in screen_map.routes:
+            vp_hint = route_cfg.viewport or {}
+            vp = Viewport(width=vp_hint.get("width", viewport.width), height=vp_hint.get("height", viewport.height))
+            screens.append(
+                ScreenModel(name=route_cfg.screen, viewport=vp, root=copy.deepcopy(parser.root))
+            )
+    else:
+        screens.append(ScreenModel(name=parser.root.identifier, viewport=viewport, root=parser.root))
+
     return UIModel(
-        screens=[screen],
+        screens=screens,
         origin="web",
         assets=sorted({str(entrypoint)} | parser.assets),
         routes=sorted(parser.routes),
         meta=meta,
+        breakpoints={r.route: r.breakpoints for r in (screen_map.routes if screen_map else []) if r.breakpoints},
     )
 
 
-def bindings_from_views(views: Iterable[WebViewDeclaration]) -> List[ScreenBinding]:
+def bindings_from_views(views: Iterable[WebViewDeclaration], screen_map: Optional[ScreenMap] = None) -> List[ScreenBinding]:
     bindings: List[ScreenBinding] = []
     for view in views:
+        mapped: Optional[ScreenRoute] = None
+        if screen_map:
+            mapped = screen_map.binding_for(view.route or view.name or "", view.name)
+
+        screen_name = mapped.screen if mapped else view.name
+        kv_filename = mapped.kv if mapped and mapped.kv else f"{screen_name}.kv"
+        controller_name = mapped.controller if mapped and mapped.controller else f"{screen_name}_screen.py"
         bindings.append(
             ScreenBinding(
                 web_view=view.route or view.url or str(view.source),
-                screen_name=view.name,
-                kv_filename=f"{view.name}.kv",
-                controller_name=f"{view.name}_screen.py",
+                screen_name=screen_name,
+                kv_filename=kv_filename,
+                controller_name=controller_name,
                 route=view.route,
             )
         )

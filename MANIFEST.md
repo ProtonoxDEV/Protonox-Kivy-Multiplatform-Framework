@@ -36,6 +36,7 @@ Protonox Studio:
 - Plantillas de proyectos y “blueprints” de empaquetado
 - Bridge Web→Kivy no invasivo (HTML local o URL) con generación KV/python en `.protonox`
 - Validación visual: `protonox validate --baseline --candidate` genera reporte/diff reproducible
+- Mapeo declarativo de rutas↔screens vía `protonox_studio.yaml|json` y comandos de render/diff (`render-web`, `render-kivy`, `diff`)
 - UI-IR serializable (`ui-model.json`) para que IA y humanos comparen versiones
 
 ## Fuera de alcance (qué NO hacemos)

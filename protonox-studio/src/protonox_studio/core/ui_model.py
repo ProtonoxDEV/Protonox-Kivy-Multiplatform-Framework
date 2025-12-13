@@ -96,6 +96,7 @@ class UIModel:
     assets: List[str] = field(default_factory=list)
     routes: List[str] = field(default_factory=list)
     meta: Dict[str, Any] = field(default_factory=dict)
+    breakpoints: Dict[str, Dict[str, Any]] = field(default_factory=dict)
 
     def to_element_boxes(self) -> List[ElementBox]:
         boxes: List[ElementBox] = []
@@ -134,6 +135,7 @@ class UIModel:
             "assets": self.assets,
             "routes": self.routes,
             "meta": self.meta,
+            "breakpoints": self.breakpoints,
         }
 
     def to_dict(self) -> Dict[str, Any]:
@@ -142,6 +144,7 @@ class UIModel:
             "assets": self.assets,
             "routes": self.routes,
             "meta": self.meta,
+            "breakpoints": self.breakpoints,
             "screens": [screen.to_dict() for screen in self.screens],
         }
 
@@ -159,6 +162,7 @@ class UIModel:
             assets=data.get("assets", []),
             routes=data.get("routes", []),
             meta=data.get("meta", {}),
+            breakpoints=data.get("breakpoints", {}),
         )
 
 

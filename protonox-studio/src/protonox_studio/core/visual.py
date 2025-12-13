@@ -6,10 +6,11 @@ from pathlib import Path
 from typing import Dict, Optional
 
 try:
-    from PIL import Image, ImageChops
+    from PIL import Image, ImageChops, ImageDraw
 except Exception:  # pragma: no cover - optional dependency guard
     Image = None
     ImageChops = None
+    ImageDraw = None
 
 from .ui_model import UIModel
 
@@ -88,4 +89,47 @@ def diff_pngs(baseline: Path, candidate: Path, out_dir: Optional[Path] = None) -
             "diff_ratio": round(diff_ratio, 6),
             "diff_image": saved_diff,
         }
+
+
+def render_model_to_png(model: UIModel, target: Path) -> Dict[str, object]:
+    """Render the neutral UI model to a simple PNG for diffing and reports.
+
+    This intentionally avoids mutating user code. It relies on bounding boxes
+    present in the IR and draws lightweight rectangles to keep visual diffs
+    reproducible even without a running browser or Kivy app.
+    """
+
+    if Image is None or ImageDraw is None:
+        raise RuntimeError("Pillow es obligatorio para renderizar el modelo a PNG")
+
+    if not model.screens:
+        raise ValueError("El modelo UI no contiene pantallas renderizables")
+
+    screen = model.screens[0]
+    width, height = screen.viewport.width, screen.viewport.height
+    img = Image.new("RGBA", (int(width), int(height)), (16, 16, 24, 255))
+    draw = ImageDraw.Draw(img, "RGBA")
+
+    for node in screen.root.walk():
+        if not node.bounds:
+            continue
+        x0 = node.bounds.x
+        y0 = node.bounds.y
+        x1 = x0 + node.bounds.width
+        y1 = y0 + node.bounds.height
+        color = node.meta.get("color") if isinstance(node.meta, dict) else None
+        fill = None
+        if color and isinstance(color, str) and color.startswith("#") and len(color) in {7, 9}:
+            try:
+                rgba = tuple(int(color[i : i + 2], 16) for i in (1, 3, 5)) + (80,)
+                fill = rgba
+            except Exception:
+                fill = None
+        draw.rectangle([x0, y0, x1, y1], outline=(88, 166, 255, 255), width=2, fill=fill)
+        label = node.identifier[:20]
+        draw.text((x0 + 4, y0 + 4), label, fill=(255, 255, 255, 230))
+
+    target.parent.mkdir(parents=True, exist_ok=True)
+    img.save(target)
+    return {"status": "ok", "path": str(target.resolve()), "viewport": {"width": width, "height": height}}
 

@@ -19,7 +19,7 @@ if str(PACKAGE_ROOT) not in sys.path:
 from protonox_studio.core import engine
 from protonox_studio.core.bluntmine import run_bluntmine
 from protonox_studio.core.project_context import ProjectContext
-from protonox_studio.core.visual import compare_png_to_model, diff_pngs, ingest_png
+from protonox_studio.core.visual import compare_png_to_model, diff_pngs, ingest_png, render_model_to_png
 from protonox_studio.core.web_to_kivy import (
     WebViewDeclaration,
     bindings_from_views,
@@ -118,15 +118,26 @@ def _bindings_from_args(context: ProjectContext, ui_model, screen_args: List[str
                 )
             )
     else:
-        default_route = ui_model.routes[0] if getattr(ui_model, "routes", []) else None
-        declarations.append(
-            WebViewDeclaration(
-                name=context.entrypoint.stem or "web_screen",
-                source=context.entrypoint,
-                url=os.environ.get("PROTONOX_WEB_URL"),
-                route=default_route,
+        if context.screen_map.routes:
+            for route_cfg in context.screen_map.routes:
+                declarations.append(
+                    WebViewDeclaration(
+                        name=route_cfg.screen,
+                        source=context.entrypoint,
+                        url=os.environ.get("PROTONOX_WEB_URL"),
+                        route=route_cfg.route,
+                    )
+                )
+        else:
+            default_route = ui_model.routes[0] if getattr(ui_model, "routes", []) else None
+            declarations.append(
+                WebViewDeclaration(
+                    name=context.entrypoint.stem or "web_screen",
+                    source=context.entrypoint,
+                    url=os.environ.get("PROTONOX_WEB_URL"),
+                    route=default_route,
+                )
             )
-        )
     return declarations
 
 
@@ -137,7 +148,7 @@ def run_export(context: ProjectContext, screen_args: List[str] | None = None, ou
 
     ui_model = context.build_ui_model()
     declarations = _bindings_from_args(context, ui_model, screen_args)
-    bindings = bindings_from_views(declarations)
+    bindings = bindings_from_views(declarations, screen_map=context.screen_map)
     plan = plan_web_to_kivy(ui_model, bindings=bindings)
 
     _write_export(plan, ui_model, export_dir, context)
@@ -154,17 +165,53 @@ def run_web2kivy(context: ProjectContext, screens: List[str] | None = None, out:
     export_dir.mkdir(parents=True, exist_ok=True)
     ui_model = context.build_ui_model()
     declarations = _bindings_from_args(context, ui_model, screens)
-    bindings = bindings_from_views(declarations)
+    bindings = bindings_from_views(declarations, screen_map=context.screen_map)
     plan = plan_web_to_kivy(ui_model, bindings=bindings)
     _write_export(plan, ui_model, export_dir, context)
 
 
+def _render_ui_model_png(context: ProjectContext, label: str) -> Path:
+    context.ensure_state_tree()
+    ui_model = context.build_ui_model()
+    out_dir = context.state_dir / "renders"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    target = out_dir / f"{label}.png"
+    render_model_to_png(ui_model, target)
+    return target
+
+
+def run_render_web(context: ProjectContext) -> None:
+    path = _render_ui_model_png(context, label="web")
+    print(json.dumps({"status": "ok", "png": str(path.resolve())}, indent=2, ensure_ascii=False))
+
+
+def run_render_kivy(context: ProjectContext) -> None:
+    path = _render_ui_model_png(context, label="kivy")
+    print(json.dumps({"status": "ok", "png": str(path.resolve())}, indent=2, ensure_ascii=False))
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Protonox Studio tooling")
-    parser.add_argument("command", choices=["dev", "audit", "export", "diagnose", "web2kivy", "validate"], help="Comando a ejecutar")
+    parser.add_argument(
+        "command",
+        choices=[
+            "dev",
+            "audit",
+            "export",
+            "diagnose",
+            "web2kivy",
+            "web-to-kivy",
+            "validate",
+            "diff",
+            "render-web",
+            "render-kivy",
+        ],
+        help="Comando a ejecutar",
+    )
     parser.add_argument("--path", default=".", help="Ruta del proyecto")
     parser.add_argument("--project-type", choices=["web", "kivy"], help="Tipo de proyecto declarado (obligatorio para IA)")
     parser.add_argument("--entrypoint", help="Punto de entrada (index.html o main.py)")
+    parser.add_argument("--map", help="Archivo JSON/YAML que mapea rutas web ↔ pantallas Kivy")
     parser.add_argument("--png", help="Ruta a una captura PNG para comparar con el modelo intermedio")
     parser.add_argument("--out", help="Directorio de salida para exportaciones")
     parser.add_argument("--screens", nargs="*", help="Pantallas o rutas declaradas para el mapeo Web→Kivy (route:name)")
@@ -172,20 +219,26 @@ def main(argv=None):
     parser.add_argument("--candidate", help="PNG candidato para validación visual")
     args = parser.parse_args(argv)
 
-    context = ProjectContext.from_cli(Path(args.path), project_type=args.project_type, entrypoint=args.entrypoint)
+    context = ProjectContext.from_cli(
+        Path(args.path), project_type=args.project_type, entrypoint=args.entrypoint, map_file=args.map
+    )
     if args.command == "dev":
         run_dev_server(context)
     elif args.command == "audit":
         run_audit(context, png=args.png)
     elif args.command == "export":
         run_export(context, screen_args=args.screens, out=Path(args.out) if args.out else None)
-    elif args.command == "web2kivy":
+    elif args.command in {"web2kivy", "web-to-kivy"}:
         run_web2kivy(context, screens=args.screens, out=Path(args.out) if args.out else None)
-    elif args.command == "validate":
+    elif args.command in {"validate", "diff"}:
         if not args.baseline or not args.candidate:
             raise SystemExit("validate requiere --baseline y --candidate")
         out_dir = Path(args.out) if args.out else None
         run_validate(Path(args.baseline), Path(args.candidate), out_dir=out_dir)
+    elif args.command == "render-web":
+        run_render_web(context)
+    elif args.command == "render-kivy":
+        run_render_kivy(context)
     elif args.command == "diagnose":
         report = run_bluntmine(context)
         print(json.dumps(report.as_dict(), indent=2, ensure_ascii=False))

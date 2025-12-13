@@ -28,7 +28,11 @@ KivyVersion-protonox.PATCH
   - HTML-to-UIModel parser (entrypoint-driven, non-invasive)
   - KV/Python scaffold export to `.protonox` without touching user code
   - URL ingestion with asset/route detection and serialized UI-IR (`ui-model.json`)
+  - Declarative route↔screen mapping via `--map protonox_studio.yaml` (KV/controller hints + viewport)
+  - IR-based PNG render + diff commands (`render-web`, `render-kivy`, `diff`/`validate`)
   - PNG baseline/candidate validation via `protonox validate`
+- Kivy vendored telemetry (opt-in)
+  - `kivy.protonox_ext.telemetry` exposes bounds/overflow + safe `export_to_png` behind `PROTONOX_LAYOUT_TELEMETRY=1`
 
 ### Improved
 - Developer iteration speed
