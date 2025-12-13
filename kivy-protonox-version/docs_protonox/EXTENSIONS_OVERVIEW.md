@@ -20,8 +20,12 @@ A controlled extension layer on top of Kivy 2.3.1 that unlocks:
 - `protonox_ext/visual_state/`: PNG-based warnings, UI freeze helper, and dual PNG+JSON snapshots for baseline vs candidate.
 - `protonox_ext/android_bridge/`: dev-only ADB helpers (install/run/logcat/bugreport/watch) and environment preflight checks.
 - `protonox_ext/ui/`: emoji fallback helpers for consistent text rendering.
+- `protonox_ext/compat/`: drop-in compatibility profiles and warning map (keeps the fork dormant until explicitly enabled).
+- `protonox_ext/diagnostics/`: runtime doctor (GPU/GL/window/DPI) gated by `PROTONOX_RUNTIME_DIAGNOSTICS`.
 - `docs_protonox/CHECKLIST.md`: estado rápido de requisitos obligatorios.
 - `docs_protonox/PROTONOX_UI_DEBUG.md`: flags y flujo para perfiles de layout, observabilidad y snapshots duales.
+- `docs_protonox/COMPAT_LAYER.md`: cómo mantener el fork en modo compatible y habilitarlo de forma progresiva.
+- `docs_protonox/RUNTIME_DIAGNOSTICS.md`: uso del doctor de entorno.
 - `docs_protonox/ANDROID_FAST_DEV.md`: loop acelerado ADB sin tocar el core.
 - `docs_protonox/DIFFERENCES_FROM_KIVY.md`: diferencias claras contra Kivy 2.3.1.
 
@@ -31,9 +35,10 @@ A controlled extension layer on top of Kivy 2.3.1 that unlocks:
 3. Compute layout health + observability payloads when auditing regressions: `PROTONOX_LAYOUT_HEALTH=1` + `PROTONOX_UI_OBSERVABILITY=1`.
 4. Freeze the UI for stable captures when required: `PROTONOX_UI_FREEZE=1`.
 5. Profile layout cost when investigating FPS/layout lag: `PROTONOX_LAYOUT_PROFILER=1`.
-6. Import helpers explicitly, e.g. `from kivy.protonox_ext.layout_engine import fingerprint`.
-7. Export to your own directories; no in-place modifications occur.
-8. Use feature flags to disable at any time.
+6. Opt into diagnostics when you need doctor-style runtime checks: `PROTONOX_RUNTIME_DIAGNOSTICS=1` or `enable_diagnostics()`.
+7. Import helpers explicitly, e.g. `from kivy.protonox_ext.layout_engine import fingerprint`.
+8. Export to your own directories; no in-place modifications occur.
+9. Use feature flags or `enable_safe_mode()` to disable at any time.
 
 ## Non-goals
 - Replacing Kivy core classes.

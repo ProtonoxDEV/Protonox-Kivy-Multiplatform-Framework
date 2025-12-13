@@ -9,6 +9,7 @@ núcleo de Kivy 2.3.1 intacto.
 - [x] Extensiones aisladas bajo `kivy/protonox_ext` con prefijo Protonox
 - [x] Versionado claro `2.3.1-protonox.x` (ver `docs_protonox/COMPATIBILITY.md`)
 - [x] Documentación Protonox separada (`docs_protonox/`), sin tocar docs upstream
+- [x] Capa de compatibilidad drop-in (`kivy/protonox_ext/compat/*`) para activar o desactivar flags sin tocar el core
 
 ## Web → Kivy (modelo intermedio y pipeline)
 - [x] Modelo UI neutral serializable (`kivy/protonox_ext/kv_bridge/ir.py`)
@@ -28,6 +29,7 @@ núcleo de Kivy 2.3.1 intacto.
 - [x] Score de salud de layout y observabilidad agregada (contexto + métricas +
       fingerprint) (`kivy/protonox_ext/layout_engine/health.py`,
       `kivy/protonox_ext/observability.py`)
+- [x] Engine de salud + fingerprint + observabilidad exportable junto con doctor (opt-in)
 
 ## Hot Reload + contexto para IA
 - [x] Hot reload por niveles con rollback seguro (`protonox-studio` y `kivy/protonox_ext/hotreload_plus`)
@@ -37,11 +39,13 @@ núcleo de Kivy 2.3.1 intacto.
 - [x] Bridge ADB opt-in para deploy/logcat rápido (`kivy/protonox_ext/android_bridge/adb.py`)
 - [x] Modo `watch` para reinstalar opcionalmente y streamear logcat filtrado (`kivy/protonox_ext/android_bridge/adb.py`)
 - [x] Fallback de emoji y descubrimiento de fuentes (`kivy/protonox_ext/ui/emoji.py`)
+- [x] Doctor runtime GPU/GL/DPI (opt-in, `kivy/protonox_ext/diagnostics/runtime.py`)
 
 ## Docs y guías
 - [x] Guía de no ruptura y roadmap (`docs/KIVY_231_NO_BREAK_GUIDE.md`, `docs/RELEASES.md`)
 - [x] Extensiones descritas sin modificar documentación upstream (`docs_protonox/EXTENSIONS_OVERVIEW.md`)
 - [x] Flujo Web→Kivy y comandos CLI documentados (`docs/WEB_TO_KIVY_PIPELINE.md`)
+- [x] Compatibilidad y doctor documentados (`docs_protonox/COMPAT_LAYER.md`, `docs_protonox/RUNTIME_DIAGNOSTICS.md`)
 
 ## Reproducibilidad / contenedores (en progreso)
 - [x] Dockerfile reproducible con Kivy 2.3.1 + extensiones (planificado)
