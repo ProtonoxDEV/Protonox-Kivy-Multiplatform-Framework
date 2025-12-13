@@ -38,6 +38,12 @@ from kivymd.app import MDApp
 
 from .lifecycle import broadcast_lifecycle_event
 from .runtime_introspection import RuntimeInspector
+from protonox_studio.devtools.error_overlay import build_error_overlay
+from protonox_studio.devtools.kv_strict import enable_kv_strict_mode
+from protonox_studio.devtools.logger import prefixed_logger
+from protonox_studio.devtools.clock_guard import ClockGuard
+from protonox_studio.flags import is_enabled
+from protonox_studio.ui.textinput_unicode import patch_textinput_unicode
 
 
 # ----------------------------- State preservation -----------------------------
@@ -181,6 +187,7 @@ class HotReloadEngine:
     def __init__(self, max_level: Optional[int] = None) -> None:
         self.max_level = max_level if max_level is not None else int(os.getenv("PROTONOX_HOT_RELOAD_MAX", "3"))
         self.graph_builder = ModuleGraphBuilder()
+        self.log = prefixed_logger("hotreload")
 
     # ------------------------------ Snapshot helpers -------------------------
     def _copy_factory(self) -> Optional[dict]:
@@ -357,6 +364,7 @@ class HotReloadAppBase(MDApp):
     def __init__(self, file_to_screen: Optional[dict[str, str]] = None, **kwargs):
         super().__init__(**kwargs)
         self.reload_engine = HotReloadEngine()
+        self.hotreload_log = prefixed_logger("hotreload")
         self.file_hashes: Dict[str, str] = {}
         self.file_to_screen = {
             str(Path(path).resolve()): name for path, name in (file_to_screen or {}).items()
@@ -364,6 +372,14 @@ class HotReloadAppBase(MDApp):
         self._exception_handler_added = False
         self.state: Optional[ReloadState] = None
         self.approot = None
+        self._clock_guard = ClockGuard()
+        self.use_error_overlay = is_enabled("ERROR_OVERLAY", default=self.DEBUG)
+
+        # Dev-only safety nets (all opt-in via flags)
+        enable_kv_strict_mode()
+        patch_textinput_unicode()
+        if is_enabled("CLOCK_GUARD", False):
+            self._clock_guard.install()
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -475,6 +491,11 @@ class HotReloadAppBase(MDApp):
 
     @mainthread
     def set_error(self, exc, tb=None):
+        if self.use_error_overlay:
+            overlay = build_error_overlay(str(exc), tb or "", on_rebuild=self.rebuild if self.DEBUG else None)
+            self.set_widget(overlay)
+            return
+
         from kivy.core.window import Window
         from kivy.utils import get_color_from_hex
 

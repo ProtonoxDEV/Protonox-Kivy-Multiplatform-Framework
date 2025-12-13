@@ -62,6 +62,9 @@ proceso, preservando estado crítico y con rollback seguro.
 
 ## Flags y ámbito
 - `PROTONOX_HOT_RELOAD_MAX`: limita el nivel máximo (por defecto 3).
+- `PROTONOX_KV_STRICT=1`: activa validación estricta (ids duplicados + parser).
+- `PROTONOX_TEXTINPUT_UNICODE=1`: normaliza entrada Unicode en dev.
+- `PROTONOX_CLOCK_GUARD=1`: alerta por callbacks duplicados en Clock.
 - Dev-only: no se ejecuta en prod y no toca SDK/NDK.
 
 ## Reglas de oro
