@@ -23,6 +23,11 @@ protonox-studio/
 - **modules**: `resize-pro/`, `move-pro/`, `style-editor/`, `grid-intelligence/`, `ai-nudge/` listos para enchufar nuevas capacidades.
 - **cli**: `protonox.py` expone `protonox dev`, `protonox audit`, `protonox export`.
 
+### Live Reload (Kivy 2.3.1)
+- `HotReloadEngine` aporta reload real de Python + KV con rollback seguro y preservación de estado (`ReloadState` + `LiveReloadStateCapable`).
+- Niveles: 0 (rebuild), 1 (KV), 2 (Python con grafo), 3 (Python+KV+estado) con degradación automática.
+- Flag de control: `PROTONOX_HOT_RELOAD_MAX` limita el nivel máximo en entornos de desarrollo.
+
 ## Requerimientos inteligentes
 | Característica               | Qué hace                                               | Por qué es mágico                              |
 |------------------------------|--------------------------------------------------------|------------------------------------------------|
