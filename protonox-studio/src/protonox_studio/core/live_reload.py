@@ -4,18 +4,37 @@ This module implements a conservative, opt-in live reload flow that keeps
 compatibility with existing Kivy projects while enabling faster DX during
 development. All risky behaviors are gated by environment flags and
 reload decisions degrade gracefully to safer levels when necessary.
+
+It also exposes ``HotReloadAppBase`` which adapts the legacy partial screen
+reload flow (``FILE_TO_SCREEN`` mapping, watchdog hashing, and the red error
+overlay) to the level-based engine. The base class never mutates user code,
+falls back to full rebuilds when a change cannot be safely replayed, and
+captures contextual information (hashes, stack filenames) to help developers
+diagnose crashes quickly.
 """
 
 from __future__ import annotations
 
 import copy
+import fnmatch
+import hashlib
 import importlib
+import importlib.util
 import os
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+import traceback
 from types import ModuleType
 from typing import Dict, Iterable, List, Optional, Protocol, Set
+
+from kivy.base import ExceptionHandler, ExceptionManager
+from kivy.clock import Clock, mainthread
+from kivy.factory import Factory
+from kivy.lang import Builder
+from kivy.logger import Logger
+from kivy.properties import BooleanProperty, DictProperty, ListProperty, NumericProperty
+from kivymd.app import MDApp
 
 
 # ----------------------------- State preservation -----------------------------
@@ -162,17 +181,23 @@ class HotReloadEngine:
 
     # ------------------------------ Snapshot helpers -------------------------
     def _copy_factory(self) -> Optional[dict]:
-        try:
-            from kivy.factory import Factory
+        factory_spec = importlib.util.find_spec("kivy.factory")
+        if factory_spec is None:
+            return None
+        from kivy.factory import Factory
 
+        try:
             return copy.deepcopy(Factory.classes)
         except Exception:
             return None
 
     def _copy_builder_rules(self) -> Optional[dict]:
-        try:
-            from kivy.lang import Builder
+        builder_spec = importlib.util.find_spec("kivy.lang")
+        if builder_spec is None:
+            return None
+        from kivy.lang import Builder
 
+        try:
             return copy.deepcopy(getattr(Builder, "rulectx", {}))
         except Exception:
             return None
@@ -189,20 +214,22 @@ class HotReloadEngine:
     def _restore_snapshot(self, snapshot: ReloadSnapshot) -> None:
         sys.modules.clear()
         sys.modules.update(snapshot.modules)
-        try:
+        if importlib.util.find_spec("kivy.factory") is not None:
             from kivy.factory import Factory
 
-            if snapshot.factory_classes is not None:
-                Factory.classes = snapshot.factory_classes
-        except Exception:
-            pass
-        try:
+            try:
+                if snapshot.factory_classes is not None:
+                    Factory.classes = snapshot.factory_classes
+            except Exception:
+                pass
+        if importlib.util.find_spec("kivy.lang") is not None:
             from kivy.lang import Builder
 
-            if snapshot.builder_rules is not None:
-                Builder.rulectx = snapshot.builder_rules
-        except Exception:
-            pass
+            try:
+                if snapshot.builder_rules is not None:
+                    Builder.rulectx = snapshot.builder_rules
+            except Exception:
+                pass
 
     # ------------------------------- Reload flows ---------------------------
     def _reload_kv(self, kv_path: Path) -> None:
@@ -277,3 +304,353 @@ class HotReloadEngine:
 
 def bootstrap_hot_reload_engine(max_level: Optional[int] = None) -> HotReloadEngine:
     return HotReloadEngine(max_level=max_level)
+
+
+# ------------------------- Kivy integration base class ------------------------
+
+
+class _ErrorOverlayHandler(ExceptionHandler):
+    """Renders a red overlay when the app crashes in DEBUG/RAISE_ERROR mode."""
+
+    def handle_exception(self, inst):
+        if isinstance(inst, (KeyboardInterrupt, SystemExit)):
+            return ExceptionManager.RAISE
+
+        app = HotReloadAppBase.get_running_app()
+        if isinstance(app, HotReloadAppBase):
+            return app._handle_exception(inst)
+        return ExceptionManager.RAISE
+
+
+class HotReloadAppBase(MDApp):
+    """Base app that wires ``HotReloadEngine`` with partial KV/Python reload.
+
+    Key behaviors inherited from the legacy implementation:
+    - ``FILE_TO_SCREEN`` mapping triggers partial screen refreshes when the
+      approot exposes ``partial_reload_screen(name)``.
+    - Watchdog-based watcher with MD5 hashing to avoid duplicate reloads.
+    - Red error overlay with traceback details when the app crashes in debug
+      mode.
+    - Fallback to full rebuild when the engine cannot safely apply a reload.
+
+    This base class never mutates user code and keeps Kivy/KivyMD internals out
+    of the reload graph. ``LiveReloadStateCapable`` apps automatically preserve
+    their state when the engine reaches Level 3; others gracefully rebuild.
+    """
+
+    DEBUG = BooleanProperty("DEBUG" in os.environ)
+    FOREGROUND_LOCK = BooleanProperty(False)
+    KV_FILES = ListProperty()
+    KV_DIRS = ListProperty()
+    AUTORELOADER_PATHS = ListProperty([(".", {"recursive": True})])
+    AUTORELOADER_IGNORE_PATTERNS = ListProperty(["*.pyc", "*__pycache__*"])
+    CLASSES = DictProperty()
+    IDLE_DETECTION = BooleanProperty(False)
+    IDLE_TIMEOUT = NumericProperty(60)
+    RAISE_ERROR = BooleanProperty(True)
+
+    __events__ = ["on_idle", "on_wakeup"]
+
+    def __init__(self, file_to_screen: Optional[dict[str, str]] = None, **kwargs):
+        super().__init__(**kwargs)
+        self.reload_engine = HotReloadEngine()
+        self.file_hashes: Dict[str, str] = {}
+        self.file_to_screen = {
+            str(Path(path).resolve()): name for path, name in (file_to_screen or {}).items()
+        }
+        self._exception_handler_added = False
+        self.state: Optional[ReloadState] = None
+        self.approot = None
+
+    # ------------------------------------------------------------------
+    # Lifecycle
+    # ------------------------------------------------------------------
+    def build(self):
+        if self.DEBUG:
+            Logger.info(f"{self.appname}: Debug mode activated")
+            self.enable_autoreload()
+            self.patch_builder()
+            self.bind_key(32, self.rebuild)  # Space bar → manual rebuild
+            self._install_exception_overlay()
+
+        if self.FOREGROUND_LOCK:
+            self.prepare_foreground_lock()
+
+        self.root = self.get_root()
+        self.rebuild(first=True)
+
+        if self.IDLE_DETECTION:
+            self.install_idle(timeout=self.IDLE_TIMEOUT)
+
+        return super().build()
+
+    def get_root(self):
+        return Factory.RelativeLayout()
+
+    def get_root_path(self) -> str:
+        return str(Path.cwd())
+
+    def build_app(self, first: bool = False):  # pragma: no cover - to be implemented by the app
+        raise NotImplementedError("Implementa build_app() en tu subclase")
+
+    def prepare_foreground_lock(self):  # pragma: no cover - platform hook
+        Logger.info(f"{self.appname}: FOREGROUND_LOCK is enabled but no handler is registered")
+
+    # ------------------------------------------------------------------
+    # Dependency management
+    # ------------------------------------------------------------------
+    def unload_app_dependencies(self) -> None:
+        for path_to_kv_file in self.KV_FILES:
+            Builder.unload_file(str(Path(path_to_kv_file).resolve()))
+
+        for name in list(self.CLASSES):
+            Factory.unregister(name)
+
+        for path in self.KV_DIRS:
+            for path_to_dir, _dirs, files in os.walk(path):
+                for name_file in files:
+                    if Path(name_file).suffix == ".kv":
+                        Builder.unload_file(str(Path(path_to_dir).joinpath(name_file)))
+
+    def load_app_dependencies(self) -> None:
+        for path_to_kv_file in self.KV_FILES:
+            resolved = Path(path_to_kv_file)
+            if not resolved.exists():
+                Logger.warning(f"{self.appname}: KV file not found - {resolved}")
+                continue
+            Builder.load_file(str(resolved))
+
+        for name, module in self.CLASSES.items():
+            Factory.register(name, module=module)
+
+        for path in self.KV_DIRS:
+            for path_to_dir, _dirs, files in os.walk(path):
+                for name_file in files:
+                    if Path(name_file).suffix == ".kv":
+                        Builder.load_file(str(Path(path_to_dir).joinpath(name_file)))
+
+    # ------------------------------------------------------------------
+    # Rebuilds
+    # ------------------------------------------------------------------
+    def rebuild(self, *args, **kwargs):
+        Logger.info(f"{self.appname}: Rebuild the application")
+        first = kwargs.get("first", False)
+        try:
+            if isinstance(self, LiveReloadStateCapable):
+                self.state = self.extract_state()
+            if not first:
+                self.unload_app_dependencies()
+
+            Builder.rulectx = {}
+            self.load_app_dependencies()
+
+            self.set_widget(None)
+            self.approot = self.build_app(first=first)
+            self.set_widget(self.approot)
+            self.apply_state(self.state)
+            Logger.info(f"{self.appname}: Rebuild completed")
+        except Exception as exc:  # noqa: BLE001 - crash overlay is required
+            Logger.exception(f"{self.appname}: Error when building app")
+            self.set_error(repr(exc), traceback.format_exc())
+            if not self.DEBUG and self.RAISE_ERROR:
+                raise
+
+    # ------------------------------------------------------------------
+    # Error handling
+    # ------------------------------------------------------------------
+    def _handle_exception(self, inst):
+        if not self.DEBUG and not self.RAISE_ERROR:
+            return ExceptionManager.RAISE
+        self.set_error(inst, tb=traceback.format_exc())
+        return ExceptionManager.PASS
+
+    def _install_exception_overlay(self) -> None:
+        if self._exception_handler_added:
+            return
+        ExceptionManager.add_handler(_ErrorOverlayHandler())
+        self._exception_handler_added = True
+
+    @mainthread
+    def set_error(self, exc, tb=None):
+        from kivy.core.window import Window
+        from kivy.utils import get_color_from_hex
+
+        scroll = Factory.MDScrollView(scroll_y=0, md_bg_color=get_color_from_hex("#e50000"))
+        lbl = Factory.Label(
+            text_size=(Window.width - 100, None),
+            size_hint_y=None,
+            text=f"{exc}\n\n{tb or ''}",
+        )
+        lbl.bind(texture_size=lbl.setter("size"))
+        scroll.add_widget(lbl)
+        self.set_widget(scroll)
+
+    def apply_state(self, state):  # pragma: no cover - opt-in override
+        pass
+
+    # ------------------------------------------------------------------
+    # Widget helpers
+    # ------------------------------------------------------------------
+    def set_widget(self, wid):
+        self.root.clear_widgets()
+        self.approot = wid
+        if wid is not None:
+            self.root.add_widget(wid)
+            try:
+                wid.do_layout()
+            except Exception:
+                pass
+
+    # ------------------------------------------------------------------
+    # Key bindings
+    # ------------------------------------------------------------------
+    def bind_key(self, key, callback):
+        from kivy.core.window import Window
+
+        def _on_keyboard(window, keycode, *args):  # noqa: ANN001, ANN401 - Kivy callback
+            if key == keycode:
+                return callback()
+
+        Window.bind(on_keyboard=_on_keyboard)
+
+    # ------------------------------------------------------------------
+    # Idle detection (optional)
+    # ------------------------------------------------------------------
+    def install_idle(self, timeout: int = 60):
+        monotonic_spec = importlib.util.find_spec("monotonic")
+        if monotonic_spec is None:
+            Logger.exception(f"{self.appname}: Cannot use idle detector, monotonic is missing")
+            return
+
+        from monotonic import monotonic
+
+        self.idle_timer = None
+        self.idle_timeout = timeout
+        Logger.info(f"{self.appname}: Install idle detector, {timeout} seconds")
+        Clock.schedule_interval(self._check_idle, 1)
+        self.root.bind(on_touch_down=self.rearm_idle, on_touch_up=self.rearm_idle)
+        self._monotonic = monotonic
+
+    def rearm_idle(self, *args):
+        if not hasattr(self, "idle_timer"):
+            return
+        if self.idle_timer is None:
+            self.dispatch("on_wakeup")
+        self.idle_timer = self._monotonic()
+
+    def _check_idle(self, *args):
+        if not hasattr(self, "idle_timer"):
+            return
+        if self.idle_timer is None:
+            return
+        if self._monotonic() - self.idle_timer > self.idle_timeout:
+            self.idle_timer = None
+            self.dispatch("on_idle")
+
+    def on_idle(self, *args):  # pragma: no cover - hook
+        pass
+
+    def on_wakeup(self, *args):  # pragma: no cover - hook
+        pass
+
+    # ------------------------------------------------------------------
+    # Watchdog / reload dispatch
+    # ------------------------------------------------------------------
+    def enable_autoreload(self):
+        events_spec = importlib.util.find_spec("watchdog.events")
+        observers_spec = importlib.util.find_spec("watchdog.observers")
+        if events_spec is None or observers_spec is None:
+            Logger.warning(f"{self.appname}: Autoreloader is missing watchdog")
+            return
+
+        from watchdog.events import FileSystemEventHandler
+        from watchdog.observers import Observer
+
+        Logger.info(f"{self.appname}: Autoreloader activated")
+        rootpath = self.get_root_path()
+        self.w_handler = handler = FileSystemEventHandler()
+        handler.dispatch = self._reload_from_watchdog
+        self._observer = observer = Observer()
+        for path in self.AUTORELOADER_PATHS:
+            options = {"recursive": True}
+            if isinstance(path, (tuple, list)):
+                path, options = path
+            observer.schedule(handler, os.path.join(rootpath, path), **options)
+        observer.start()
+
+    def _get_file_hash(self, filename: str) -> str:
+        hash_md5 = hashlib.md5()
+        try:
+            with open(filename, "rb") as stream:
+                for chunk in iter(lambda: stream.read(4096), b""):
+                    hash_md5.update(chunk)
+        except FileNotFoundError:
+            return ""
+        return hash_md5.hexdigest()
+
+    def _should_ignore(self, path: str) -> bool:
+        for pat in self.AUTORELOADER_IGNORE_PATTERNS:
+            if fnmatch.fnmatch(path, pat):
+                return True
+        return False
+
+    @mainthread
+    def _reload_from_watchdog(self, event):  # noqa: ANN001 - watchdog callback
+        from watchdog.events import FileModifiedEvent
+
+        if not isinstance(event, FileModifiedEvent):
+            return
+
+        changed_file = str(Path(event.src_path).resolve())
+        if self._should_ignore(changed_file):
+            return
+
+        current_hash = self._get_file_hash(changed_file)
+        if self.file_hashes.get(changed_file) == current_hash:
+            return
+        self.file_hashes[changed_file] = current_hash
+
+        partial_screen = self.file_to_screen.get(changed_file)
+        if partial_screen:
+            Logger.info(f"{self.appname}: Partial reload triggered for '{partial_screen}'")
+            if hasattr(self.approot, "partial_reload_screen"):
+                try:
+                    self.approot.partial_reload_screen(partial_screen)
+                    return
+                except Exception:
+                    Logger.exception(f"{self.appname}: Partial reload failed; falling back to rebuild")
+            else:
+                Logger.warning(f"{self.appname}: App root has no partial_reload_screen() method!")
+
+        self._dispatch_change(Path(changed_file))
+
+    def _dispatch_change(self, changed_file: Path) -> None:
+        decision = self.reload_engine.handle_change(changed_file, app=self)
+        if decision.applied:
+            Logger.info(f"{self.appname}: Applied reload level {decision.level} ({decision.reason})")
+            return
+
+        if decision.error:
+            Logger.error(f"{self.appname}: Reload error → {decision.error}")
+            self.set_error(decision.error)
+
+        Logger.info(
+            f"{self.appname}: Fallback to rebuild (level={decision.level}, reason={decision.reason})"
+        )
+        Clock.unschedule(self.rebuild)
+        Clock.schedule_once(self.rebuild, 0.1)
+
+    # ------------------------------------------------------------------
+    # Builder patch: preserve filename context
+    # ------------------------------------------------------------------
+    def patch_builder(self):
+        Builder.orig_load_string = Builder.load_string
+        Builder.load_string = self._builder_load_string
+
+    def _builder_load_string(self, string, **kwargs):
+        if "filename" not in kwargs:
+            from inspect import getframeinfo, stack
+
+            caller = getframeinfo(stack()[1][0])
+            kwargs["filename"] = caller.filename
+        return Builder.orig_load_string(string, **kwargs)

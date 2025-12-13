@@ -3,6 +3,7 @@
 from .engine import ElementBox, ProtonoxEngine, Viewport, bootstrap_engine
 from .live_reload import (
     HotReloadEngine,
+    HotReloadAppBase,
     LiveReloadStateCapable,
     ModuleGraphBuilder,
     ModuleNode,
@@ -17,6 +18,7 @@ __all__ = [
     "Viewport",
     "bootstrap_engine",
     "HotReloadEngine",
+    "HotReloadAppBase",
     "LiveReloadStateCapable",
     "ModuleGraphBuilder",
     "ModuleNode",
