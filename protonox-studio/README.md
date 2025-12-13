@@ -55,6 +55,25 @@ protonox-studio/
 - `protonox render-web` / `protonox render-kivy` generan PNG basados en el UI-IR para comparar (`protonox diff --baseline ... --candidate ...`).
 - Compatibilidad: los comandos legacy continúan funcionando (`python protonox-studio/cli/protonox.py ...`).
 
+### Instalación por pip (repo local)
+- Local editable: `pip install -e ./protonox-studio` (usa tu intérprete/venv). Requiere `pip>=23`.
+- Instalación empaquetada: `pip install ./protonox-studio`.
+- Configura tus variables en `.env` copiando `.env.example` (no commits). Mínimos: Figma (`FIGMA_CLIENT_ID/SECRET`) y MercadoPago (`MP_PUBLIC_KEY/ACCESS_TOKEN`).
+
+### MercadoPago (dev)
+- Variables requeridas: `MP_PUBLIC_KEY`, `MP_ACCESS_TOKEN`; opcionales `MP_SUCCESS_URL`, `MP_FAILURE_URL`, `MP_PENDING_URL`, `MP_NOTIFICATION_URL`, `MP_WEBHOOK_SECRET`.
+- Crear checkout: `POST /__dev_tools` con `{ "type": "mercadopago-create-preference", "plan": "monthly", "email": "test@example.com" }` devuelve `init_point` / `sandbox_init_point`.
+- Estado y gating: `POST /__dev_tools` con `{ "type": "mercadopago-status" }` indica si hay suscripción activa y el último `checkout_url`; las acciones premium (`figma-sync-tokens`, `figma-push-update`) responden 402 si no hay pago.
+- Webhook: `POST /payments/mercadopago/webhook` con payload de MercadoPago (firma opcional via `MP_WEBHOOK_SECRET`) marca la suscripción como activa y actualiza expiración.
+- Modo gratis/donación: si `PROTONOX_FREE_MODE=1` (o `MP_FREE_MODE=1`), todo queda desbloqueado sin cobro; puedes ofrecer un botón “Donar” usando `{ "type": "mercadopago-create-preference", "plan": "donation", "amount": 5 }` y mostrar el `init_point` resultante.
+
+### Figma (OAuth, embedding, webhooks)
+- Variables requeridas: `FIGMA_CLIENT_ID`, `FIGMA_CLIENT_SECRET`; opcionales `FIGMA_REDIRECT_URI` (default `http://localhost:4173/figma-callback`) y `FIGMA_SCOPES` (separadas por espacio o coma; por defecto incluyen contenido, comentarios, dev resources, librerías, proyectos, webhooks y perfil).
+- Auth: `GET /figma-auth` redirige a Figma con `state` aleatorio; `GET /figma-callback?code=...&state=...` guarda token en `.protonox/figma/figma_token.json`.
+- Estado: `POST /__dev_tools` con `{ "type": "figma-status" }` devuelve conexión, expiración y scopes; `figma-sync-tokens` y `figma-push-update` se mantienen premium (402 si no hay pago).
+- Embedding: `POST /__dev_tools` con `{ "type": "figma-embed-config" }` devuelve `client_id` y `redirect_uri` para kits de incrustación (`?client-id=<id>`).
+- Webhooks: `POST /figma-webhook` almacena eventos en `.protonox/figma/webhooks.jsonl` (sin validar firma por ahora); puedes registrar webhooks desde Figma apuntando a esa URL pública o tunelizada.
+
 #### Declaración explícita del proyecto (requisito)
 - Protonox Studio no asume tu proyecto: siempre se declara `--project-type web|kivy` y `--entrypoint` (por ejemplo `index.html` o `main.py`).
 - El modo contenedor y el modo local usan el mismo flujo: `PROTONOX_PROJECT_TYPE`, `PROTONOX_BACKEND_URL` y `PROTONOX_STATE_DIR` controlan el contexto.

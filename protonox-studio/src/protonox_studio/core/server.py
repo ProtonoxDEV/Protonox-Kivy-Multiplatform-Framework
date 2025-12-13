@@ -5,10 +5,11 @@ import json
 import logging
 import webbrowser
 import os
+import secrets
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Dict, Tuple
+from typing import Any, Dict, Tuple
 from urllib.parse import parse_qs, urlparse
 
 from modules.figma_sync import (
@@ -16,15 +17,49 @@ from modules.figma_sync import (
     get_auth_url,
     get_file_variables,
     get_user_files,
+    figma_status,
     push_component_update,
+    _write_state as figma_write_state,
+)
+from modules.mercadopago import (
+    SubscriptionStatus,
+    apply_webhook as mp_apply_webhook,
+    create_preference as mp_create_preference,
+    subscription_status as mp_subscription_status,
 )
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
+FIGMA_WEBHOOK_LOG = ROOT_DIR.parent / ".protonox" / "figma" / "webhooks.jsonl"
+FIGMA_WEBHOOK_LOG.parent.mkdir(parents=True, exist_ok=True)
 
 
 class ProtonoxStudioServer(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(ROOT_DIR), **kwargs)
+
+    def _json_response(self, status_code: int, body: Dict[str, Any]) -> None:
+        self.send_response(status_code)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+        self.wfile.write(json.dumps(body).encode())
+
+    def _payment_required(self, status: SubscriptionStatus) -> None:
+        hint = {
+            "status": "payment_required",
+            "active": status.active,
+            "active_until": status.active_until.isoformat() if status.active_until else None,
+            "plan": status.plan,
+            "checkout_url": status.last_checkout_url,
+            "reason": status.reason or "Premium requerido",
+        }
+        self._json_response(HTTPStatus.PAYMENT_REQUIRED, hint)
+
+    def _require_premium(self) -> SubscriptionStatus | None:
+        status = mp_subscription_status()
+        if status.active:
+            return status
+        self._payment_required(status)
+        return None
 
     # === OAuth handshake ===
     def do_GET(self):
@@ -36,7 +71,8 @@ class ProtonoxStudioServer(SimpleHTTPRequestHandler):
             return
 
         if self.path.startswith("/figma-auth"):
-            state = "protonox2025"  # cambiar por algo random en producción
+            state = secrets.token_urlsafe(24)
+            figma_write_state(state)
             auth_url = get_auth_url(state)
             logging.info("Redirecting to Figma OAuth…")
             self.send_response(302)
@@ -52,20 +88,24 @@ class ProtonoxStudioServer(SimpleHTTPRequestHandler):
         if self.path.startswith("/figma-callback"):
             query = parse_qs(urlparse(self.path).query)
             code = query.get("code", [None])[0]
+                        state = query.get("state", [None])[0]
             if code:
-                tokens = exchange_code(code)
-                (ROOT_DIR.parent / "figma_token.json").write_text(json.dumps(tokens))
-                html = """
-                <script>
-                  alert("Figma conectado! Volvé a Protonox Studio");
-                  window.close();
-                </script>
-                """
-                self.send_response(200)
-                self.send_header("Content-Type", "text/html")
-                self.end_headers()
-                self.wfile.write(html.encode())
-                logging.info("FIGMA CONECTADO! Token guardado.")
+                                try:
+                                        exchange_code(code, state=state)
+                                        html = """
+                                        <script>
+                                            alert("Figma conectado! Volvé a Protonox Studio");
+                                            window.close();
+                                        </script>
+                                        """
+                                        self.send_response(200)
+                                        self.send_header("Content-Type", "text/html")
+                                        self.end_headers()
+                                        self.wfile.write(html.encode())
+                                        logging.info("FIGMA CONECTADO! Token guardado.")
+                                except Exception as e:
+                                        logging.error("Figma callback failed: %s", e)
+                                        self._json_response(HTTPStatus.BAD_REQUEST, {"error": str(e)})
             return
 
         return super().do_GET()
@@ -79,11 +119,52 @@ class ProtonoxStudioServer(SimpleHTTPRequestHandler):
             return {}, raw
 
     def do_POST(self):
+        payload, raw = self._json_body()
+
+        if self.path.startswith("/payments/mercadopago/webhook"):
+            result = mp_apply_webhook(payload, dict(self.headers))
+            if result.get("status") == "forbidden":
+                self._json_response(HTTPStatus.FORBIDDEN, result)
+            else:
+                self._json_response(HTTPStatus.OK, result)
+            return
+
+        if self.path.startswith("/figma-webhook"):
+            try:
+                entry = {
+                    "headers": dict(self.headers),
+                    "payload": payload,
+                }
+                with open(FIGMA_WEBHOOK_LOG, "a", encoding="utf-8") as fh:
+                    fh.write(json.dumps(entry, ensure_ascii=False) + "\n")
+                self._json_response(HTTPStatus.OK, {"status": "received"})
+            except Exception as e:
+                logging.error("Error escribiendo webhook de Figma: %s", e)
+                self._json_response(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": str(e)})
+            return
+
         if self.path == "/__dev_tools":
-            payload, raw = self._json_body()
             t = payload.get("type")
 
+            if t == "mercadopago-status":
+                status = mp_subscription_status()
+                self._json_response(HTTPStatus.OK, {"status": "ok", **status.as_dict()})
+                return
+
+            if t == "mercadopago-create-preference":
+                plan = payload.get("plan") or "monthly"
+                email = payload.get("email")
+                try:
+                    pref = mp_create_preference(plan=plan, email=email)
+                    self._json_response(HTTPStatus.OK, {"status": "ready", **pref})
+                except Exception as e:
+                    logging.error("MercadoPago create preference failed: %s", e)
+                    self._json_response(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": str(e)})
+                return
+
             if t == "figma-sync-tokens":
+                if not self._require_premium():
+                    return
                 try:
                     files = get_user_files().get("files", [])
                     if not files:
@@ -138,6 +219,8 @@ class ProtonoxStudioServer(SimpleHTTPRequestHandler):
                     return
 
             if t == "figma-push-update":
+                if not self._require_premium():
+                    return
                 try:
                     node_id = payload.get("node_id")
                     updates = payload.get("updates") or {}
@@ -170,6 +253,16 @@ class ProtonoxStudioServer(SimpleHTTPRequestHandler):
                     self.wfile.write(json.dumps({"error": str(e)}).encode())
                     return
 
+            if t == "figma-status":
+                self._json_response(HTTPStatus.OK, {"status": "ok", **figma_status()})
+                return
+
+            if t == "figma-embed-config":
+                client_id = os.environ.get("FIGMA_CLIENT_ID")
+                redirect = os.environ.get("FIGMA_REDIRECT_URI", "http://localhost:4173/figma-callback")
+                self._json_response(HTTPStatus.OK, {"client_id": client_id, "redirect_uri": redirect})
+                return
+
         return super().do_POST()
 
 
@@ -194,16 +287,17 @@ def main():
 
             @app.get('/figma-auth')
             def figma_auth():
-                state = "protonox2025"
+                state = secrets.token_urlsafe(24)
+                figma_write_state(state)
                 return {"redirect": get_auth_url(state)}
 
             @app.get('/figma-callback')
             def figma_callback(request: Request):
                 q = dict(request.query_params)
                 code = q.get('code')
+                state = q.get('state')
                 if code:
-                    tokens = exchange_code(code)
-                    (ROOT_DIR.parent / "figma_token.json").write_text(json.dumps(tokens))
+                    exchange_code(code, state=state)
                     return Response(content="<script>alert('Figma conectado! Volvé a Protonox Studio');window.close();</script>", media_type='text/html')
                 return {"error": "missing code"}
 
@@ -212,6 +306,9 @@ def main():
                 payload = await req.json()
                 t = payload.get('type')
                 # Reuse existing logic by calling same helpers; keep behavior minimal
+                if t == 'figma-status':
+                    return {"status": "ok", **figma_status()}
+
                 if t == 'figma-sync-tokens':
                     files = get_user_files().get('files', [])
                     if not files:
