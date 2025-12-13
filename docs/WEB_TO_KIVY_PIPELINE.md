@@ -52,10 +52,13 @@ protonox diff --baseline ./captures/web.png --candidate ./.protonox/renders/kivy
 
 ## Output
 - `*.kv`: clean, nested BoxLayout/Label/Button/TextInput suggestions derived from
-  the UI model (one per screen). Positioning hints respect inline styles (flex/abs) when present.
+ the UI model (one per screen). Positioning hints respect inline styles (flex/abs) when present.
 - `*_screen.py`: minimal Screen/ScreenManager scaffold loading the KV file.
 - `ui-model.json`: serialized IR with bounds/styles/routes for audits and diffs.
 - `manifest.json`: bindings, entrypoint/URL, warnings, assets, and generated file list.
+- `kivy-export.json`: optional IR export from una pantalla Kivy existente usando
+  `kivy.protonox_ext.kv_bridge.importer.model_from_widget` (útil para mapear KV
+  previo y hacer round-trip web ↔ Kivy sin tocar código de usuario).
 
 ## Flags and overrides
 - `PROTONOX_WEB_URL`: optional URL linked to the entrypoint for traceability.
