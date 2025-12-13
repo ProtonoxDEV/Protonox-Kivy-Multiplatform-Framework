@@ -6,6 +6,7 @@ instead of mutating HTML or KV files directly.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
 from .engine import ElementBox, Viewport
@@ -33,6 +34,37 @@ class ComponentNode:
         for child in self.children:
             yield from child.walk()
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "identifier": self.identifier,
+            "role": self.role,
+            "bounds": {
+                "x": self.bounds.x,
+                "y": self.bounds.y,
+                "width": self.bounds.width,
+                "height": self.bounds.height,
+            }
+            if self.bounds
+            else None,
+            "children": [child.to_dict() for child in self.children],
+            "source": self.source,
+            "meta": self.meta,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ComponentNode":
+        bounds = data.get("bounds")
+        node = cls(
+            identifier=data.get("identifier", "component"),
+            role=data.get("role", "component"),
+            bounds=Bounds(**bounds) if bounds else None,
+            children=[],
+            source=data.get("source", "web"),
+            meta=data.get("meta", {}),
+        )
+        node.children = [cls.from_dict(child) for child in data.get("children", [])]
+        return node
+
 
 @dataclass
 class ScreenModel:
@@ -40,12 +72,30 @@ class ScreenModel:
     viewport: Viewport
     root: ComponentNode
 
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "viewport": {"width": self.viewport.width, "height": self.viewport.height},
+            "root": self.root.to_dict(),
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "ScreenModel":
+        viewport = data.get("viewport", {})
+        return cls(
+            name=data.get("name", "screen"),
+            viewport=Viewport(width=viewport.get("width", 1280), height=viewport.get("height", 720)),
+            root=ComponentNode.from_dict(data.get("root", {})),
+        )
+
 
 @dataclass
 class UIModel:
     screens: List[ScreenModel]
     origin: str
     assets: List[str] = field(default_factory=list)
+    routes: List[str] = field(default_factory=list)
+    meta: Dict[str, Any] = field(default_factory=dict)
 
     def to_element_boxes(self) -> List[ElementBox]:
         boxes: List[ElementBox] = []
@@ -82,7 +132,34 @@ class UIModel:
                 for screen in self.screens
             ],
             "assets": self.assets,
+            "routes": self.routes,
+            "meta": self.meta,
         }
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "origin": self.origin,
+            "assets": self.assets,
+            "routes": self.routes,
+            "meta": self.meta,
+            "screens": [screen.to_dict() for screen in self.screens],
+        }
+
+    def save(self, path) -> None:
+        import json
+
+        path = Path(path)
+        path.write_text(json.dumps(self.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "UIModel":
+        return cls(
+            screens=[ScreenModel.from_dict(s) for s in data.get("screens", [])],
+            origin=data.get("origin", "web"),
+            assets=data.get("assets", []),
+            routes=data.get("routes", []),
+            meta=data.get("meta", {}),
+        )
 
 
 def from_web_snapshot(snapshot: List[dict], origin: str = "web") -> UIModel:

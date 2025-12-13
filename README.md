@@ -56,10 +56,12 @@ All advanced features are **opt-in** and **development-only**.
 - Level-based reload strategy (safe by default)
 
 ### 🌉 Web → Kivy portability (via UI-IR)
-- HTML entrypoint parsing into a neutral UI model (no DOM mutation)
-- One-to-one screen mapping to clean KV + controller scaffolds
-- KV exports live in `.protonox` to keep user code untouched
-- Optional PNG comparison against the UI model for visual checks
+- HTML entrypoint parsing (local path **or URL**) into a neutral UI model (no DOM mutation)
+- Asset + route discovery for multi-view sites and SPA-like flows
+- UI-IR is serializable (`ui-model.json`) for audits/diffs and can be reloaded via env (`PROTONOX_UI_MODEL`)
+- One-to-one screen mapping to clean KV + controller scaffolds (no user code touched)
+- CLI coverage: `protonox web2kivy` for exports, `protonox validate` for PNG baseline/candidate diffs
+- Optional PNG comparison against the UI model for viewport sanity and drift detection
 - See `docs/WEB_TO_KIVY_PIPELINE.md` for the full flow and safeguards.
 
 ### 🧭 Explicit State & Lifecycle (opt-in)
@@ -73,7 +75,8 @@ All advanced features are **opt-in** and **development-only**.
 - Designed to be consumed directly from KV without new layouts
 
 ### 🔎 Runtime Introspection (DEV only)
-- `app.inspect().widget_tree()` for live widget hierarchy snapshots
+- `app.inspect().widget_tree()` for live widget hierarchy + bounds snapshots
+- `app.inspect().export_json(path)` to persist widget tree/state/callbacks (dev-only)
 - `app.inspect().kv_rules()` and `running_callbacks()` for diagnostics
 - Disabled in production unless explicitly enabled
 
@@ -100,6 +103,11 @@ All advanced features are **opt-in** and **development-only**.
 - Deterministic build helpers
 - Build caching
 - Reproducible build reports
+
+### 🧱 Vendored Kivy 2.3.1 (compat-first)
+- The forked sources live under `kivy-protonox-version/` with Protonox patches
+- Install locally with `pip install -e ./kivy-protonox-version` for reproducible builds
+- Compatibility flags are opt-in; default runtime matches upstream 2.3.1
 
 ---
 
@@ -135,6 +143,13 @@ All advanced features are **opt-in** and **development-only**.
 This project is under active development.
 Early versions focus on **developer tooling and live reload**.
 UI and packaging improvements follow incrementally.
+
+### CLI quickstart (local or Docker-parity)
+- `protonox audit --project-type web --entrypoint ./site/index.html --png ./capture.png`
+- `protonox web2kivy --project-type web --entrypoint https://example.com --screens home:home_screen`
+- `protonox validate --baseline ./web.png --candidate ./.protonox/protonox-exports/preview.png`
+
+All outputs land in `.protonox/` to avoid mutating user projects.
 
 ---
 

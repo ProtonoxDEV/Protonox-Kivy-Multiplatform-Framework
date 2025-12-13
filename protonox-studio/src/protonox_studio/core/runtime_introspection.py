@@ -7,6 +7,7 @@ humans during diagnostics without mutating the running app.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List, Protocol
 
 from kivy.clock import Clock
@@ -23,12 +24,14 @@ class WidgetSnapshot:
     id: str
     cls: str
     children: List["WidgetSnapshot"]
+    bounds: Dict[str, float] | None = None
 
     def to_dict(self) -> Dict[str, Any]:
         return {
             "id": self.id,
             "cls": self.cls,
             "children": [child.to_dict() for child in self.children],
+            "bounds": self.bounds,
         }
 
 
@@ -89,6 +92,21 @@ class RuntimeInspector:
             "callbacks": len(self.running_callbacks()) if self.enabled else 0,
         }
 
+    def export_json(self, path: Path) -> Path:
+        """Persist a widget tree snapshot to disk (dev-only, read-only)."""
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        payload = {
+            "tree": self.widget_tree(),
+            "state": self.state(),
+            "kv_rules": self.kv_rules(),
+            "callbacks": self.running_callbacks(),
+        }
+        import json
+
+        path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+        return path
+
 
 def _serialize_widget(widget: Widget) -> WidgetSnapshot:
     children = [
@@ -97,7 +115,13 @@ def _serialize_widget(widget: Widget) -> WidgetSnapshot:
         if isinstance(child, Widget)
     ]
     identifier = getattr(widget, "id", None) or getattr(widget, "name", None) or widget.__class__.__name__
-    return WidgetSnapshot(id=str(identifier), cls=widget.__class__.__name__, children=children)
+    try:
+        x, y = getattr(widget, "x", 0.0), getattr(widget, "y", 0.0)
+        w, h = getattr(widget, "width", 0.0), getattr(widget, "height", 0.0)
+        bounds = {"x": float(x), "y": float(y), "width": float(w), "height": float(h)}
+    except Exception:
+        bounds = None
+    return WidgetSnapshot(id=str(identifier), cls=widget.__class__.__name__, children=children, bounds=bounds)
 
 
 __all__ = ["RuntimeInspector", "WidgetSnapshot"]

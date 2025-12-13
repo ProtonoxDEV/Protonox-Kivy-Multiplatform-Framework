@@ -19,7 +19,7 @@ if str(PACKAGE_ROOT) not in sys.path:
 from protonox_studio.core import engine
 from protonox_studio.core.bluntmine import run_bluntmine
 from protonox_studio.core.project_context import ProjectContext
-from protonox_studio.core.visual import compare_png_to_model, ingest_png
+from protonox_studio.core.visual import compare_png_to_model, diff_pngs, ingest_png
 from protonox_studio.core.web_to_kivy import (
     WebViewDeclaration,
     bindings_from_views,
@@ -77,24 +77,13 @@ def run_audit(context: ProjectContext, png: str | None = None) -> None:
     print(json.dumps(report, indent=2, ensure_ascii=False))
 
 
-def run_export(context: ProjectContext) -> None:
-    context.ensure_state_tree()
-    export_dir = context.state_dir / "protonox-exports"
-    export_dir.mkdir(parents=True, exist_ok=True)
-
-    ui_model = context.build_ui_model()
-    default_binding = WebViewDeclaration(
-        name=context.entrypoint.stem or "web_screen",
-        source=context.entrypoint,
-        url=os.environ.get("PROTONOX_WEB_URL"),
-    )
-    bindings = bindings_from_views([default_binding])
-    plan = plan_web_to_kivy(ui_model, bindings=bindings)
-
+def _write_export(plan, ui_model, export_dir: Path, context: ProjectContext) -> None:
     for filename, content in plan.kv_files.items():
         (export_dir / filename).write_text(content, encoding="utf-8")
     for filename, content in plan.controllers.items():
         (export_dir / filename).write_text(content, encoding="utf-8")
+
+    ui_model.save(export_dir / "ui-model.json")
 
     manifest = {
         "message": "One-Click Fix listo",
@@ -104,18 +93,83 @@ def run_export(context: ProjectContext) -> None:
         "controllers": list(plan.controllers.keys()),
         "bindings": [binding.__dict__ for binding in plan.bindings],
         "warnings": plan.warnings,
+        "assets": ui_model.assets,
+        "routes": ui_model.routes,
+        "meta": ui_model.meta,
     }
     (export_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     print(f"Export generado en {export_dir} (no se modificó el código del usuario)")
 
 
+def _bindings_from_args(context: ProjectContext, ui_model, screen_args: List[str] | None) -> List[WebViewDeclaration]:
+    declarations: List[WebViewDeclaration] = []
+    if screen_args:
+        for raw in screen_args:
+            if ":" in raw:
+                route, name = raw.split(":", 1)
+            else:
+                route, name = raw, raw
+            declarations.append(
+                WebViewDeclaration(
+                    name=name,
+                    source=context.entrypoint,
+                    url=os.environ.get("PROTONOX_WEB_URL"),
+                    route=route,
+                )
+            )
+    else:
+        default_route = ui_model.routes[0] if getattr(ui_model, "routes", []) else None
+        declarations.append(
+            WebViewDeclaration(
+                name=context.entrypoint.stem or "web_screen",
+                source=context.entrypoint,
+                url=os.environ.get("PROTONOX_WEB_URL"),
+                route=default_route,
+            )
+        )
+    return declarations
+
+
+def run_export(context: ProjectContext, screen_args: List[str] | None = None, out: Path | None = None) -> None:
+    context.ensure_state_tree()
+    export_dir = out or context.state_dir / "protonox-exports"
+    export_dir.mkdir(parents=True, exist_ok=True)
+
+    ui_model = context.build_ui_model()
+    declarations = _bindings_from_args(context, ui_model, screen_args)
+    bindings = bindings_from_views(declarations)
+    plan = plan_web_to_kivy(ui_model, bindings=bindings)
+
+    _write_export(plan, ui_model, export_dir, context)
+
+
+def run_validate(baseline: Path, candidate: Path, out_dir: Path | None = None) -> None:
+    report = diff_pngs(baseline, candidate, out_dir=out_dir)
+    print(json.dumps(report, indent=2, ensure_ascii=False))
+
+
+def run_web2kivy(context: ProjectContext, screens: List[str] | None = None, out: Path | None = None) -> None:
+    context.ensure_state_tree()
+    export_dir = out or context.state_dir / "protonox-exports"
+    export_dir.mkdir(parents=True, exist_ok=True)
+    ui_model = context.build_ui_model()
+    declarations = _bindings_from_args(context, ui_model, screens)
+    bindings = bindings_from_views(declarations)
+    plan = plan_web_to_kivy(ui_model, bindings=bindings)
+    _write_export(plan, ui_model, export_dir, context)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Protonox Studio tooling")
-    parser.add_argument("command", choices=["dev", "audit", "export", "diagnose"], help="Comando a ejecutar")
+    parser.add_argument("command", choices=["dev", "audit", "export", "diagnose", "web2kivy", "validate"], help="Comando a ejecutar")
     parser.add_argument("--path", default=".", help="Ruta del proyecto")
     parser.add_argument("--project-type", choices=["web", "kivy"], help="Tipo de proyecto declarado (obligatorio para IA)")
     parser.add_argument("--entrypoint", help="Punto de entrada (index.html o main.py)")
     parser.add_argument("--png", help="Ruta a una captura PNG para comparar con el modelo intermedio")
+    parser.add_argument("--out", help="Directorio de salida para exportaciones")
+    parser.add_argument("--screens", nargs="*", help="Pantallas o rutas declaradas para el mapeo Web→Kivy (route:name)")
+    parser.add_argument("--baseline", help="PNG baseline para validación visual")
+    parser.add_argument("--candidate", help="PNG candidato para validación visual")
     args = parser.parse_args(argv)
 
     context = ProjectContext.from_cli(Path(args.path), project_type=args.project_type, entrypoint=args.entrypoint)
@@ -124,7 +178,14 @@ def main(argv=None):
     elif args.command == "audit":
         run_audit(context, png=args.png)
     elif args.command == "export":
-        run_export(context)
+        run_export(context, screen_args=args.screens, out=Path(args.out) if args.out else None)
+    elif args.command == "web2kivy":
+        run_web2kivy(context, screens=args.screens, out=Path(args.out) if args.out else None)
+    elif args.command == "validate":
+        if not args.baseline or not args.candidate:
+            raise SystemExit("validate requiere --baseline y --candidate")
+        out_dir = Path(args.out) if args.out else None
+        run_validate(Path(args.baseline), Path(args.candidate), out_dir=out_dir)
     elif args.command == "diagnose":
         report = run_bluntmine(context)
         print(json.dumps(report.as_dict(), indent=2, ensure_ascii=False))
