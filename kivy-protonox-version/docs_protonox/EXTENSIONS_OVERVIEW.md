@@ -14,6 +14,8 @@ A controlled extension layer on top of Kivy 2.3.1 that unlocks:
 - `protonox_ext/hotreload_plus/`: snapshot/rollback helpers for advanced reload.
 - `protonox_ext/web_mapper/`: DOM-to-IR adapter for declared routes.
 - `protonox_ext/visual_state/`: PNG-based warnings for baseline vs candidate.
+- `protonox_ext/android_bridge/`: dev-only ADB helpers (install/run/logcat/bugreport).
+- `protonox_ext/ui/`: emoji fallback helpers for consistent text rendering.
 
 ## How to opt-in safely
 1. Enable telemetry: `PROTONOX_LAYOUT_TELEMETRY=1` (dev only).

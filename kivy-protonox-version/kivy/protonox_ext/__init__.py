@@ -12,6 +12,8 @@ from .kv_bridge import compiler, ir
 from .hotreload_plus import hooks
 from .web_mapper import dom_bridge
 from .visual_state import png_reference
+from .android_bridge import adb
+from .ui import emoji
 
 __all__ = [
     "collect_layout_report",
@@ -25,4 +27,6 @@ __all__ = [
     "hooks",
     "dom_bridge",
     "png_reference",
+    "adb",
+    "emoji",
 ]
