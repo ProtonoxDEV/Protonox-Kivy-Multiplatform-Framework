@@ -1,22 +1,28 @@
-"""Protonox extensions for the vendored Kivy 2.3.1 build.
+"""Protonox extensions for the Kivy 2.3.1 fork.
 
-This package remains opt-in and avoids altering Kivy's public API. It provides
-helpers for layout telemetry, widget tree export, and safe PNG capture so
-Protonox Studio can analyze running apps without mutating user code.
+All additions are opt-in and live outside the core to preserve backward
+compatibility. Production apps see no behavioural changes unless the developer
+explicitly imports and enables these helpers.
 """
 
-from .telemetry import (
-    LayoutMetric,
-    collect_layout_report,
-    export_widget_tree,
-    safe_export_to_png,
-    widget_bounds,
-)
+from .telemetry import collect_layout_report, export_widget_tree, persist_layout_report, safe_export_to_png
+from .layout_engine import introspect
+from .inspector import runtime
+from .kv_bridge import compiler, ir
+from .hotreload_plus import hooks
+from .web_mapper import dom_bridge
+from .visual_state import png_reference
 
 __all__ = [
-    "LayoutMetric",
     "collect_layout_report",
     "export_widget_tree",
+    "persist_layout_report",
     "safe_export_to_png",
-    "widget_bounds",
+    "introspect",
+    "runtime",
+    "compiler",
+    "ir",
+    "hooks",
+    "dom_bridge",
+    "png_reference",
 ]
