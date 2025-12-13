@@ -54,6 +54,15 @@ report = android_preflight()
 print(report.as_dict())  # {'ok': False, 'findings': [...], 'details': {...}}
 ```
 
+### CLI shortcuts (Protonox Studio)
+- `protonox android-detect [--adb-path]` — resolve adb (WSL/Windows aware) and list devices/emulators.
+- `protonox android-logs --package <pkg> [--wifi-first]` — stream structured logcat with GL/SDL hints.
+- `protonox android-restart --package <pkg> [--activity ACT] [--wifi-first]` — relaunch activity without rebuild.
+- `protonox android-reinstall --package <pkg> --apk <path> [--activity ACT] [--wifi-first]` — reinstall APK and restart.
+- `protonox android-wifi-connect [--wifi-target host:port]` — mdns/Wi‑Fi connect where available.
+- `protonox android-wifi-restart [--serial SERIAL] [--port 5555]` — switch USB device to tcpip then reconnect.
+- `protonox android-wifi-logs --package <pkg>` — wireless-first structured log stream.
+
 ## Principles
 - **Opt-in only:** nothing runs automatically; you call the helpers explicitly.
 - **Zero core changes:** Kivy runtime is untouched.
