@@ -7,6 +7,7 @@ same way.
 """
 from __future__ import annotations
 
+import json
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -134,9 +135,28 @@ class ProjectContext:
 
     def build_ui_model(self):
         from . import ui_model
+
         if self.project_type == "kivy":
             from . import kivy_introspection
 
             return kivy_introspection.load_kivy_ui_model(self)
-        return ui_model.from_web_snapshot([], origin=self.project_type)
+
+        # WEB: prefer declared HTML entrypoints or explicit snapshots
+        snapshot_path = os.environ.get("PROTONOX_WEB_SNAPSHOT")
+        if snapshot_path:
+            path = Path(snapshot_path)
+            if path.exists():
+                try:
+                    snapshot = json.loads(path.read_text(encoding="utf-8"))
+                    return ui_model.from_web_snapshot(snapshot, origin="web")
+                except Exception:
+                    pass
+
+        try:
+            from .web_to_kivy import html_to_ui_model
+
+            return html_to_ui_model(self.entrypoint)
+        except Exception:
+            # Fall back to a neutral placeholder while keeping the audit path intact
+            return ui_model.from_web_snapshot([], origin=self.project_type)
 

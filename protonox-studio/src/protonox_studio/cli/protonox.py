@@ -19,27 +19,17 @@ if str(PACKAGE_ROOT) not in sys.path:
 from protonox_studio.core import engine
 from protonox_studio.core.bluntmine import run_bluntmine
 from protonox_studio.core.project_context import ProjectContext
-from protonox_studio.core.ui_model import from_web_snapshot
 from protonox_studio.core.visual import compare_png_to_model, ingest_png
+from protonox_studio.core.web_to_kivy import (
+    WebViewDeclaration,
+    bindings_from_views,
+    plan_web_to_kivy,
+)
 
 # Note: the project uses a directory name with a hyphen (protonox-studio), which
 # prevents importing it as a normal Python package when executing this file as
 # a script. To keep `protonox dev` working when running this CLI directly, the
 # `run_dev_server` command will spawn the server script as a subprocess.
-
-
-def _fake_snapshot() -> List[dict]:
-    """Small synthetic dataset so `protonox audit` returns meaningful output.
-
-    Returns plain dicts so this CLI can run standalone without importing the
-    `core` package.
-    """
-    return [
-        {"id": "hero", "x": 12, "y": 24, "width": 960, "height": 480, "padding": [32, 32, 40, 32], "margin": [0, 0, 48, 0], "color": "#0d1117", "text_samples": [48, 30, 20]},
-        {"id": "cta", "x": 64, "y": 560, "width": 320, "height": 96, "padding": [16, 24, 16, 24], "margin": [0, 0, 24, 0], "color": "#58a6ff", "text_samples": [18, 16]},
-        {"id": "card", "x": 64, "y": 700, "width": 360, "height": 280, "padding": [24, 24, 24, 24], "margin": [0, 0, 24, 0], "color": "#161b22", "text_samples": [20, 16, 14]},
-    ]
-
 
 def run_dev_server(context: ProjectContext) -> None:
     # Spawn the local_dev_server.py script as a subprocess so the CLI can be
@@ -82,26 +72,41 @@ def _audit_from_model(ui_model, png_path: str | None = None) -> dict:
 
 def run_audit(context: ProjectContext, png: str | None = None) -> None:
     ui_model = context.build_ui_model()
-    # Fallback for web: synthetic snapshot until runtime bridge is enabled
-    if context.project_type == "web" and not ui_model.screens:
-        ui_model = from_web_snapshot(_fake_snapshot())
-
     report = _audit_from_model(ui_model, png_path=png)
     print(report["summary"])  # human-friendly line
     print(json.dumps(report, indent=2, ensure_ascii=False))
 
 
 def run_export(context: ProjectContext) -> None:
-    export_dir = Path(context.root).resolve() / "protonox-export"
+    context.ensure_state_tree()
+    export_dir = context.state_dir / "protonox-exports"
     export_dir.mkdir(parents=True, exist_ok=True)
+
+    ui_model = context.build_ui_model()
+    default_binding = WebViewDeclaration(
+        name=context.entrypoint.stem or "web_screen",
+        source=context.entrypoint,
+        url=os.environ.get("PROTONOX_WEB_URL"),
+    )
+    bindings = bindings_from_views([default_binding])
+    plan = plan_web_to_kivy(ui_model, bindings=bindings)
+
+    for filename, content in plan.kv_files.items():
+        (export_dir / filename).write_text(content, encoding="utf-8")
+    for filename, content in plan.controllers.items():
+        (export_dir / filename).write_text(content, encoding="utf-8")
+
     manifest = {
         "message": "One-Click Fix listo",
-        "files": ["tokens.json", "spacing.json"],
         "project_type": context.project_type,
         "entrypoint": str(context.entrypoint),
+        "kv_files": list(plan.kv_files.keys()),
+        "controllers": list(plan.controllers.keys()),
+        "bindings": [binding.__dict__ for binding in plan.bindings],
+        "warnings": plan.warnings,
     }
-    (export_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
-    print(f"Export generado en {export_dir}")
+    (export_dir / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"Export generado en {export_dir} (no se modificó el código del usuario)")
 
 
 def main(argv=None):

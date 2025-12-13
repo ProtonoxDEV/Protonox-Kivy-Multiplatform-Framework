@@ -48,8 +48,8 @@ protonox-studio/
 
 ### Instalación y comandos
 - `pip install .` dentro de `protonox-studio/` instala Protonox Studio como paquete (`protonox` queda disponible en el PATH).
-- `protonox audit` devuelve un reporte JSON y un resumen legible (usa el snapshot sintético por defecto).
-- `protonox export` crea un manifest base en `protonox-export/`.
+- `protonox audit` devuelve un reporte JSON y un resumen legible sobre el UI-IR (HTML→modelo intermedio o Kivy introspection).
+- `protonox export` genera KV + scaffolds Python en `.protonox/protonox-exports` sin tocar tu código.
 - `protonox dev` levanta el servidor local con la inyección Arc Mode.
 - Compatibilidad: los comandos legacy continúan funcionando (`python protonox-studio/cli/protonox.py ...`).
 

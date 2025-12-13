@@ -14,6 +14,14 @@ from .live_reload import (
     bootstrap_hot_reload_engine,
 )
 from .runtime_introspection import RuntimeInspector
+from .web_to_kivy import (
+    KivyExportPlan,
+    ScreenBinding,
+    WebViewDeclaration,
+    bindings_from_views,
+    html_to_ui_model,
+    plan_web_to_kivy,
+)
 
 __all__ = [
     "ElementBox",
@@ -37,4 +45,10 @@ __all__ = [
     "ResponsiveMetrics",
     "Breakpoint",
     "Orientation",
+    "WebViewDeclaration",
+    "ScreenBinding",
+    "KivyExportPlan",
+    "bindings_from_views",
+    "html_to_ui_model",
+    "plan_web_to_kivy",
 ]
