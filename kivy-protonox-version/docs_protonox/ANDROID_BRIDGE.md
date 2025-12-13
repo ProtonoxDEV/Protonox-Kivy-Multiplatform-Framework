@@ -9,9 +9,14 @@ Kivy core or requiring rebuilds for every KV tweak.
 - Incremental install/reinstall APKs (`install_apk`, `push_reload`).
 - Start activities without rebuilding (`run_app`).
 - Filtered logcat streaming for a package (`stream_logcat`).
+- Structured logcat stream that can merge GL/SDL warnings (`stream_logcat_structured`).
 - Bugreport capture for diagnostics (`capture_bugreport`).
 - Read device properties for environment-aware tweaks (`device_props`).
 - Environment preflight to fail fast in CI/containers (`android_preflight`).
+- Wireless debugging helper with mdns autodiscovery (`connect_wireless`).
+- Device selection helper that prefers Wi‑Fi → USB → emulator (`auto_select_device`).
+- Android 15 (API 35) audit for targetSdk and runtime permissions (`audit_android15`).
+- WSL→Windows adb resolution and path normalization for mixed host setups.
 
 ## Usage (dev-only)
 ```python
@@ -21,6 +26,13 @@ adb.ensure_adb()
 devices = adb.list_devices()
 adb.push_reload("./bin/MyApp-debug.apk", package="com.example.myapp")
 session = adb.stream_logcat("com.example.myapp")
+# Structured log lines with GL warnings included
+for evt in adb.stream_logcat_structured("com.example.myapp"):
+    print(evt)
+# Wireless connect if an IP:port is known or PROTONOX_ADB_WIRELESS_HOST is set
+wireless_devices = adb.connect_wireless()
+# API 35 readiness audit
+print(adb.audit_android15("com.example.myapp"))
 # ...read session.process.stdout as needed...
 session.stop()
 
@@ -35,3 +47,7 @@ print(report.as_dict())  # {'ok': False, 'findings': [...], 'details': {...}}
 - **Recoverable:** commands raise `ADBError` with actionable stderr/stdout.
 - **Parity:** same commands usable locally or inside Docker when platform-tools
   are available.
+- **Wireless-friendly:** prefers Wi‑Fi when available, with automatic mdns
+  discovery where host `adb` supports it.
+- **API-35 aware:** `audit_android15` flags missing targetSdkVersion or runtime
+  permissions (POST_NOTIFICATIONS, READ_MEDIA_*).
