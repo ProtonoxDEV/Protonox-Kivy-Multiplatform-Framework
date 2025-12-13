@@ -109,6 +109,11 @@ All advanced features are **opt-in** and **development-only**.
 - Android 13–15 runtime/permission audit plus API-35 target checks
 - Optional desktop bridge server for Android↔desktop command/event exchange in dev loops
 
+### 🔌 Modern device layer (opt-in)
+- Android-first helpers that prefer CameraX/AudioRecord/SAF/Bluetooth over legacy wrappers
+- Runtime permission requests and capability probes exposed via structured snapshots
+- Guarded by `PROTONOX_DEVICE_LAYER=1` so non-Android hosts remain unaffected
+
 ### 🖼️ Visual validation (baseline vs candidate)
 - IR-driven PNG rendering for reproducible snapshots
 - Bounding-box diff ratios per widget with optional overlay exports

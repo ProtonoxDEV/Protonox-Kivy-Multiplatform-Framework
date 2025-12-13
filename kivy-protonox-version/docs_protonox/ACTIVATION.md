@@ -5,6 +5,7 @@ This fork stays dormant until you explicitly enable it. Pick one of the activati
 ## Environment flags
 - `PROTONOX_KIVY=1` or `KIVY_PROTONOX=1` → enable safe-mode defaults.
 - Optional profile: `KIVY_PROTONOX_PROFILE=diagnostics|ui|safe` for targeted toggles.
+- Optional device layer: `PROTONOX_DEVICE_LAYER=1` to unlock modern Android helpers (CameraX/AudioRecord/SAF) without touching the core.
 
 ## In-code toggle
 ```python
