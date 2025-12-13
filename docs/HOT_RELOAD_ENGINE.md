@@ -29,6 +29,19 @@ proceso, preservando estado crítico y con rollback seguro.
 - Level 3: Python + KV + reinyección de estado (`LiveReloadStateCapable`).
 - Escalado seguro: empieza en 0 y sube solo si el archivo y flags lo permiten.
 
+## HotReloadAppBase (KivyMD + overlay rojo)
+- Usa `HotReloadEngine` internamente pero mantiene el flujo heredado de
+  recarga parcial (`FILE_TO_SCREEN`) si la raíz de la app implementa
+  `partial_reload_screen(name)`.
+- Watchdog + hash MD5 para ignorar eventos duplicados; patrones ignorados con
+  `AUTORELOADER_IGNORE_PATTERNS`.
+- Overlay rojo con traceback en modo DEBUG/RAISE_ERROR para diagnosticar
+  crasheos sin matar el proceso.
+- Fallback automático a rebuild si el plan de reload falla o el archivo no es
+  seguro; nunca recarga internals Kivy/KivyMD/Protonox.
+- Gancho de estado: si la app implementa `LiveReloadStateCapable`, el Level 3
+  reinserta el estado tras el reload; si no, se hace rebuild limpio.
+
 ## Flags y ámbito
 - `PROTONOX_HOT_RELOAD_MAX`: limita el nivel máximo (por defecto 3).
 - Dev-only: no se ejecuta en prod y no toca SDK/NDK.

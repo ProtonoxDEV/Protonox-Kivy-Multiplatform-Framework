@@ -25,6 +25,7 @@ protonox-studio/
 
 ### Live Reload (Kivy 2.3.1)
 - `HotReloadEngine` aporta reload real de Python + KV con rollback seguro y preservación de estado (`ReloadState` + `LiveReloadStateCapable`).
+- `HotReloadAppBase` mantiene el overlay rojo heredado, soporta mapeo `FILE_TO_SCREEN` para recarga parcial y usa watchdog+hashes para evitar ruido; si falla, cae a rebuild completo.
 - Niveles: 0 (rebuild), 1 (KV), 2 (Python con grafo), 3 (Python+KV+estado) con degradación automática.
 - Flag de control: `PROTONOX_HOT_RELOAD_MAX` limita el nivel máximo en entornos de desarrollo.
 
