@@ -15,6 +15,18 @@ from .visual_state import freeze, png_reference, snapshot
 from .android_bridge import adb
 from .ui import emoji
 from .observability import export_observability
+from .diagnostics import DiagnosticItem, DiagnosticReport, as_lines as diagnostics_as_lines, collect_runtime_diagnostics
+from .compat import (
+    CompatReport,
+    CompatWarning,
+    COMPAT_WARNINGS,
+    enable_diagnostics,
+    enable_profile,
+    enable_protonox_ui,
+    enable_safe_mode,
+    emit_all_warnings,
+    register_shim,
+)
 
 __all__ = [
     "collect_layout_report",
@@ -37,4 +49,17 @@ __all__ = [
     "adb",
     "emoji",
     "export_observability",
+    "DiagnosticItem",
+    "DiagnosticReport",
+    "diagnostics_as_lines",
+    "collect_runtime_diagnostics",
+    "CompatReport",
+    "CompatWarning",
+    "COMPAT_WARNINGS",
+    "enable_diagnostics",
+    "enable_profile",
+    "enable_protonox_ui",
+    "enable_safe_mode",
+    "emit_all_warnings",
+    "register_shim",
 ]

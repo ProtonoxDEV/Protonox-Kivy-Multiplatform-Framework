@@ -46,6 +46,8 @@ KivyVersion-protonox.PATCH
   - Android preflight validation helper to fail fast in CI/containers
   - ADB `watch()` helper for filtered logcat + quick activity restart (opt-in)
   - Dockerfile for reproducible Protonox/Kivy environment (opt-in, dev-only)
+  - Compatibility profiles (`kivy.protonox_ext.compat`) to keep the fork dormant unless explicitly enabled
+  - Runtime doctor (`kivy.protonox_ext.diagnostics`) for GPU/GL/DPI/window checks guarded by `PROTONOX_RUNTIME_DIAGNOSTICS`
 - Kivy vendored telemetry (opt-in)
   - `kivy.protonox_ext.telemetry` exposes bounds/overflow + safe `export_to_png` behind `PROTONOX_LAYOUT_TELEMETRY=1`
 

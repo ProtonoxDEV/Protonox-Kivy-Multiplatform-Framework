@@ -23,6 +23,10 @@ unchanged unless the corresponding Protonox flags are enabled.
   unless explicitly enabled.
 - **Android fast loop**: ADB wrappers for reinstall/restart/logcat without
   altering build pipelines.
+- **Compatibility profiles**: `kivy.protonox_ext.compat` keeps the fork dormant
+  until a developer calls `enable_*` helpers.
+- **Runtime doctor**: opt-in GPU/GL/DPI/window report via
+  `kivy.protonox_ext.diagnostics` when `PROTONOX_RUNTIME_DIAGNOSTICS=1`.
 
 ## What never changes automatically
 - Core classes (Widget, Layouts, Builder) and their semantics.
