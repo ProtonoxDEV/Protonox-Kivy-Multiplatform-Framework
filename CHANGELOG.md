@@ -57,6 +57,8 @@ KivyVersion-protonox.PATCH
 - Improved Unicode handling in TextInput (opt-in)
 - Emoji-safe rendering pipeline
 - Font fallback stack per platform (Android/Desktop)
+- Emoji fallback helper gated by `PROTONOX_EMOJI_FALLBACK` for Kivy fork
+- Dev-only Android bridge helpers (adb availability check, install/run/logcat, bugreport)
 - Explicit lifecycle hooks via `ProtonoxWidget` mixin
 - Runtime inspector (`app.inspect()`) for widget trees, KV rules, callbacks
 - Responsive helpers (`breakpoint()`, `orientation()`) for KV sizing
