@@ -3,6 +3,13 @@
 Usa este archivo para documentar cada incremento `2.3.1-protonox.<patch>`.
 Cada entrada debe ser breve, auditable y anclada a pruebas reales.
 
+### 2.3.1-protonox.0 — 2024-06-XX
+- Alcance: Motor de Hot Reload para Kivy 2.3.1 con grafo de dependencias, preservación de estado (`ReloadState`) y rollback seguro.
+- Riesgo: Medio; nivel máximo controlable con `PROTONOX_HOT_RELOAD_MAX` (dev-only, fallback a rebuild si falla el plan).
+- Compatibilidad: No se recargan internals de Kivy/KivyMD/Protonox; interfaces opt-in (`LiveReloadStateCapable`).
+- Pruebas: `python -m compileall protonox-studio/src` (ver chunk de compilación reciente).
+- Rollback: establecer `PROTONOX_HOT_RELOAD_MAX=0` o deshabilitar el watcher para usar rebuild completo.
+
 ## Formato sugerido
 
 ### 2.3.1-protonox.X — YYYY-MM-DD
