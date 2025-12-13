@@ -20,6 +20,13 @@ from protonox_studio.core import engine
 from protonox_studio.core.bluntmine import run_bluntmine
 from protonox_studio.core.project_context import ProjectContext
 from protonox_studio.core.visual import compare_png_to_model, diff_pngs, ingest_png, render_model_to_png
+
+# Android helpers live in the Protonox Kivy fork; import lazily so non-Android
+# users are not penalized.
+try:  # pragma: no cover - optional dependency
+    from kivy.protonox_ext.android_bridge import adb
+except Exception:  # pragma: no cover - optional dependency missing
+    adb = None
 from protonox_studio.core.web_to_kivy import (
     WebViewDeclaration,
     bindings_from_views,
@@ -201,6 +208,93 @@ def run_render_kivy(context: ProjectContext) -> None:
     print(json.dumps({"status": "ok", "png": str(path.resolve())}, indent=2, ensure_ascii=False))
 
 
+def _require_adb():
+    if adb is None:
+        raise SystemExit(
+            "Android bridge no disponible: instala/activa kivy-protonox-version para usar comandos adb"
+        )
+
+
+def run_android_detect(adb_path: str = "adb") -> None:
+    _require_adb()
+    resolved = adb.ensure_adb(adb_path)
+    devices = [device.__dict__ for device in adb.list_devices(adb_path=resolved)]
+    print(json.dumps({"adb": resolved, "devices": devices}, indent=2, ensure_ascii=False))
+
+
+def run_android_logs(package: str, adb_path: str = "adb", wifi_first: bool = True) -> None:
+    _require_adb()
+    os.environ.setdefault("PROTONOX_ADB_WIRELESS_FIRST", "1" if wifi_first else "0")
+    resolved = adb.ensure_adb(adb_path)
+    # Prefer wireless if requested
+    if wifi_first:
+        try:
+            adb.connect_wireless(adb_path=resolved)
+        except adb.ADBError:
+            pass
+    try:
+        for event in adb.stream_logcat_structured(package=package, adb_path=resolved, include_gl=True):
+            print(json.dumps(event, ensure_ascii=False))
+    except KeyboardInterrupt:
+        return
+
+
+def run_android_restart(package: str, activity: str | None, adb_path: str = "adb", wifi_first: bool = True) -> None:
+    _require_adb()
+    os.environ.setdefault("PROTONOX_ADB_WIRELESS_FIRST", "1" if wifi_first else "0")
+    resolved = adb.ensure_adb(adb_path)
+    if wifi_first:
+        try:
+            adb.connect_wireless(adb_path=resolved)
+        except adb.ADBError:
+            pass
+    adb.run_app(package=package, activity=activity, adb_path=resolved)
+    print(json.dumps({"status": "restarted", "package": package, "activity": activity or ".MainActivity"}, ensure_ascii=False))
+
+
+def run_android_reinstall(
+    package: str,
+    apk_path: str,
+    activity: str | None,
+    adb_path: str = "adb",
+    wifi_first: bool = True,
+) -> None:
+    _require_adb()
+    resolved = adb.ensure_adb(adb_path)
+    if wifi_first:
+        try:
+            adb.connect_wireless(adb_path=resolved)
+        except adb.ADBError:
+            pass
+    adb.push_reload(apk_path, package=package, activity=activity, adb_path=resolved)
+    print(json.dumps({"status": "reinstalled", "apk": apk_path, "package": package}, ensure_ascii=False))
+
+
+def run_android_wifi_connect(target: str | None, adb_path: str = "adb") -> None:
+    _require_adb()
+    resolved = adb.ensure_adb(adb_path)
+    devices = [device.__dict__ for device in adb.connect_wireless(target=target, adb_path=resolved)]
+    print(json.dumps({"adb": resolved, "devices": devices}, indent=2, ensure_ascii=False))
+
+
+def run_android_wifi_restart(serial: str | None = None, port: int = 5555, adb_path: str = "adb") -> None:
+    _require_adb()
+    resolved = adb.ensure_adb(adb_path)
+    host = adb.enable_wireless(serial=serial, port=port, adb_path=resolved)
+    devices = [device.__dict__ for device in adb.connect_wireless(target=host, adb_path=resolved)] if host else []
+    print(json.dumps({"target": host, "devices": devices}, indent=2, ensure_ascii=False))
+
+
+def run_android_wifi_logs(package: str, adb_path: str = "adb") -> None:
+    _require_adb()
+    resolved = adb.ensure_adb(adb_path)
+    adb.connect_wireless(adb_path=resolved)
+    try:
+        for event in adb.stream_logcat_structured(package=package, adb_path=resolved, include_gl=True):
+            print(json.dumps(event, ensure_ascii=False))
+    except KeyboardInterrupt:
+        return
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Protonox Studio tooling")
     parser.add_argument(
@@ -216,6 +310,13 @@ def main(argv=None):
             "diff",
             "render-web",
             "render-kivy",
+            "android-detect",
+            "android-logs",
+            "android-restart",
+            "android-reinstall",
+            "android-wifi-connect",
+            "android-wifi-restart",
+            "android-wifi-logs",
         ],
         help="Comando a ejecutar",
     )
@@ -228,6 +329,18 @@ def main(argv=None):
     parser.add_argument("--screens", nargs="*", help="Pantallas o rutas declaradas para el mapeo Web→Kivy (route:name)")
     parser.add_argument("--baseline", help="PNG baseline para validación visual")
     parser.add_argument("--candidate", help="PNG candidato para validación visual")
+    parser.add_argument("--package", help="Package Android para comandos adb")
+    parser.add_argument("--activity", help="Actividad Android a lanzar (opcional)")
+    parser.add_argument("--apk", help="APK para reinstalar con android-reinstall")
+    parser.add_argument("--adb-path", dest="adb_path", help="Ruta a adb si no está en PATH")
+    parser.add_argument(
+        "--wifi-first",
+        action="store_true",
+        help="Preferir wireless debugging al streamear logs/reiniciar",
+    )
+    parser.add_argument("--wifi-target", help="Host:puerto opcional para android-wifi-connect")
+    parser.add_argument("--serial", help="Serial USB para habilitar modo wireless")
+    parser.add_argument("--port", type=int, default=5555, help="Puerto TCP para habilitar wireless tcpip")
     args = parser.parse_args(argv)
 
     context = ProjectContext.from_cli(
@@ -253,6 +366,39 @@ def main(argv=None):
     elif args.command == "diagnose":
         report = run_bluntmine(context)
         print(json.dumps(report.as_dict(), indent=2, ensure_ascii=False))
+    elif args.command == "android-detect":
+        run_android_detect(adb_path=args.adb_path or "adb")
+    elif args.command == "android-logs":
+        if not args.package:
+            raise SystemExit("android-logs requiere --package")
+        run_android_logs(args.package, adb_path=args.adb_path or "adb", wifi_first=bool(args.wifi_first))
+    elif args.command == "android-restart":
+        if not args.package:
+            raise SystemExit("android-restart requiere --package")
+        run_android_restart(
+            package=args.package,
+            activity=args.activity,
+            adb_path=args.adb_path or "adb",
+            wifi_first=bool(args.wifi_first),
+        )
+    elif args.command == "android-reinstall":
+        if not args.package or not args.apk:
+            raise SystemExit("android-reinstall requiere --package y --apk")
+        run_android_reinstall(
+            package=args.package,
+            apk_path=args.apk,
+            activity=args.activity,
+            adb_path=args.adb_path or "adb",
+            wifi_first=bool(args.wifi_first),
+        )
+    elif args.command == "android-wifi-connect":
+        run_android_wifi_connect(target=args.wifi_target, adb_path=args.adb_path or "adb")
+    elif args.command == "android-wifi-restart":
+        run_android_wifi_restart(serial=args.serial, port=args.port, adb_path=args.adb_path or "adb")
+    elif args.command == "android-wifi-logs":
+        if not args.package:
+            raise SystemExit("android-wifi-logs requiere --package")
+        run_android_wifi_logs(package=args.package, adb_path=args.adb_path or "adb")
 
 
 if __name__ == "__main__":
