@@ -38,6 +38,8 @@ KivyVersion-protonox.PATCH
   - Layout engine snapshots and inspector exports gated by flags
   - Inspector overlay payload + KV patch suggestions (dev-only)
   - Layout cost profiler + overlay enrichment (dev-only, `PROTONOX_LAYOUT_PROFILER=1`)
+  - Layout health scoring + observability export (context + metrics + fingerprint,
+    opt-in via `PROTONOX_LAYOUT_HEALTH`/`PROTONOX_UI_OBSERVABILITY`)
   - Neutral UI IR + KV compiler for sandbox generation
   - Hot reload snapshot/rollback helpers that leave core untouched
   - Visual PNG warning helpers (opt-in) for baseline vs candidate

@@ -6,7 +6,7 @@ explicitly imports and enables these helpers.
 """
 
 from .telemetry import collect_layout_report, export_widget_tree, persist_layout_report, safe_export_to_png
-from .layout_engine import antipatterns, fingerprint, introspect
+from .layout_engine import antipatterns, fingerprint, health, introspect
 from .inspector import overlay, runtime
 from .kv_bridge import compiler, ir
 from .hotreload_plus import hooks
@@ -14,6 +14,7 @@ from .web_mapper import dom_bridge
 from .visual_state import freeze, png_reference, snapshot
 from .android_bridge import adb
 from .ui import emoji
+from .observability import export_observability
 
 __all__ = [
     "collect_layout_report",
@@ -22,6 +23,7 @@ __all__ = [
     "safe_export_to_png",
     "antipatterns",
     "fingerprint",
+    "health",
     "introspect",
     "runtime",
     "overlay",
@@ -34,4 +36,5 @@ __all__ = [
     "snapshot",
     "adb",
     "emoji",
+    "export_observability",
 ]

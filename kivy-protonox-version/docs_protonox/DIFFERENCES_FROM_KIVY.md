@@ -13,6 +13,8 @@ unchanged unless the corresponding Protonox flags are enabled.
 ## Major Protonox capabilities
 - **Layout telemetry**: widget bounds, symmetry scoring, fingerprints, and
   anti-pattern detection behind `PROTONOX_LAYOUT_TELEMETRY`.
+- **UI observability**: export of tree + metrics + display context with optional
+  layout-health scoring (`PROTONOX_UI_OBSERVABILITY`, `PROTONOX_LAYOUT_HEALTH`).
 - **Visual snapshots**: PNG + JSON dual exports for audit pipelines
   (`PROTONOX_VISUAL_WARNINGS`).
 - **Layout profiler**: opt-in runtime timing of `do_layout` to surface expensive
