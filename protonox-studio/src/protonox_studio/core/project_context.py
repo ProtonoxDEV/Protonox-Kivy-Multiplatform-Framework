@@ -12,6 +12,7 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
+from urllib.request import urlopen
 
 PROJECT_TYPES = {"web", "kivy"}
 
@@ -71,6 +72,7 @@ class ProjectContext:
     state_dir: Path
     backend_url: str
     container_mode: bool
+    web_url: Optional[str] = None
     kv_files: List[Path] = field(default_factory=list)
 
     @classmethod
@@ -86,12 +88,15 @@ class ProjectContext:
             raise ValueError(f"Tipo de proyecto inválido: {resolved_type}. Use: web | kivy")
 
         default_entry = _default_entrypoint(root, resolved_type)
-        entry_path = Path(entrypoint).resolve() if entrypoint else default_entry
+        web_url: Optional[str] = None
+        entry_path = Path(entrypoint).resolve() if entrypoint and not str(entrypoint).startswith("http") else default_entry
 
         if resolved_type == "web":
+            if entrypoint and str(entrypoint).startswith("http"):
+                web_url = str(entrypoint)
             if entry_path.is_dir():
                 entry_path = entry_path / "index.html"
-            if not entry_path.exists():
+            if not entry_path.exists() and web_url is None:
                 entry_path = _detect_site_root(root) / "index.html"
         else:
             if not entry_path.exists():
@@ -100,6 +105,16 @@ class ProjectContext:
 
         state_dir = Path(os.environ.get("PROTONOX_STATE_DIR", root / ".protonox")).resolve()
         state_dir.mkdir(parents=True, exist_ok=True)
+
+        if web_url:
+            fetched = state_dir / "web-entrypoint.html"
+            try:
+                with urlopen(web_url) as response:
+                    fetched.write_text(response.read().decode("utf-8", errors="ignore"), encoding="utf-8")
+                entry_path = fetched
+            except Exception:
+                # keep default path; caller will surface missing file later
+                pass
 
         container_mode = os.environ.get("PROTONOX_CONTAINER") == "1" or Path("/.dockerenv").exists()
         backend_url = os.environ.get("PROTONOX_BACKEND_URL", "https://protonox-backend.onrender.com")
@@ -116,6 +131,7 @@ class ProjectContext:
             state_dir=state_dir,
             backend_url=backend_url,
             container_mode=container_mode,
+            web_url=web_url,
             kv_files=sorted(set(kv_files)),
         )
 
@@ -126,6 +142,7 @@ class ProjectContext:
             "project_type": self.project_type,
             "backend": self.backend_url,
             "container": self.container_mode,
+            "web_url": self.web_url,
             "kv_files": [str(k) for k in self.kv_files],
         }
 
@@ -149,6 +166,16 @@ class ProjectContext:
                 try:
                     snapshot = json.loads(path.read_text(encoding="utf-8"))
                     return ui_model.from_web_snapshot(snapshot, origin="web")
+                except Exception:
+                    pass
+
+        ui_model_path = os.environ.get("PROTONOX_UI_MODEL")
+        if ui_model_path:
+            path = Path(ui_model_path)
+            if path.exists():
+                try:
+                    data = json.loads(path.read_text(encoding="utf-8"))
+                    return ui_model.UIModel.from_dict(data)
                 except Exception:
                     pass
 

@@ -71,7 +71,7 @@ Ejemplo:
 ## Estrategia de versionado
 
 - Base: Kivy upstream tag v2.3.1
-- Fork: `2.3.1-protonox.<patch>`
+- Fork: `2.3.1-protonox.<patch>` vendorizado en `kivy-protonox-version/` (instalable con `pip install -e ./kivy-protonox-version`)
   Ej: `2.3.1-protonox.0`, `2.3.1-protonox.1`
 
 Regla:

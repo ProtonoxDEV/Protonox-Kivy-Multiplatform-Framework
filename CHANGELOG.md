@@ -27,6 +27,8 @@ KivyVersion-protonox.PATCH
 - Web → Kivy bridge
   - HTML-to-UIModel parser (entrypoint-driven, non-invasive)
   - KV/Python scaffold export to `.protonox` without touching user code
+  - URL ingestion with asset/route detection and serialized UI-IR (`ui-model.json`)
+  - PNG baseline/candidate validation via `protonox validate`
 
 ### Improved
 - Developer iteration speed

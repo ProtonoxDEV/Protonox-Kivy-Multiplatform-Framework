@@ -22,6 +22,8 @@ Kivy Fork:
 - Mejoras de TextInput/emojis/fonts (opt-in si es riesgoso)
 - Mejoras del pipeline de build (scripts, preflight, cachés)
 - Mejoras de logging y DX
+- Vendorizado en `kivy-protonox-version/` con instalación reproducible (`pip install -e ./kivy-protonox-version`)
+- Changelog y flags de compatibilidad por parche (`2.3.1-protonox.<n>`)
 
 Protonox Studio:
 - Comandos/scrips para:
@@ -32,6 +34,9 @@ Protonox Studio:
   - registrar outputs (logs/reportes)
 - Integración con hot reload (sin imponer, siempre opt-in)
 - Plantillas de proyectos y “blueprints” de empaquetado
+- Bridge Web→Kivy no invasivo (HTML local o URL) con generación KV/python en `.protonox`
+- Validación visual: `protonox validate --baseline --candidate` genera reporte/diff reproducible
+- UI-IR serializable (`ui-model.json`) para que IA y humanos comparen versiones
 
 ## Fuera de alcance (qué NO hacemos)
 
@@ -74,3 +79,4 @@ Protonox Studio:
 - TextInput con mejor soporte unicode/emojis (sin romper)
 - Pipeline “one-command build” para artefactos
 - Capacidad de IA para diagnosticar y corregir fallas de build con logs claros
+- Kivy fork instalable desde el repo (sin depender de upstream) y export de árbol/bounds para diagnóstico
