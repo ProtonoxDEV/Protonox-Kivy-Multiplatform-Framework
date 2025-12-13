@@ -11,9 +11,8 @@ code changes.
   changes unless they explicitly enable Protonox features.
 
 ## What Protonox adds (opt-in)
-- Compatibility profiles (`enable_safe_mode`, `enable_protonox_ui`,
-  `enable_diagnostics`) to guard behaviour and keep the fork dormant unless a
-  developer opts in.
+- Compatibility profiles (`enable()` with `diagnostics`/`ui`/`safe`) to guard
+  behaviour and keep the fork dormant unless a developer opts in.
 - Diagnostic bus and runtime doctor for GPU/GL/DPI/Window visibility.
 - Layout observability: fingerprints, symmetry scores, anti-pattern detection,
   and telemetry-powered exports.
@@ -24,19 +23,21 @@ code changes.
 
 ## How to keep Protonox dormant
 ```python
-from kivy_protonox import enable_safe_mode
-enable_safe_mode()  # retains upstream behaviour while making the fork detectable
+# Environment only: export KIVY_PROTONOX=1
+# or in code:
+from kivy_protonox import enable
+enable()  # retains upstream behaviour while making the fork detectable
 ```
 
 ## How to opt into telemetry and diagnostics
 ```python
-from kivy_protonox import enable_diagnostics, enable_protonox_ui
+from kivy_protonox import enable
 
 # Diagnostics-only (doctor, diagnostic bus, runtime checks)
-enable_diagnostics()
+enable("diagnostics")
 
 # UI telemetry + profiler overlays (still read-only)
-enable_protonox_ui()
+enable("ui")
 ```
 
 Use environment flags for fine-grained control; see `FEATURE_FLAGS.md`.

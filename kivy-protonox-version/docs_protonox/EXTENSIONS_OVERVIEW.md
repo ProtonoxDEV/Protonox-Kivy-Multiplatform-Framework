@@ -37,10 +37,12 @@ A controlled extension layer on top of Kivy 2.3.1 that unlocks:
 3. Compute layout health + observability payloads when auditing regressions: `PROTONOX_LAYOUT_HEALTH=1` + `PROTONOX_UI_OBSERVABILITY=1`.
 4. Freeze the UI for stable captures when required: `PROTONOX_UI_FREEZE=1`.
 5. Profile layout cost when investigating FPS/layout lag: `PROTONOX_LAYOUT_PROFILER=1`.
-6. Opt into diagnostics when you need doctor-style runtime checks: `PROTONOX_RUNTIME_DIAGNOSTICS=1` or `enable_diagnostics()`.
+6. Opt into diagnostics when you need doctor-style runtime checks: set
+   `KIVY_PROTONOX_PROFILE=diagnostics` or call `enable("diagnostics")`.
 7. Import helpers explicitly, e.g. `from kivy.protonox_ext.layout_engine import fingerprint`.
 8. Export to your own directories; no in-place modifications occur.
-9. Use feature flags or `enable_safe_mode()` to disable at any time.
+9. Use feature flags or `enable()` to disable/enable at any time (unset to
+   revert to upstream behaviour).
 
 ## Non-goals
 - Replacing Kivy core classes.

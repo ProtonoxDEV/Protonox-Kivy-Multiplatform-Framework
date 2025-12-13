@@ -5,7 +5,9 @@ enabled by default; set the flags you need in your dev environment or CI.
 
 | Flag | Purpose | Default |
 | --- | --- | --- |
-| `PROTONOX_COMPAT_MODE` | Marks the runtime as Protonox; set automatically by `enable_safe_mode`/profiles. | unset |
+| `KIVY_PROTONOX` | Requests Protonox safe mode without code changes. | unset |
+| `KIVY_PROTONOX_PROFILE` | Chooses a profile (`diagnostics`, `ui`, `safe`) when `KIVY_PROTONOX` is set. | unset |
+| `PROTONOX_COMPAT_MODE` | Marks the runtime as Protonox; set automatically by `enable()`/profiles. | unset |
 | `PROTONOX_DIAGNOSTIC_BUS` | Enable unified stdout/stderr/warnings/log capture. | `0` |
 | `PROTONOX_RUNTIME_DIAGNOSTICS` | Activate doctor-style GPU/GL/DPI checks. | `0` |
 | `PROTONOX_LAYOUT_TELEMETRY` | Allow bounds/fingerprint/symmetry exports. | `0` |
@@ -15,6 +17,6 @@ enabled by default; set the flags you need in your dev environment or CI.
 | `PROTONOX_PNG_SNAPSHOT` | Enable dual PNG + JSON snapshot capture. | `0` |
 
 Use profiles for convenience:
-- `enable_safe_mode()` → sets `PROTONOX_COMPAT_MODE=1` only.
-- `enable_diagnostics()` → sets `PROTONOX_COMPAT_MODE=1`, `PROTONOX_RUNTIME_DIAGNOSTICS=1`, `PROTONOX_LAYOUT_TELEMETRY=1`.
-- `enable_protonox_ui()` → sets `PROTONOX_COMPAT_MODE=1`, `PROTONOX_UI_OBSERVABILITY=1`, `PROTONOX_LAYOUT_TELEMETRY=1`, `PROTONOX_LAYOUT_PROFILER=1`.
+- `enable()` or `KIVY_PROTONOX=1` → sets `PROTONOX_COMPAT_MODE=1` only.
+- `enable("diagnostics")` or `KIVY_PROTONOX_PROFILE=diagnostics` → sets `PROTONOX_COMPAT_MODE=1`, `PROTONOX_RUNTIME_DIAGNOSTICS=1`, `PROTONOX_LAYOUT_TELEMETRY=1`.
+- `enable("ui")` or `KIVY_PROTONOX_PROFILE=ui` → sets `PROTONOX_COMPAT_MODE=1`, `PROTONOX_UI_OBSERVABILITY=1`, `PROTONOX_LAYOUT_TELEMETRY=1`, `PROTONOX_LAYOUT_PROFILER=1`.

@@ -105,7 +105,28 @@ def is_protonox_runtime() -> bool:
 
     marker = "kivy-protonox-version"
     here = Path(__file__).resolve()
-    return marker in str(here) or os.environ.get("PROTONOX_COMPAT_MODE") is not None
+    return (
+        marker in str(here)
+        or os.environ.get("PROTONOX_COMPAT_MODE") is not None
+        or os.environ.get("KIVY_PROTONOX") is not None
+    )
+
+
+def _profile_from_env() -> Dict[str, str] | None:
+    """Return a profile derived from environment settings if any."""
+
+    env_profile = os.environ.get("KIVY_PROTONOX_PROFILE")
+    if env_profile:
+        value = env_profile.lower()
+        if value == "diagnostics":
+            return DIAGNOSTICS_PROFILE
+        if value == "ui":
+            return UI_PROFILE
+        if value == "safe":
+            return DEFAULT_PROFILE
+    if os.environ.get("KIVY_PROTONOX"):
+        return DEFAULT_PROFILE
+    return None
 
 
 def auto_enable_if_fork() -> CompatReport:
@@ -117,6 +138,9 @@ def auto_enable_if_fork() -> CompatReport:
 
     if not is_protonox_runtime():
         return CompatReport(applied={}, flags={})
+    env_profile = _profile_from_env()
+    if env_profile:
+        return enable_profile(env_profile)
     if os.environ.get("PROTONOX_COMPAT_MODE"):
         return CompatReport(applied={}, flags={"PROTONOX_COMPAT_MODE": os.environ["PROTONOX_COMPAT_MODE"]})
     return enable_safe_mode()
