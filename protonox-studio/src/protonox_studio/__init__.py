@@ -4,6 +4,11 @@ __all__ = [
     "core",
     "intelligence",
     "modules",
+    "devtools",
+    "ui",
+    "layout",
+    "build",
+    "flags",
 ]
 
 __version__ = "0.1.0"

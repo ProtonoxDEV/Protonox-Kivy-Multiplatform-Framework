@@ -18,7 +18,10 @@ KivyVersion-protonox.PATCH
   - Optional state preservation
   - Safe rollback on reload failure
 - Decoupled HotReloadAppBase v2
-- Error overlay UI (non-destructive, replaces crash in dev)
+- Error overlay UI (non-destructive, replaces crash in dev) with rebuild CTA
+- Prefixed logger channels `[HOTRELOAD]`, `[BUILD]`, `[KV]`, `[UI]`
+- Clock duplicate guard (dev-only warning)
+- Centralized Protonox flags helper
 - Preflight environment validation utilities
 - Structured logging for rebuild/reload cycles
 
@@ -34,7 +37,7 @@ KivyVersion-protonox.PATCH
 ---
 
 ## [2.3.1-protonox.2] — Text & Typography Modernization
-**Status:** In progress
+**Status:** In progress (opt-in available)
 
 ### Added
 - Improved Unicode handling in TextInput (opt-in)
@@ -51,10 +54,10 @@ KivyVersion-protonox.PATCH
 ---
 
 ## [2.3.1-protonox.3] — KV Language & Runtime Stability
-**Status:** Planned
+**Status:** DEV preview (opt-in)
 
 ### Added
-- KV strict mode (opt-in)
+- KV strict mode (duplicate id detection + parser surfacing)
 - Improved KV error reporting (file + line)
 - Safe KV reload cleanup to prevent rule leaks
 

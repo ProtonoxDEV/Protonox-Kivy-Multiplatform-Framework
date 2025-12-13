@@ -70,13 +70,22 @@ All advanced features are **opt-in** and **development-only**.
 - `app.inspect().kv_rules()` and `running_callbacks()` for diagnostics
 - Disabled in production unless explicitly enabled
 
+### 🛡 Dev Safety Nets (opt-in)
+- Error overlay with stacktrace + rebuild button in DEBUG
+- Prefixed log channels: `[HOTRELOAD]`, `[BUILD]`, `[KV]`, `[UI]`
+- Duplicate Clock scheduling warnings (development only)
+
+### 🧾 Dev Flags Registry
+- Centralized `protonox_studio.flags.is_enabled()` helper
+- Examples: `PROTONOX_KV_STRICT=1`, `PROTONOX_TEXTINPUT_UNICODE=1`, `PROTONOX_HOT_RELOAD_MAX=2`
+
 ### 🧠 Safer Development Workflow
 - Error overlay instead of application crash
 - Clear diagnostics and logs
 - Explicit control over reload behavior
 
 ### 🎨 UI & Text Improvements (opt-in)
-- Improved Unicode handling
+- Improved Unicode handling (`PROTONOX_TEXTINPUT_UNICODE=1`)
 - Emoji-safe TextInput pipeline
 - Modern font fallback strategy
 
