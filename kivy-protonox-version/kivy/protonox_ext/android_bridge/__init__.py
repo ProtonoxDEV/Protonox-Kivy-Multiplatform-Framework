@@ -14,6 +14,7 @@ from .adb import (
     stream_logcat,
     uninstall,
 )
+from .preflight import AndroidPreflightResult, android_preflight
 
 __all__ = [
     "ADBError",
@@ -28,4 +29,6 @@ __all__ = [
     "run_app",
     "stream_logcat",
     "uninstall",
+    "AndroidPreflightResult",
+    "android_preflight",
 ]

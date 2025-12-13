@@ -30,13 +30,16 @@ KivyVersion-protonox.PATCH
   - URL ingestion with asset/route detection and serialized UI-IR (`ui-model.json`)
   - Declarative route↔screen mapping via `--map protonox_studio.yaml` (KV/controller hints + viewport)
   - IR-based PNG render + diff commands (`render-web`, `render-kivy`, `diff`/`validate`)
-  - PNG baseline/candidate validation via `protonox validate`
+  - PNG baseline/candidate validation via `protonox validate` con diff de bounding-box por widget + overlay opcional
 - Round-trip importer to convert existing Kivy screens/widgets into the neutral UIModel for audits
 - Protonox Kivy extension surface (`kivy-protonox-version/protonox_ext`)
   - Layout engine snapshots and inspector exports gated by flags
+  - Inspector overlay payload + KV patch suggestions (dev-only)
   - Neutral UI IR + KV compiler for sandbox generation
   - Hot reload snapshot/rollback helpers that leave core untouched
   - Visual PNG warning helpers (opt-in) for baseline vs candidate
+  - Android preflight validation helper to fail fast in CI/containers
+  - Dockerfile for reproducible Protonox/Kivy environment (opt-in, dev-only)
 - Kivy vendored telemetry (opt-in)
   - `kivy.protonox_ext.telemetry` exposes bounds/overflow + safe `export_to_png` behind `PROTONOX_LAYOUT_TELEMETRY=1`
 

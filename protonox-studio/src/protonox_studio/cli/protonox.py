@@ -154,8 +154,19 @@ def run_export(context: ProjectContext, screen_args: List[str] | None = None, ou
     _write_export(plan, ui_model, export_dir, context)
 
 
-def run_validate(baseline: Path, candidate: Path, out_dir: Path | None = None) -> None:
-    report = diff_pngs(baseline, candidate, out_dir=out_dir)
+def run_validate(
+    baseline: Path,
+    candidate: Path,
+    out_dir: Path | None = None,
+    context: ProjectContext | None = None,
+) -> None:
+    ui_model = None
+    if context:
+        try:
+            ui_model = context.build_ui_model()
+        except Exception:
+            ui_model = None
+    report = diff_pngs(baseline, candidate, out_dir=out_dir, ui_model=ui_model)
     print(json.dumps(report, indent=2, ensure_ascii=False))
 
 
@@ -234,7 +245,7 @@ def main(argv=None):
         if not args.baseline or not args.candidate:
             raise SystemExit("validate requiere --baseline y --candidate")
         out_dir = Path(args.out) if args.out else None
-        run_validate(Path(args.baseline), Path(args.candidate), out_dir=out_dir)
+        run_validate(Path(args.baseline), Path(args.candidate), out_dir=out_dir, context=context)
     elif args.command == "render-web":
         run_render_web(context)
     elif args.command == "render-kivy":
