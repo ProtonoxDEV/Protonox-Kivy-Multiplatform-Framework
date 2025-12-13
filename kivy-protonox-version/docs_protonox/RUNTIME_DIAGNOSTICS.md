@@ -28,6 +28,7 @@ changing application behaviour.
 - Window backend and resolution
 - DPI hint and scaling warnings
 - Platform/session hints (e.g., Wayland)
+- Optional diagnostic bus events when `PROTONOX_DIAGNOSTIC_BUS=1` (stdout/stderr/warnings/logs)
 
 ## Compatibility
 - Guarded by `PROTONOX_RUNTIME_DIAGNOSTICS` flag (off by default).

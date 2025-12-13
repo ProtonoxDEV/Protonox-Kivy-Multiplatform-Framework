@@ -20,8 +20,10 @@ A controlled extension layer on top of Kivy 2.3.1 that unlocks:
 - `protonox_ext/visual_state/`: PNG-based warnings, UI freeze helper, and dual PNG+JSON snapshots for baseline vs candidate.
 - `protonox_ext/android_bridge/`: dev-only ADB helpers (install/run/logcat/bugreport/watch) and environment preflight checks.
 - `protonox_ext/ui/`: emoji fallback helpers for consistent text rendering.
-- `protonox_ext/compat/`: drop-in compatibility profiles and warning map (keeps the fork dormant until explicitly enabled).
-- `protonox_ext/diagnostics/`: runtime doctor (GPU/GL/window/DPI) gated by `PROTONOX_RUNTIME_DIAGNOSTICS`.
+- `protonox_ext/compat/`: drop-in compatibility profiles and warning map (keeps the fork dormant until explicitly enabled);
+  see `FORK_OVERVIEW.md`, `FEATURE_FLAGS.md`, and `MIGRATION.md`.
+- `protonox_ext/diagnostics/`: runtime doctor (GPU/GL/window/DPI) and diagnostic bus for stdout/stderr/warnings/log capture,
+  gated by `PROTONOX_RUNTIME_DIAGNOSTICS` / `PROTONOX_DIAGNOSTIC_BUS`.
 - `docs_protonox/CHECKLIST.md`: estado rápido de requisitos obligatorios.
 - `docs_protonox/PROTONOX_UI_DEBUG.md`: flags y flujo para perfiles de layout, observabilidad y snapshots duales.
 - `docs_protonox/COMPAT_LAYER.md`: cómo mantener el fork en modo compatible y habilitarlo de forma progresiva.
