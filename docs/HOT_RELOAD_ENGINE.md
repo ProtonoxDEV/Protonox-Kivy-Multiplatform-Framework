@@ -42,6 +42,24 @@ proceso, preservando estado crítico y con rollback seguro.
 - Gancho de estado: si la app implementa `LiveReloadStateCapable`, el Level 3
   reinserta el estado tras el reload; si no, se hace rebuild limpio.
 
+## Ciclo de vida explícito (opt-in)
+- `ProtonoxWidget` añade `on_mount`/`on_unmount`/`on_pause`/`on_resume` sin
+  alterar las clases base de Kivy.
+- `HotReloadAppBase` propaga eventos de pausa/reanudación y desmontaje al
+  árbol de widgets para apps que opten por el mixin.
+
+## Introspección y diagnóstico (DEV only)
+- `app.inspect()` devuelve un `RuntimeInspector` con:
+  - `widget_tree()` serializado
+  - `kv_rules()` cargadas
+  - `running_callbacks()` de Clock
+- Dev-only: se habilita en modo DEBUG o con `PROTONOX_INSPECT=1`.
+
+## Helpers responsivos (opt-in)
+- Utilidades `breakpoint()` y `orientation()` basadas en tamaño real y DPI.
+- Se consumen directamente desde KV para ajustar `size_hint` o spacing sin
+  introducir nuevos layouts.
+
 ## Flags y ámbito
 - `PROTONOX_HOT_RELOAD_MAX`: limita el nivel máximo (por defecto 3).
 - Dev-only: no se ejecuta en prod y no toca SDK/NDK.

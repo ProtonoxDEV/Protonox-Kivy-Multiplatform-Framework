@@ -55,6 +55,21 @@ All advanced features are **opt-in** and **development-only**.
 - Automatic rollback on failure
 - Level-based reload strategy (safe by default)
 
+### 🧭 Explicit State & Lifecycle (opt-in)
+- `LiveReloadStateCapable` contract to persist critical app data across reloads
+- `ProtonoxWidget` mixin for `on_mount`/`on_unmount`/`on_pause`/`on_resume`
+- Lifecycle broadcast stays additive to Kivy’s native events
+
+### 📐 Responsive Layout Helpers (opt-in)
+- `breakpoint()` utility for mobile/tablet/desktop tuning
+- `orientation()` helper based on real window metrics
+- Designed to be consumed directly from KV without new layouts
+
+### 🔎 Runtime Introspection (DEV only)
+- `app.inspect().widget_tree()` for live widget hierarchy snapshots
+- `app.inspect().kv_rules()` and `running_callbacks()` for diagnostics
+- Disabled in production unless explicitly enabled
+
 ### 🧠 Safer Development Workflow
 - Error overlay instead of application crash
 - Clear diagnostics and logs
