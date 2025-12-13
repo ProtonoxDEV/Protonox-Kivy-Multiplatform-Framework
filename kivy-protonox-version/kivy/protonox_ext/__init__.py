@@ -6,12 +6,12 @@ explicitly imports and enables these helpers.
 """
 
 from .telemetry import collect_layout_report, export_widget_tree, persist_layout_report, safe_export_to_png
-from .layout_engine import introspect
+from .layout_engine import antipatterns, fingerprint, introspect
 from .inspector import overlay, runtime
 from .kv_bridge import compiler, ir
 from .hotreload_plus import hooks
 from .web_mapper import dom_bridge
-from .visual_state import png_reference
+from .visual_state import freeze, png_reference, snapshot
 from .android_bridge import adb
 from .ui import emoji
 
@@ -20,6 +20,8 @@ __all__ = [
     "export_widget_tree",
     "persist_layout_report",
     "safe_export_to_png",
+    "antipatterns",
+    "fingerprint",
     "introspect",
     "runtime",
     "overlay",
@@ -28,6 +30,8 @@ __all__ = [
     "hooks",
     "dom_bridge",
     "png_reference",
+    "freeze",
+    "snapshot",
     "adb",
     "emoji",
 ]

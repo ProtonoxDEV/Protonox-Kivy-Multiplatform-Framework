@@ -24,6 +24,8 @@ Kivy Fork:
 - Mejoras de logging y DX
 - Vendorizado en `kivy-protonox-version/` con instalación reproducible (`pip install -e ./kivy-protonox-version`)
 - Changelog y flags de compatibilidad por parche (`2.3.1-protonox.<n>`)
+- Telemetría opt-in para fingerprint de layout, simetría y anti-patrones (solo lectura)
+- Snapshots duales PNG+JSON con modo `PROTONOX_UI_FREEZE` para capturas deterministas
 
 Protonox Studio:
 - Comandos/scrips para:
