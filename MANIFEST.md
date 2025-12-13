@@ -38,6 +38,7 @@ Protonox Studio:
 - Validación visual: `protonox validate --baseline --candidate` genera reporte/diff reproducible
 - Mapeo declarativo de rutas↔screens vía `protonox_studio.yaml|json` y comandos de render/diff (`render-web`, `render-kivy`, `diff`)
 - UI-IR serializable (`ui-model.json`) para que IA y humanos comparen versiones
+- Dockerfile con Kivy 2.3.1 + extensiones para paridad local/contenedor (comandos idénticos)
 
 ## Fuera de alcance (qué NO hacemos)
 

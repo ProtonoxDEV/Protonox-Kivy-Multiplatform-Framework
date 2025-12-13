@@ -11,6 +11,7 @@ Kivy core or requiring rebuilds for every KV tweak.
 - Filtered logcat streaming for a package (`stream_logcat`).
 - Bugreport capture for diagnostics (`capture_bugreport`).
 - Read device properties for environment-aware tweaks (`device_props`).
+- Environment preflight to fail fast in CI/containers (`android_preflight`).
 
 ## Usage (dev-only)
 ```python
@@ -22,6 +23,10 @@ adb.push_reload("./bin/MyApp-debug.apk", package="com.example.myapp")
 session = adb.stream_logcat("com.example.myapp")
 # ...read session.process.stdout as needed...
 session.stop()
+
+from kivy.protonox_ext.android_bridge import android_preflight
+report = android_preflight()
+print(report.as_dict())  # {'ok': False, 'findings': [...], 'details': {...}}
 ```
 
 ## Principles

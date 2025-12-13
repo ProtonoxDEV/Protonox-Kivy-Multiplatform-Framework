@@ -16,7 +16,7 @@ structure) into editable Kivy KV + Python scaffolds without touching user code.
 3. Protonox descarga la URL si es necesario y parsea HTML (sin ejecutar JS) en un UI-IR con pantallas, jerarquía, texto, bounds aproximados, assets y rutas detectadas.
 4. Opcional: aporta un PNG con `--png` para validar viewport durante `audit`.
 5. Ejecuta `protonox web2kivy` (alias: `web-to-kivy` o `export`) para emitir KV + scaffolds bajo `.protonox/protonox-exports` sin tocar tu código.
-6. Usa `protonox render-web`/`render-kivy` para obtener PNG derivados del UI-IR y `protonox diff --baseline ... --candidate ...` para regresión visual reproducible.
+6. Usa `protonox render-web`/`render-kivy` para obtener PNG derivados del UI-IR y `protonox diff --baseline ... --candidate ...` para regresión visual reproducible con métricas de bounding-box por widget (si el IR tiene bounds).
 7. Inspecciona el IR serializado (`ui-model.json`) o reutilízalo vía `PROTONOX_UI_MODEL` para auditorías deterministas.
 8. Itera: edita KV/Python generado o re-exporta tras cambios en HTML.
 

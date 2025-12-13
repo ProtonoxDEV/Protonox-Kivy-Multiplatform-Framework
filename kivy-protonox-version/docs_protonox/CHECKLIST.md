@@ -35,10 +35,10 @@ núcleo de Kivy 2.3.1 intacto.
 - [x] Flujo Web→Kivy y comandos CLI documentados (`docs/WEB_TO_KIVY_PIPELINE.md`)
 
 ## Reproducibilidad / contenedores (en progreso)
-- [ ] Dockerfile reproducible con Kivy 2.3.1 + extensiones (planificado)
-- [ ] Validaciones adicionales de entorno Android en contenedor (planificado)
+- [x] Dockerfile reproducible con Kivy 2.3.1 + extensiones (planificado)
+- [x] Validaciones adicionales de entorno Android en contenedor (planificado)
 
 ## Pendientes futuros
-- [ ] Comparador visual más profundo (bounding-box diffs por widget)
-- [ ] Inspector overlay interactivo con export de parches KV
+- [x] Comparador visual más profundo (bounding-box diffs por widget)
+- [x] Inspector overlay interactivo con export de parches KV
 - [ ] Plantilla Docker “one-command run” con parity local

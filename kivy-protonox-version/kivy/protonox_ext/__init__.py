@@ -7,7 +7,7 @@ explicitly imports and enables these helpers.
 
 from .telemetry import collect_layout_report, export_widget_tree, persist_layout_report, safe_export_to_png
 from .layout_engine import introspect
-from .inspector import runtime
+from .inspector import overlay, runtime
 from .kv_bridge import compiler, ir
 from .hotreload_plus import hooks
 from .web_mapper import dom_bridge
@@ -22,6 +22,7 @@ __all__ = [
     "safe_export_to_png",
     "introspect",
     "runtime",
+    "overlay",
     "compiler",
     "ir",
     "hooks",

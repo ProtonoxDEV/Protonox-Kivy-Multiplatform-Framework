@@ -98,6 +98,11 @@ All advanced features are **opt-in** and **development-only**.
 - Clear diagnostics and logs
 - Explicit control over reload behavior
 
+### 🖼️ Visual validation (baseline vs candidate)
+- IR-driven PNG rendering for reproducible snapshots
+- Bounding-box diff ratios per widget with optional overlay exports
+- CLI: `protonox validate --baseline web.png --candidate kivy.png`
+
 ### 🎨 UI & Text Improvements (opt-in)
 - Improved Unicode handling (`PROTONOX_TEXTINPUT_UNICODE=1`)
 - Emoji-safe TextInput pipeline
@@ -107,6 +112,11 @@ All advanced features are **opt-in** and **development-only**.
 - Deterministic build helpers
 - Build caching
 - Reproducible build reports
+
+### 📦 Container parity
+- Dockerfile with Kivy 2.3.1 + Protonox extensions preinstalled
+- Same CLI inside/outside Docker (mount your project into `/workspace/app`)
+- See `docs/DOCKER.md` for build/run examples
 
 ### 🧱 Vendored Kivy 2.3.1 (compat-first)
 - The forked sources live under `kivy-protonox-version/` with Protonox patches
