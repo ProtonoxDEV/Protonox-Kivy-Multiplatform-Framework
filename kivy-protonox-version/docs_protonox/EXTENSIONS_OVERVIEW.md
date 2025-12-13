@@ -19,6 +19,7 @@ A controlled extension layer on top of Kivy 2.3.1 that unlocks:
 - `protonox_ext/web_mapper/`: DOM-to-IR adapter for declared routes.
 - `protonox_ext/visual_state/`: PNG-based warnings, UI freeze helper, and dual PNG+JSON snapshots for baseline vs candidate.
 - `protonox_ext/android_bridge/`: dev-only ADB helpers (install/run/logcat/bugreport/watch) and environment preflight checks.
+- `protonox_ext/device/`: modern Android device helpers (CameraX probe, AudioRecord setup, SAF handles, permissions, connectivity, Bluetooth) gated by `PROTONOX_DEVICE_LAYER`.
 - `protonox_ext/ui/`: emoji fallback helpers for consistent text rendering.
 - `protonox_ext/compat/`: drop-in compatibility profiles and warning map (keeps the fork dormant until explicitly enabled);
   see `FORK_OVERVIEW.md`, `FEATURE_FLAGS.md`, and `MIGRATION.md`.
@@ -43,6 +44,7 @@ A controlled extension layer on top of Kivy 2.3.1 that unlocks:
 5. Profile layout cost when investigating FPS/layout lag: `PROTONOX_LAYOUT_PROFILER=1`.
 6. Opt into diagnostics when you need doctor-style runtime checks: set
    `KIVY_PROTONOX_PROFILE=diagnostics` or call `enable("diagnostics")`.
+6b. Enable the device layer only when you need modern Android peripherals: set `PROTONOX_DEVICE_LAYER=1` and import from `kivy.protonox_ext.device`.
 7. Import helpers explicitly, e.g. `from kivy.protonox_ext.layout_engine import fingerprint`.
 8. Export to your own directories; no in-place modifications occur.
 9. Use feature flags or `enable()` to disable/enable at any time (unset to

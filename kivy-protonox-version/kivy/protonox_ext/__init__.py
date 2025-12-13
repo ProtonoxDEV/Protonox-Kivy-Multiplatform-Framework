@@ -13,6 +13,26 @@ from .hotreload_plus import hooks
 from .web_mapper import dom_bridge
 from .visual_state import freeze, png_reference, snapshot
 from .android_bridge import adb
+from .device import (
+    AudioRequest,
+    CameraRequest,
+    ConnectivitySnapshot,
+    DeviceCapabilities,
+    DeviceLayerError,
+    LocationRequest,
+    PermissionResult,
+    SensorSnapshot,
+    StorageHandle,
+    bluetooth_route_snapshot,
+    capabilities,
+    connectivity_snapshot,
+    diagnostics_snapshot,
+    ensure_permissions,
+    fused_location_snapshot,
+    open_camerax,
+    start_audio_capture,
+    storage_handle,
+)
 from .ui import emoji
 from .observability import export_observability
 from .diagnostics import (
@@ -58,6 +78,24 @@ __all__ = [
     "freeze",
     "snapshot",
     "adb",
+    "AudioRequest",
+    "CameraRequest",
+    "ConnectivitySnapshot",
+    "DeviceCapabilities",
+    "DeviceLayerError",
+    "LocationRequest",
+    "PermissionResult",
+    "SensorSnapshot",
+    "StorageHandle",
+    "bluetooth_route_snapshot",
+    "capabilities",
+    "connectivity_snapshot",
+    "diagnostics_snapshot",
+    "ensure_permissions",
+    "fused_location_snapshot",
+    "open_camerax",
+    "start_audio_capture",
+    "storage_handle",
     "emoji",
     "export_observability",
     "BUS_ENABLED",
