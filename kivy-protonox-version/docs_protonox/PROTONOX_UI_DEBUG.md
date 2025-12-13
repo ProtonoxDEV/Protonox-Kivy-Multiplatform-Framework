@@ -11,6 +11,10 @@ runtime unchanged when disabled.
   visual exports.
 - `PROTONOX_LAYOUT_PROFILER=1` – time `do_layout` per widget to spot expensive
   nodes; exposed via overlay payloads.
+- `PROTONOX_LAYOUT_HEALTH=1` – compute layout health scores (anti-entropy
+  engine) that blend overflow counts, anti-patterns, and symmetry.
+- `PROTONOX_UI_OBSERVABILITY=1` – export a metadata-rich payload (resolution,
+  DPI, platform, tree, metrics, health, fingerprint) for CI/IA pipelines.
 - `PROTONOX_UI_FREEZE=1` – temporarily pause scheduling/animations while taking
   snapshots or profiling to avoid race conditions.
 
@@ -27,6 +31,9 @@ runtime unchanged when disabled.
 ## Visual snapshots
 - `visual_state.snapshot.export_snapshot(widget, png_path)` already emits paired
   PNG + JSON; combine with `freeze_ui` for stable captures when animations run.
+- `observability.export_observability(widget)` returns a single structure with
+  the display context, widget tree, layout metrics, fingerprint, and layout
+  health score for automated checks.
 
 ## Anti-pattern detection
 - `layout_engine.detect_antipatterns(widget)` surfaces common layout smells

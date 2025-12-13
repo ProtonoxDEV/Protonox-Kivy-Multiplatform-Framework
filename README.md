@@ -108,6 +108,9 @@ All advanced features are **opt-in** and **development-only**.
 ### 📏 Layout health (opt-in, telemetry-gated)
 - Anti-pattern detector for nested layouts, invisible space, empty scrolls, and DPI risks
 - Dev-only inspector payloads with fingerprint, symmetry, anti-pattern summaries, and layout cost overlays (`PROTONOX_LAYOUT_PROFILER=1`)
+- Layout health scoring + observability export (display context, metrics, tree,
+  fingerprint) for CI/IA-driven regressions (`PROTONOX_LAYOUT_HEALTH=1`,
+  `PROTONOX_UI_OBSERVABILITY=1`)
 - All diagnostics are read-only and exported to caller-provided paths
 
 ### ⚡ Layout performance + freeze (DEV only)
