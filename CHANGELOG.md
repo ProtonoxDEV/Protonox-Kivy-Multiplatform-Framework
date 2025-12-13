@@ -37,10 +37,12 @@ KivyVersion-protonox.PATCH
 - Protonox Kivy extension surface (`kivy-protonox-version/protonox_ext`)
   - Layout engine snapshots and inspector exports gated by flags
   - Inspector overlay payload + KV patch suggestions (dev-only)
+  - Layout cost profiler + overlay enrichment (dev-only, `PROTONOX_LAYOUT_PROFILER=1`)
   - Neutral UI IR + KV compiler for sandbox generation
   - Hot reload snapshot/rollback helpers that leave core untouched
   - Visual PNG warning helpers (opt-in) for baseline vs candidate
   - Android preflight validation helper to fail fast in CI/containers
+  - ADB `watch()` helper for filtered logcat + quick activity restart (opt-in)
   - Dockerfile for reproducible Protonox/Kivy environment (opt-in, dev-only)
 - Kivy vendored telemetry (opt-in)
   - `kivy.protonox_ext.telemetry` exposes bounds/overflow + safe `export_to_png` behind `PROTONOX_LAYOUT_TELEMETRY=1`

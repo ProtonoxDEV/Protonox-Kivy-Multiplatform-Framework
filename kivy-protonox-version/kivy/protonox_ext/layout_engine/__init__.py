@@ -3,6 +3,7 @@
 from .antipatterns import AntiPattern, detect_antipatterns
 from .fingerprint import Fingerprint, SymmetryScore, compute_fingerprint, export_snapshot, symmetry_report
 from .introspect import WidgetSnapshot, describe_widget, export_tree, snapshot_tree
+from .performance import LayoutCost, overlay_cost_payload, profile_tree
 
 __all__ = [
     "AntiPattern",
@@ -16,4 +17,7 @@ __all__ = [
     "describe_widget",
     "export_tree",
     "snapshot_tree",
+    "LayoutCost",
+    "profile_tree",
+    "overlay_cost_payload",
 ]

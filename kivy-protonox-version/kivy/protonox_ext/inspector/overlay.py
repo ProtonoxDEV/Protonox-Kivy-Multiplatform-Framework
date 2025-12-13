@@ -6,6 +6,7 @@ from typing import Dict
 
 from kivy.uix.widget import Widget
 
+from ..layout_engine.performance import overlay_cost_payload
 from ..telemetry import PROTONOX_TELEMETRY, widget_bounds
 
 
@@ -24,7 +25,13 @@ def overlay_payload(widget: Widget) -> Dict[str, object]:
 
     if not PROTONOX_TELEMETRY:
         return {"enabled": False, "reason": "telemetry-disabled"}
-    return {"enabled": True, "tree": _node_payload(widget)}
+    payload = {"enabled": True, "tree": _node_payload(widget)}
+
+    # Optional: enrich with layout cost profiling data when opt-in flags are set.
+    cost_payload = overlay_cost_payload(widget)
+    if cost_payload.get("enabled"):
+        payload["layout_costs"] = cost_payload
+    return payload
 
 
 def suggest_kv_patch(widget: Widget, **updates) -> Dict[str, object]:

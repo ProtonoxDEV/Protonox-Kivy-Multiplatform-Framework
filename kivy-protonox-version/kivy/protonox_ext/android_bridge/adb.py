@@ -161,6 +161,28 @@ def device_props(serial: Optional[str] = None, adb_path: str = "adb") -> dict:
     return props
 
 
+def watch(package: str, activity: Optional[str] = None, adb_path: str = "adb", reinstall_apk: Optional[str] = None) -> ADBSession:
+    """Fast dev loop: optional reinstall + activity start + filtered logcat.
+
+    This intentionally avoids touching the Kivy runtime. It simply orchestrates
+    adb so developers can iterate faster without a full rebuild. Call `stop()`
+    on the returned session to end the log stream.
+    """
+
+    ensure_adb(adb_path)
+    devices = list_devices(adb_path=adb_path)
+    if not devices:
+        raise ADBError("No devices/emulators detected via adb")
+
+    if reinstall_apk:
+        install_apk(reinstall_apk, adb_path=adb_path, reinstall=True)
+
+    run_app(package=package, activity=activity, adb_path=adb_path)
+    session = stream_logcat(package=package, adb_path=adb_path, extra_filters=["*:S"])
+    Logger.info("[ADB] watch started for %s (%s)", package, activity or "auto")
+    return session
+
+
 __all__ = [
     "ADBError",
     "ADBSession",
@@ -174,4 +196,5 @@ __all__ = [
     "run_app",
     "stream_logcat",
     "uninstall",
+    "watch",
 ]

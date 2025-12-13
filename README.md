@@ -107,13 +107,22 @@ All advanced features are **opt-in** and **development-only**.
 
 ### 📏 Layout health (opt-in, telemetry-gated)
 - Anti-pattern detector for nested layouts, invisible space, empty scrolls, and DPI risks
-- Dev-only inspector payloads with fingerprint, symmetry, and anti-pattern summaries
+- Dev-only inspector payloads with fingerprint, symmetry, anti-pattern summaries, and layout cost overlays (`PROTONOX_LAYOUT_PROFILER=1`)
 - All diagnostics are read-only and exported to caller-provided paths
+
+### ⚡ Layout performance + freeze (DEV only)
+- UI-freeze helper to pause scheduling/animations for deterministic captures (`PROTONOX_UI_FREEZE=1`)
+- Layout cost profiler timing `do_layout` per widget for FPS/lag triage (`PROTONOX_LAYOUT_PROFILER=1`)
+- Overlay payloads include severity buckets (low/medium/high) without mutating the UI
 
 ### 🎨 UI & Text Improvements (opt-in)
 - Improved Unicode handling (`PROTONOX_TEXTINPUT_UNICODE=1`)
 - Emoji-safe TextInput pipeline
 - Modern font fallback strategy
+
+### 📱 Android fast loop (opt-in)
+- ADB wrappers for install/run/logcat/bugreport plus `watch()` for filtered log streaming and quick activity restarts
+- No SDK/NDK mutations; usable alongside Buildozer outputs
 
 ### 📦 Packaging Improvements
 - Deterministic build helpers

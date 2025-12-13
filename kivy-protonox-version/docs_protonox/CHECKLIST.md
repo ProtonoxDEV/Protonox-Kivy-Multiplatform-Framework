@@ -24,6 +24,7 @@ núcleo de Kivy 2.3.1 intacto.
 - [x] Snapshot dual PNG + JSON + layout report (`kivy/protonox_ext/visual_state/snapshot.py`)
 - [x] Congelado de UI para análisis estable (dev-only, `PROTONOX_UI_FREEZE`) (`kivy/protonox_ext/visual_state/freeze.py`)
 - [x] Detección de anti-patrones y heurísticas multi-DPI (`kivy/protonox_ext/layout_engine/antipatterns.py`)
+- [x] Perfilado de costo de layout por widget (opt-in, `PROTONOX_LAYOUT_PROFILER`) (`kivy/protonox_ext/layout_engine/performance.py`)
 
 ## Hot Reload + contexto para IA
 - [x] Hot reload por niveles con rollback seguro (`protonox-studio` y `kivy/protonox_ext/hotreload_plus`)
@@ -31,6 +32,7 @@ núcleo de Kivy 2.3.1 intacto.
 
 ## Android y emojis
 - [x] Bridge ADB opt-in para deploy/logcat rápido (`kivy/protonox_ext/android_bridge/adb.py`)
+- [x] Modo `watch` para reinstalar opcionalmente y streamear logcat filtrado (`kivy/protonox_ext/android_bridge/adb.py`)
 - [x] Fallback de emoji y descubrimiento de fuentes (`kivy/protonox_ext/ui/emoji.py`)
 
 ## Docs y guías
