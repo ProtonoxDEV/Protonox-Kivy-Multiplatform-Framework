@@ -1,35 +1,120 @@
-# Protonox Kivy Multiplatform Framework (Protonox Studio + Kivy 2.3.1)
+# Kivy 2.3.1 — Protonox Modernization Fork
 
-## Propósito
-Modernizar y extender Kivy 2.3.1 sin romper compatibilidad con SDK/NDK ni toolchains externas, integrando Protonox Studio como capa de orquestación y diagnóstico asistido por IA. Enfoques clave:
-- Automatización industrial del empaquetado (APK, EXE, MSI, etc.).
-- Mejora estructural profunda de la relación `.py` ↔ `.kv` para que sea explícita, trazable y segura.
-- Modernización del framework (TextInput con emojis Unicode, fuentes con fallback, limpieza de APIs obsoletas).
-- Línea de ensamblaje reproducible: builds rápidos, deterministas, detectables y autocorregibles por IA.
-- Separación estricta: no se tocan SDK/NDK/toolchains; se mejora framework + empaquetado + relación `.py/.kv`.
+This repository provides a **backward-compatible modernization layer**
+on top of **Kivy 2.3.1**, focused on:
 
-## Componentes en este repo
-- `kivy-protonox-version/`: fork consciente de Kivy 2.3.1 para modernización y automatización de empaquetado.
-- `protonox-studio/`: herramienta de orquestación y auditoría (hot reload, diagnóstico estructural, IA) reubicada fuera del website.
+- modern developer experience
+- faster iteration cycles
+- safer builds
+- real hot reload in development
 
-## Estado inicial
-- Artefactos locales limpios (`.venv/` y `dist/` removidos). Usa tu entorno preferido antes de desarrollar.
-- Plantillas systemd actualizadas para la nueva ruta del repo.
+without breaking existing Kivy applications.
 
-## Próximos pasos sugeridos
-1) Inicializar git y apuntar a `https://github.com/ProtonoxDEV/Protonox-Kivy-Multiplatform-Framework.git`.
-2) Trabajar ramas de feature para:
-   - Resolver trazabilidad `.py ↔ .kv` (carga ordenada, errores claros, hot reload seguro).
-   - Modernizar TextInput y limpiar APIs obsoletas sin romper compatibilidad.
-   - Instrumentar pipelines de empaquetado reproducibles y observables.
-3) Integrar Protonox Studio como capa de diagnóstico/IA sobre la app Kivy (hot reload, detección de bindings rotos, refactor asistido).
-4) Mantener compatibilidad estricta con toolchains externas; solo mejorar framework, empaquetado y ergonomía IA.
+---
 
-## Uso rápido (Protonox Studio)
-- `cd protonox-studio && pip install .`
-- `protonox dev | audit | export` según necesidad.
-- Plantillas systemd/cron en `protonox-studio/cli/systemd-user/` para automatizar auditorías diarias.
+## Why this fork exists
 
-## Notas de higiene
-- No comitear secretos (`.env` ya está ignorado).
-- Ignorar entornos, caches y artefactos generados (ver `.gitignore`).
+Kivy is a powerful and flexible framework, but it lacks several features
+that modern developers expect today, such as:
+
+- real hot reload (without restarting the process)
+- safer development-time error handling
+- faster and more reproducible builds
+- clearer diagnostics and tooling
+
+This project addresses those gaps **without modifying Kivy’s public API**
+and **without touching Android SDK/NDK internals**.
+
+---
+
+## What this project is
+
+✔ A compatibility-first modernization fork  
+✔ A developer-experience upgrade  
+✔ A foundation for industrialized build pipelines  
+✔ A framework-level live reload engine (DEV only)
+
+---
+
+## What this project is NOT
+
+✖ A rewrite of Kivy  
+✖ A replacement for upstream Kivy  
+✖ A breaking fork  
+✖ A production hot reload system  
+
+All advanced features are **opt-in** and **development-only**.
+
+---
+
+## Key Features
+
+### 🔥 Kivy Live Reload Engine (DEV)
+- Reload Python and KV code without restarting the process
+- Optional state preservation
+- Automatic rollback on failure
+- Level-based reload strategy (safe by default)
+
+### 🧠 Safer Development Workflow
+- Error overlay instead of application crash
+- Clear diagnostics and logs
+- Explicit control over reload behavior
+
+### 🎨 UI & Text Improvements (opt-in)
+- Improved Unicode handling
+- Emoji-safe TextInput pipeline
+- Modern font fallback strategy
+
+### 📦 Packaging Improvements
+- Deterministic build helpers
+- Build caching
+- Reproducible build reports
+
+---
+
+## Compatibility
+
+- Fully compatible with **Kivy 2.3.1**
+- No changes to public APIs
+- Existing apps continue to work without modification
+- Android SDK/NDK remain untouched
+
+---
+
+## Intended Audience
+
+- Developers with existing Kivy apps
+- Teams who need faster iteration cycles
+- Projects requiring reproducible builds
+- Tooling and framework developers
+
+---
+
+## Development Philosophy
+
+- Stability over novelty
+- Explicit over implicit
+- Opt-in over forced behavior
+- Tooling should never surprise production
+
+---
+
+## Status
+
+This project is under active development.
+Early versions focus on **developer tooling and live reload**.
+UI and packaging improvements follow incrementally.
+
+---
+
+## License
+
+Same license as Kivy upstream (MIT).
+
+---
+
+## Acknowledgements
+
+Built on top of the excellent work of the Kivy community.
+This fork aims to extend Kivy’s capabilities while respecting its design
+and ecosystem.
