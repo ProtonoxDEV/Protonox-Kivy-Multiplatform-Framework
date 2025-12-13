@@ -24,6 +24,9 @@ KivyVersion-protonox.PATCH
 - Centralized Protonox flags helper
 - Preflight environment validation utilities
 - Structured logging for rebuild/reload cycles
+- Web → Kivy bridge
+  - HTML-to-UIModel parser (entrypoint-driven, non-invasive)
+  - KV/Python scaffold export to `.protonox` without touching user code
 
 ### Improved
 - Developer iteration speed

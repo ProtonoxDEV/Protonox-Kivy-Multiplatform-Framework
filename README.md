@@ -55,6 +55,13 @@ All advanced features are **opt-in** and **development-only**.
 - Automatic rollback on failure
 - Level-based reload strategy (safe by default)
 
+### 🌉 Web → Kivy portability (via UI-IR)
+- HTML entrypoint parsing into a neutral UI model (no DOM mutation)
+- One-to-one screen mapping to clean KV + controller scaffolds
+- KV exports live in `.protonox` to keep user code untouched
+- Optional PNG comparison against the UI model for visual checks
+- See `docs/WEB_TO_KIVY_PIPELINE.md` for the full flow and safeguards.
+
 ### 🧭 Explicit State & Lifecycle (opt-in)
 - `LiveReloadStateCapable` contract to persist critical app data across reloads
 - `ProtonoxWidget` mixin for `on_mount`/`on_unmount`/`on_pause`/`on_resume`
