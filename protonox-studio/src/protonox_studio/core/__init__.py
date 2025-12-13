@@ -14,6 +14,7 @@ from .live_reload import (
     bootstrap_hot_reload_engine,
 )
 from .runtime_introspection import RuntimeInspector
+from .screen_map import ScreenMap, ScreenRoute, load_screen_map
 from .web_to_kivy import (
     KivyExportPlan,
     ScreenBinding,
@@ -40,6 +41,9 @@ __all__ = [
     "broadcast_lifecycle_event",
     "iter_lifecycle_widgets",
     "RuntimeInspector",
+    "ScreenMap",
+    "ScreenRoute",
+    "load_screen_map",
     "breakpoint",
     "orientation",
     "ResponsiveMetrics",

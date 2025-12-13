@@ -12,18 +12,42 @@ structure) into editable Kivy KV + Python scaffolds without touching user code.
 
 ## Flow
 1. Declare the project as `web` and provide the entrypoint (URL or `index.html`).
-2. Protonox downloads the URL if needed and parses the HTML (no JS execution) into a UI model with screens,
-   components, hierarchy, text samples, approximated bounds, assets, and detected routes.
-3. Optional: provide a PNG with `--png` for viewport validation during audit.
-4. Run `protonox web2kivy` (alias: `protonox export`) to emit KV + controller stubs under `.protonox/protonox-exports`.
-5. Inspect the serialized IR (`ui-model.json`) or reuse it via `PROTONOX_UI_MODEL` for reproducible audits.
-6. Iterate: edit the generated KV/Python or re-run export after HTML changes.
+2. (Opcional pero recomendado) Declara un mapa `protonox_studio.yaml|json` con rutas ↔ screens, viewport y nombres de archivos.
+3. Protonox descarga la URL si es necesario y parsea HTML (sin ejecutar JS) en un UI-IR con pantallas, jerarquía, texto, bounds aproximados, assets y rutas detectadas.
+4. Opcional: aporta un PNG con `--png` para validar viewport durante `audit`.
+5. Ejecuta `protonox web2kivy` (alias: `web-to-kivy` o `export`) para emitir KV + scaffolds bajo `.protonox/protonox-exports` sin tocar tu código.
+6. Usa `protonox render-web`/`render-kivy` para obtener PNG derivados del UI-IR y `protonox diff --baseline ... --candidate ...` para regresión visual reproducible.
+7. Inspecciona el IR serializado (`ui-model.json`) o reutilízalo vía `PROTONOX_UI_MODEL` para auditorías deterministas.
+8. Itera: edita KV/Python generado o re-exporta tras cambios en HTML.
 
 ## Commands
 ```bash
-protonox --project-type web --entrypoint ./site/index.html audit --png ./capture.png
-protonox --project-type web --entrypoint https://example.com web2kivy --screens home:home_screen dashboard:dash
-protonox validate --baseline ./captures/web.png --candidate ./.protonox/protonox-exports/preview.png --out ./.protonox/reports
+protonox audit --project-type web --entrypoint ./site/index.html --png ./capture.png
+protonox web-to-kivy --project-type web --entrypoint https://example.com --map protonox_studio.yaml --screens home:/ dashboard:/dashboard
+protonox render-web --project-type web --entrypoint ./site/index.html
+protonox render-kivy --project-type kivy --entrypoint ./app/main.py
+protonox diff --baseline ./captures/web.png --candidate ./.protonox/renders/kivy.png --out ./.protonox/reports
+```
+
+### IR JSON (mínimo)
+```json
+{
+  "origin": "web|kivy",
+  "routes": ["/", "/dashboard"],
+  "breakpoints": {"/": {"mobile": {"width": 390, "height": 844}}},
+  "screens": [
+    {
+      "name": "home",
+      "viewport": {"width": 1280, "height": 720},
+      "root": {
+        "identifier": "home",
+        "role": "screen",
+        "bounds": {"x": 0, "y": 0, "width": 1280, "height": 720},
+        "children": [{"identifier": "hero", "role": "div", "bounds": {"x": 24, "y": 48, "width": 900, "height": 320}}]
+      }
+    }
+  ]
+}
 ```
 
 ## Output

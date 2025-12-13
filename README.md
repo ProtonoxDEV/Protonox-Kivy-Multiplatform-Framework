@@ -59,9 +59,9 @@ All advanced features are **opt-in** and **development-only**.
 - HTML entrypoint parsing (local path **or URL**) into a neutral UI model (no DOM mutation)
 - Asset + route discovery for multi-view sites and SPA-like flows
 - UI-IR is serializable (`ui-model.json`) for audits/diffs and can be reloaded via env (`PROTONOX_UI_MODEL`)
-- One-to-one screen mapping to clean KV + controller scaffolds (no user code touched)
-- CLI coverage: `protonox web2kivy` for exports, `protonox validate` for PNG baseline/candidate diffs
-- Optional PNG comparison against the UI model for viewport sanity and drift detection
+- One-to-one screen mapping to clean KV + controller scaffolds (no user code touched); pass `--map protonox_studio.yaml` to bind routes↔screens, viewport hints, and filenames explicitly
+- CLI coverage: `protonox web2kivy` (alias `web-to-kivy`) for exports, `protonox render-web`/`render-kivy` for IR-based PNGs, and `protonox diff`/`validate` for baseline vs. candidate checks
+- Optional PNG comparison against the UI model for viewport sanity and drift detection; outputs stay in `.protonox/protonox-exports`
 - See `docs/WEB_TO_KIVY_PIPELINE.md` for the full flow and safeguards.
 
 ### 🧭 Explicit State & Lifecycle (opt-in)
@@ -88,6 +88,10 @@ All advanced features are **opt-in** and **development-only**.
 ### 🧾 Dev Flags Registry
 - Centralized `protonox_studio.flags.is_enabled()` helper
 - Examples: `PROTONOX_KV_STRICT=1`, `PROTONOX_TEXTINPUT_UNICODE=1`, `PROTONOX_HOT_RELOAD_MAX=2`
+
+### 📡 Vendored Kivy telemetry (opt-in)
+- `kivy/protonox_ext/telemetry.py` exports widget bounds, overflow flags, and safe PNG captures behind `PROTONOX_LAYOUT_TELEMETRY=1`
+- Keeps upstream APIs intact while exposing geometry for Web→Kivy validation and inspector overlays
 
 ### 🧠 Safer Development Workflow
 - Error overlay instead of application crash
@@ -148,6 +152,8 @@ UI and packaging improvements follow incrementally.
 - `protonox audit --project-type web --entrypoint ./site/index.html --png ./capture.png`
 - `protonox web2kivy --project-type web --entrypoint https://example.com --screens home:home_screen`
 - `protonox validate --baseline ./web.png --candidate ./.protonox/protonox-exports/preview.png`
+- `protonox render-web --project-type web --entrypoint ./site/index.html`
+- `protonox diff --baseline ./.protonox/renders/web.png --candidate ./.protonox/renders/kivy.png`
 
 All outputs land in `.protonox/` to avoid mutating user projects.
 

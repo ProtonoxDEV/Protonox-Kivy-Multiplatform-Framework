@@ -17,6 +17,7 @@ dependencies = [
     "uvicorn[standard]>=0.22.0",
     "pillow>=10.0.0",
     "watchdog>=4.0.0",
+    "pyyaml>=6.0",
 ]
 license-files = ["LICENSE"]
 keywords = ["design", "audit", "figma", "ux", "protonox"]

@@ -67,6 +67,7 @@ Ejemplo:
 - PROTONOX_TEXTINPUT_EMOJI=1
 - PROTONOX_KV_STRICT=0
 - PROTONOX_BUILD_CACHE=1
+- PROTONOX_LAYOUT_TELEMETRY=1 (exporta bounds/overflow y PNG bajo `kivy.protonox_ext.telemetry`, siempre opt-in)
 
 ## Estrategia de versionado
 

@@ -51,6 +51,8 @@ protonox-studio/
 - `protonox audit` devuelve un reporte JSON y un resumen legible sobre el UI-IR (HTML→modelo intermedio o Kivy introspection).
 - `protonox export` genera KV + scaffolds Python en `.protonox/protonox-exports` sin tocar tu código.
 - `protonox dev` levanta el servidor local con la inyección Arc Mode.
+- `protonox web2kivy` (alias `web-to-kivy`) acepta un `--map protonox_studio.yaml` con rutas↔screens, respeta entrypoints declarativos y exporta bindings reproducibles.
+- `protonox render-web` / `protonox render-kivy` generan PNG basados en el UI-IR para comparar (`protonox diff --baseline ... --candidate ...`).
 - Compatibilidad: los comandos legacy continúan funcionando (`python protonox-studio/cli/protonox.py ...`).
 
 #### Declaración explícita del proyecto (requisito)
