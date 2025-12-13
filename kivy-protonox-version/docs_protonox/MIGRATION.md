@@ -12,7 +12,8 @@ pip install -e kivy-protonox-version  # or your packaged wheel
 No code changes are required for baseline compatibility.
 
 ## 2) Keep behaviour identical (safe mode)
-- Environment-only (no code change): set `KIVY_PROTONOX=1` to request safe mode.
+- Environment-only (no code change): set `KIVY_PROTONOX=1` or `PROTONOX_KIVY=1`
+  to request safe mode.
 - Or a one-liner:
 
 ```python

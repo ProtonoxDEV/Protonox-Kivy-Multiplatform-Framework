@@ -9,9 +9,9 @@ changes until they explicitly opt into extensions.
 - No monkey patches to core widgets or providers.
 
 ## Activation (opt-in)
-- Environment flag (no code changes): set `KIVY_PROTONOX=1` to activate safe
-  mode by default. Optionally set `KIVY_PROTONOX_PROFILE` to `diagnostics`,
-  `ui`, or `safe` to pick a profile.
+- Environment flag (no code changes): set `KIVY_PROTONOX=1` or `PROTONOX_KIVY=1`
+  to activate safe mode by default. Optionally set `KIVY_PROTONOX_PROFILE` to
+  `diagnostics`, `ui`, or `safe` to pick a profile.
 
 - Code-level enable (one-liner):
 

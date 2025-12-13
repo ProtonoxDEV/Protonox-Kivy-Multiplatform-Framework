@@ -21,6 +21,7 @@ from kivy.protonox_ext.compat import (
 )
 
 ENV_ENABLE_FLAG = "KIVY_PROTONOX"
+LEGACY_ENABLE_FLAG = "PROTONOX_KIVY"
 ENV_PROFILE_FLAG = "KIVY_PROTONOX_PROFILE"
 
 PROFILE_MAP = {
@@ -50,7 +51,10 @@ def enable(profile: Optional[str] = None) -> CompatReport:
 def enabled_via_env() -> bool:
     """Return True if the Protonox fork has been explicitly requested."""
 
-    return os.environ.get(ENV_ENABLE_FLAG) is not None
+    return (
+        os.environ.get(ENV_ENABLE_FLAG) is not None
+        or os.environ.get(LEGACY_ENABLE_FLAG) is not None
+    )
 
 
 def apply_env_profile() -> CompatReport:
@@ -71,6 +75,7 @@ if enabled_via_env():
 
 __all__ = [
     "enable",
+    "enable_protonox",
     "enabled_via_env",
     "apply_env_profile",
     "enable_diagnostics",
@@ -79,3 +84,12 @@ __all__ = [
     "CompatReport",
     "is_protonox_runtime",
 ]
+
+# Friendly alias for the activation helper referenced in docs.
+enable_protonox = enable
+
+# Allow the conceptual alias `import protonox_kivy` to resolve to this module
+# without changing the distribution name.
+import sys
+
+sys.modules.setdefault("protonox_kivy", sys.modules[__name__])
