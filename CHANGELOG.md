@@ -34,12 +34,15 @@ KivyVersion-protonox.PATCH
 ---
 
 ## [2.3.1-protonox.2] — Text & Typography Modernization
-**Status:** Planned
+**Status:** In progress
 
 ### Added
 - Improved Unicode handling in TextInput (opt-in)
 - Emoji-safe rendering pipeline
 - Font fallback stack per platform (Android/Desktop)
+- Explicit lifecycle hooks via `ProtonoxWidget` mixin
+- Runtime inspector (`app.inspect()`) for widget trees, KV rules, callbacks
+- Responsive helpers (`breakpoint()`, `orientation()`) for KV sizing
 
 ### Notes
 - All changes behind feature flags

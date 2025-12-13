@@ -36,6 +36,9 @@ from kivy.logger import Logger
 from kivy.properties import BooleanProperty, DictProperty, ListProperty, NumericProperty
 from kivymd.app import MDApp
 
+from .lifecycle import broadcast_lifecycle_event
+from .runtime_introspection import RuntimeInspector
+
 
 # ----------------------------- State preservation -----------------------------
 
@@ -492,6 +495,10 @@ class HotReloadAppBase(MDApp):
     # Widget helpers
     # ------------------------------------------------------------------
     def set_widget(self, wid):
+        previous = getattr(self, "approot", None)
+        if previous is not None and wid is not previous:
+            broadcast_lifecycle_event(previous, "on_unmount")
+
         self.root.clear_widgets()
         self.approot = wid
         if wid is not None:
@@ -500,6 +507,21 @@ class HotReloadAppBase(MDApp):
                 wid.do_layout()
             except Exception:
                 pass
+            broadcast_lifecycle_event(wid, "on_mount")
+
+    def on_pause(self):  # pragma: no cover - runtime hook
+        broadcast_lifecycle_event(self.approot, "on_pause")
+        try:
+            return super().on_pause()
+        except AttributeError:
+            return True
+
+    def on_resume(self):  # pragma: no cover - runtime hook
+        broadcast_lifecycle_event(self.approot, "on_resume")
+        try:
+            return super().on_resume()
+        except AttributeError:
+            return None
 
     # ------------------------------------------------------------------
     # Key bindings
@@ -654,3 +676,10 @@ class HotReloadAppBase(MDApp):
             caller = getframeinfo(stack()[1][0])
             kwargs["filename"] = caller.filename
         return Builder.orig_load_string(string, **kwargs)
+
+    # ------------------------------------------------------------------
+    # Runtime introspection (DEV only)
+    # ------------------------------------------------------------------
+    def inspect(self) -> RuntimeInspector:
+        enabled = self.DEBUG or os.getenv("PROTONOX_INSPECT", "0") == "1"
+        return RuntimeInspector(self, enabled=enabled)
