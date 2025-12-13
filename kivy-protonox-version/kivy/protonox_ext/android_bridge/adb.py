@@ -16,7 +16,7 @@ import subprocess
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, List, Optional
+from typing import Callable, Iterable, List, Optional
 
 from kivy.logger import Logger
 
@@ -193,8 +193,15 @@ def stream_logcat_structured(
     adb_path: str = "adb",
     extra_filters: Optional[Iterable[str]] = None,
     include_gl: bool = True,
+    emit: Optional[Callable[[dict], None]] = None,
 ):
-    """Yield structured logcat lines for the package and optional GL/SDL warnings."""
+    """Yield structured logcat lines for the package and optional GL/SDL warnings.
+
+    If ``emit`` is provided, each structured entry is also forwarded to that
+    callback (for example, a ``DiagnosticBus._record`` wrapper). This keeps the
+    function backwards compatible while enabling structured log capture for IA
+    workflows.
+    """
 
     filters = list(extra_filters or [])
     filters.append(f"{package}:V")
@@ -206,7 +213,13 @@ def stream_logcat_structured(
         if not proc.stdout:
             return
         for line in proc.stdout:
-            yield {"raw": line.rstrip("\n"), "ts": time.time(), "source": "logcat"}
+            payload = {"raw": line.rstrip("\n"), "ts": time.time(), "source": "logcat"}
+            if emit:
+                try:
+                    emit(payload)
+                except Exception:
+                    Logger.exception("[ADB] emit failed for structured logcat line")
+            yield payload
 
 
 def push_reload(apk_path: str, package: str, activity: Optional[str] = None, adb_path: str = "adb") -> None:
@@ -248,7 +261,13 @@ def device_props(serial: Optional[str] = None, adb_path: str = "adb") -> dict:
     return props
 
 
-def watch(package: str, activity: Optional[str] = None, adb_path: str = "adb", reinstall_apk: Optional[str] = None) -> ADBSession:
+def watch(
+    package: str,
+    activity: Optional[str] = None,
+    adb_path: str = "adb",
+    reinstall_apk: Optional[str] = None,
+    emit: Optional[Callable[[dict], None]] = None,
+) -> ADBSession:
     """Fast dev loop: optional reinstall + activity start + filtered logcat.
 
     This intentionally avoids touching the Kivy runtime. It simply orchestrates
@@ -256,16 +275,37 @@ def watch(package: str, activity: Optional[str] = None, adb_path: str = "adb", r
     on the returned session to end the log stream.
     """
 
-    ensure_adb(adb_path)
-    devices = list_devices(adb_path=adb_path)
+    adb_bin = ensure_adb(adb_path)
+    wifi_first = os.environ.get("PROTONOX_ADB_WIRELESS_FIRST", "1").lower() in {"1", "true", "yes"}
+    devices = list_devices(adb_path=adb_bin)
+    if (not devices or wifi_first) and wifi_first:
+        try:
+            devices = connect_wireless(adb_path=adb_bin)
+        except ADBError as exc:
+            Logger.warning("[ADB] wireless connect attempt failed: %s", exc)
     if not devices:
         raise ADBError("No devices/emulators detected via adb")
 
     if reinstall_apk:
-        install_apk(reinstall_apk, adb_path=adb_path, reinstall=True)
+        install_apk(reinstall_apk, adb_path=adb_bin, reinstall=True)
 
-    run_app(package=package, activity=activity, adb_path=adb_path)
-    session = stream_logcat(package=package, adb_path=adb_path, extra_filters=["*:S"])
+    run_app(package=package, activity=activity, adb_path=adb_bin)
+    session = stream_logcat(
+        package=package,
+        adb_path=adb_bin,
+        extra_filters=["*:S"],
+    )
+    if emit:
+        # fan-out structured logcat in a background thread without altering the
+        # raw stream returned by ``stream_logcat``
+        import threading
+
+        def _pump():
+            for event in stream_logcat_structured(package=package, adb_path=adb_bin, emit=emit):
+                if not event:
+                    break
+
+        threading.Thread(target=_pump, daemon=True).start()
     Logger.info("[ADB] watch started for %s (%s)", package, activity or "auto")
     return session
 
@@ -282,6 +322,24 @@ def auto_select_device(adb_path: str = "adb") -> Device:
         key=lambda d: (0 if d.connection == "wifi" else 1 if d.connection == "usb" else 2, d.serial),
     )
     return devices_sorted[0]
+
+
+def enable_wireless(serial: Optional[str] = None, port: int = 5555, adb_path: str = "adb") -> Optional[str]:
+    """Switch a USB-connected device into wireless debugging mode.
+
+    Returns the suggested host:port target to reconnect to. This is a thin
+    wrapper around ``adb tcpip`` and intentionally avoids persisting any
+    configuration.
+    """
+
+    adb_bin = ensure_adb(adb_path)
+    base_cmd = [adb_bin]
+    if serial:
+        base_cmd += ["-s", serial]
+    _run(base_cmd + ["tcpip", str(port)]);
+    props = device_props(serial=serial, adb_path=adb_bin)
+    host = props.get("dhcp.wlan0.ipaddress") or props.get("dhcp.wlan0.ipaddress", "")
+    return f"{host}:{port}" if host else None
 
 
 def connect_wireless(target: Optional[str] = None, adb_path: str = "adb") -> List[Device]:
@@ -380,6 +438,7 @@ __all__ = [
     "capture_bugreport",
     "device_props",
     "ensure_adb",
+    "enable_wireless",
     "install_apk",
     "auto_select_device",
     "audit_android15",

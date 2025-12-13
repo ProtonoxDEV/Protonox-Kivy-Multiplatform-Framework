@@ -103,6 +103,12 @@ All advanced features are **opt-in** and **development-only**.
 - Clear diagnostics and logs
 - Explicit control over reload behavior
 
+### 📱 Android bridge (opt-in)
+- Wireless-first ADB helpers with WSL-aware resolution and USB→tcpip enablement
+- Structured logcat streaming with `emit=` hooks for DiagnosticBus/IA context
+- Android 13–15 runtime/permission audit plus API-35 target checks
+- Optional desktop bridge server for Android↔desktop command/event exchange in dev loops
+
 ### 🖼️ Visual validation (baseline vs candidate)
 - IR-driven PNG rendering for reproducible snapshots
 - Bounding-box diff ratios per widget with optional overlay exports

@@ -16,7 +16,10 @@ Kivy core or requiring rebuilds for every KV tweak.
 - Wireless debugging helper with mdns autodiscovery (`connect_wireless`).
 - Device selection helper that prefers Wi‑Fi → USB → emulator (`auto_select_device`).
 - Android 15 (API 35) audit for targetSdk and runtime permissions (`audit_android15`).
+- Wireless enablement from USB (`enable_wireless`) for dev-only loops.
+- Desktop bridge server for Android↔desktop event/command exchange (`BridgeServer`).
 - WSL→Windows adb resolution and path normalization for mixed host setups.
+- Structured logcat fan-out to DiagnosticBus via `emit=` callbacks.
 
 ## Usage (dev-only)
 ```python
@@ -31,8 +34,18 @@ for evt in adb.stream_logcat_structured("com.example.myapp"):
     print(evt)
 # Wireless connect if an IP:port is known or PROTONOX_ADB_WIRELESS_HOST is set
 wireless_devices = adb.connect_wireless()
+# Switch a USB device to tcpip mode and reconnect when possible
+host = adb.enable_wireless()
+# Fan-out structured logcat into a DiagnosticBus emitter
+from kivy.protonox_ext.diagnostics import get_bus
+bus = get_bus()
+for evt in adb.stream_logcat_structured("com.example.myapp", emit=lambda e: bus._record(e)):  # type: ignore[attr-defined]
+    ...
 # API 35 readiness audit
 print(adb.audit_android15("com.example.myapp"))
+# Android 13–15 permission audit
+from kivy.protonox_ext.android_bridge import audit_runtime_compat
+print(audit_runtime_compat("com.example.myapp").to_json())
 # ...read session.process.stdout as needed...
 session.stop()
 
@@ -51,3 +64,5 @@ print(report.as_dict())  # {'ok': False, 'findings': [...], 'details': {...}}
   discovery where host `adb` supports it.
 - **API-35 aware:** `audit_android15` flags missing targetSdkVersion or runtime
   permissions (POST_NOTIFICATIONS, READ_MEDIA_*).
+- **Bridge-ready:** optional `BridgeServer` enables Android↔desktop payloads for
+  future Protonox Studio iterations without touching app code.

@@ -15,6 +15,8 @@ enabled by default; set the flags you need in your dev environment or CI.
 | `PROTONOX_LAYOUT_PROFILER` | Collect per-widget layout cost timings. | `0` |
 | `PROTONOX_LAYOUT_HEALTH` | Emit layout health scoring and anti-patterns. | `0` |
 | `PROTONOX_PNG_SNAPSHOT` | Enable dual PNG + JSON snapshot capture. | `0` |
+| `PROTONOX_ADB_WIRELESS_FIRST` | Prefer Wi‑Fi devices and attempt `connect_wireless` before failing. | `1` |
+| `PROTONOX_ADB_WIRELESS_HOST` | Explicit host:port for `adb connect` (used when wireless-first). | unset |
 
 Use profiles for convenience:
 - `enable()` or `KIVY_PROTONOX=1` → sets `PROTONOX_COMPAT_MODE=1` only.

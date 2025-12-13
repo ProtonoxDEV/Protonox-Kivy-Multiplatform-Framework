@@ -45,8 +45,12 @@ KivyVersion-protonox.PATCH
   - Visual PNG warning helpers (opt-in) for baseline vs candidate
   - Android preflight validation helper to fail fast in CI/containers
   - ADB `watch()` helper for filtered logcat + quick activity restart (opt-in)
-  - Wireless-aware ADB helpers (mdns connect, Wi‑Fi preferred selection, WSL path bridge) + Android 15 target/permission audit
-  - Dockerfile for reproducible Protonox/Kivy environment (opt-in, dev-only)
+- Wireless-aware ADB helpers (mdns connect, Wi‑Fi preferred selection, WSL path bridge) + Android 15 target/permission audit
+- Wireless-first env flags + USB→tcpip helper for cable-free loops
+- Android runtime compatibility audit for Android 13–15 permissions/targets
+- Structured logcat emit hook for DiagnosticBus ingestion
+- Desktop bridge server scaffold for Android↔desktop command/event exchange (dev-only)
+- Dockerfile for reproducible Protonox/Kivy environment (opt-in, dev-only)
   - Compatibility profiles (`kivy.protonox_ext.compat`) to keep the fork dormant unless explicitly enabled
   - Runtime doctor (`kivy.protonox_ext.diagnostics`) for GPU/GL/DPI/window checks guarded by `PROTONOX_RUNTIME_DIAGNOSTICS`
 - Kivy vendored telemetry (opt-in)
