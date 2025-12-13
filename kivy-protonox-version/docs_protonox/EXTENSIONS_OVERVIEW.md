@@ -25,10 +25,14 @@ A controlled extension layer on top of Kivy 2.3.1 that unlocks:
 - `protonox_ext/diagnostics/`: runtime doctor (GPU/GL/window/DPI) and diagnostic bus for stdout/stderr/warnings/log capture,
   gated by `PROTONOX_RUNTIME_DIAGNOSTICS` / `PROTONOX_DIAGNOSTIC_BUS`.
 - `docs_protonox/CHECKLIST.md`: estado rápido de requisitos obligatorios.
+- `docs_protonox/WHY_PROTONOX.md`: por qué el fork existe y qué duele que resuelve.
+- `docs_protonox/ACTIVATION.md`: cómo habilitar/deshabilitar el fork de forma segura.
 - `docs_protonox/PROTONOX_UI_DEBUG.md`: flags y flujo para perfiles de layout, observabilidad y snapshots duales.
 - `docs_protonox/COMPAT_LAYER.md`: cómo mantener el fork en modo compatible y habilitarlo de forma progresiva.
 - `docs_protonox/RUNTIME_DIAGNOSTICS.md`: uso del doctor de entorno.
 - `docs_protonox/ANDROID_FAST_DEV.md`: loop acelerado ADB sin tocar el core.
+- `docs_protonox/ANDROID_DEBUG.md`: comandos rápidos de ADB (USB/Wi‑Fi) y auditoría API 35.
+- `docs_protonox/WSL_SETUP.md`: notas específicas para Win11 + WSL2 con adb y rutas mixtas.
 - `docs_protonox/DIFFERENCES_FROM_KIVY.md`: diferencias claras contra Kivy 2.3.1.
 
 ## How to opt-in safely

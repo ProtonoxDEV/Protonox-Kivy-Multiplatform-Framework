@@ -109,6 +109,7 @@ def is_protonox_runtime() -> bool:
         marker in str(here)
         or os.environ.get("PROTONOX_COMPAT_MODE") is not None
         or os.environ.get("KIVY_PROTONOX") is not None
+        or os.environ.get("PROTONOX_KIVY") is not None
     )
 
 
@@ -124,7 +125,7 @@ def _profile_from_env() -> Dict[str, str] | None:
             return UI_PROFILE
         if value == "safe":
             return DEFAULT_PROFILE
-    if os.environ.get("KIVY_PROTONOX"):
+    if os.environ.get("KIVY_PROTONOX") or os.environ.get("PROTONOX_KIVY"):
         return DEFAULT_PROFILE
     return None
 
