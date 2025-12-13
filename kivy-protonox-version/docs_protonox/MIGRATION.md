@@ -12,17 +12,20 @@ pip install -e kivy-protonox-version  # or your packaged wheel
 No code changes are required for baseline compatibility.
 
 ## 2) Keep behaviour identical (safe mode)
+- Environment-only (no code change): set `KIVY_PROTONOX=1` to request safe mode.
+- Or a one-liner:
+
 ```python
-from kivy_protonox import enable_safe_mode
-enable_safe_mode()  # activates guard rails, no behavioural changes
+from kivy_protonox import enable
+enable()  # activates guard rails, no behavioural changes
 ```
 
 ## 3) Enable diagnostics when you need visibility
 ```python
-from kivy_protonox import enable_diagnostics
+from kivy_protonox import enable
 
 # Enables the diagnostic bus + runtime doctor
-enable_diagnostics()
+enable("diagnostics")
 ```
 
 Collect logs during development:
@@ -34,7 +37,9 @@ report_path = bus.dump(Path(".protonox/reports/diagnostics.json"))
 
 ## 4) Opt into UI telemetry (read-only)
 ```python
-from kivy_protonox import enable_protonox_ui
+from kivy_protonox import enable
+
+enable("ui")
 ```
 
 This allows layout fingerprints, symmetry reports, and observability exports to
