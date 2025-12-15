@@ -1,166 +1,150 @@
-# Protonox Studio: Web2Kivy Integration Requirements
+# Protonox Studio: Plan de Integración Web→Kivy (Codex)
 
-Este documento consolida los requisitos funcionales y no funcionales para integrar exportaciones Web→Kivy en Protonox Studio. El objetivo es tomar cualquier sitio web (multi‑vista o SPA) y convertirlo en KV/UI model por pantalla, conectándolo a la app Kivy existente de forma segura, repetible y con hot‑reload.
+Este documento define el plan completo para convertir cualquier sitio en `website/` en un conjunto de pantallas Kivy conectadas al proyecto real `protobots/`, sin modificar código del usuario fuera de las áreas controladas. Se basa en UI‑IR como fuente de verdad, exporta KV/Python por pantalla, mapea contra el `ScreenManager` existente, habilita hot‑reload por pantalla o por lote, valida visual/estructuralmente y expone un fast loop Android (USB/WiFi) desde Win11+WSL.
 
-## 0) Restricciones y principios (NO negociables)
-- No tocar código del usuario (pantallas existentes, controladores, lógica) salvo petición explícita.
-- Todo lo generado vive en carpetas controladas:
-  - `.protonox/` (manifiestos, cachés, reportes, fingerprints, logs).
-  - `protobots/protonox_export/` (KV exportado + `ui-model.json`).
-- Si falta mapping o hay ambigüedad: fallback seguro (placeholder de pantalla + warning).
-- Toda magia debe ser opt‑in vía flag/variable de entorno.
-- Hot‑reload debe tolerar reemplazos completos de archivos y ofrecer rollback si falla.
+## 0) Objetivo y principios (no negociable)
+- **No tocar código del usuario** salvo petición explícita. Solo escribir en:
+  - `protobots/protonox_export/**`
+  - `protobots/protonox_studio/**` (nuevo módulo de integración)
+  - cambios mínimos en `main.py`/router para hooks feature‑flag.
+- **Artefactos controlados**: `.protonox/` (manifiestos, caches, reportes, fingerprints, logs) y `protobots/protonox_export/` (KV/UI‑model exportado).
+- **UI‑IR como fuente de verdad**: `*-ui-model.json` gobierna la integración y validación.
+- **Fallback seguro** si falta mapping o hay ambigüedad (placeholder + warning).
+- **Opt‑in para magia** vía flags/env. Nada destructivo por defecto.
+- **Hot‑reload transaccional** con rollback si falla (por pantalla o lote).
+- **No reescribir ScreenManager real** sin consentimiento explícito (modo “apply”).
 
-## 1) Estándares de artefactos y nombres
-### 1.1 Export artefacts
-Por cada vista exportada se generan:
-- `protobots/protonox_export/<slug>.kv`
-- `protobots/protonox_export/<slug>_screen.py` (opcional / scaffold)
-- `protobots/protonox_export/<slug>-ui-model.json`
+## 1) Carpetas y artefactos
+### 1.1 Export
+Ubicación fija: `protobots/protonox_export/`
+- `*-<route>.kv`
+- `*-<route>_screen.py` (scaffold opcional; nunca reemplaza controllers reales)
+- `*-ui-model.json` (UI‑IR serializado)
 
-El **slug** es la identidad primaria. Ejemplo: `articulos-articulos`.
+### 1.2 Configuración
+Ubicación: `protobots/protonox_export/protonox_studio.yaml` (o `.json`). Contiene:
+- mapping `routes ↔ screens`
+- viewport hints
+- reglas de naming
 
-### 1.2 Manifiesto canónico de integración
-Crear `.protonox/web2kivy/mapping.yaml` (alias `protonox_studio.yaml`). Debe soportar:
-- `screens`: mapping explícito `ScreenName ↔ slug KV ↔ ui-model ↔ ruta web`.
-- `routes`: rutas detectadas o definidas.
-- `viewports`: resoluciones (ej. `1280x720`, `mobile`).
-- `assets`: metadata de CSS/JS (solo auditoría).
+### 1.3 Estado/outputs
+Ubicación: `.protonox/protonox-exports/`
+- snapshots PNG
+- diffs
+- reportes
+- dumps de Diagnostic Bus
 
-Ejemplo mínimo:
-```yaml
-version: 1
-project:
-  app_root: protobots
-  export_dir: protobots/protonox_export
-screens:
-  ArticulosScreen:
-    kivy_name: articulos
-    kv: articulos-articulos.kv
-    ui_model: articulos-ui-model.json
-    web:
+### 1.4 Reglas de “no tocar”
+Nada fuera de las rutas anteriores. Los hooks en `main.py`/router deben ser minimalistas y desactivables.
+
+## 2) Núcleo Web→Kivy: UI‑IR y export limpio
+### 2.1 Normalización del UI model (`ui_ir/normalize.py`)
+- Naming estable: identificador web `html-1` → `html_1` seguro en Kivy.
+- Garantizar `role`, `bounds`, `children`, `meta` en cada nodo.
+- Generar `layout_fingerprint` (hash estructural) y `route_signature` (hash de assets + entrypoint).
+- Detectar breakpoints responsivos (opcional) y guardarlos en el IR.
+
+### 2.2 Export KV limpio (`exporters/kivy_kv.py`)
+- Evitar `pos_hint` absurdos (p.ej., `y > 1.0`).
+- Si `bounds` excede viewport → usar `ScrollView + BoxLayout` vertical o `size_hint_y=None` con `height` calculado.
+- Preferir `Label(text=...)` solo si hay texto real.
+- Insertar `# PROTONOX_PLACEHOLDER` donde falte contenido.
+- Excluir nodos web invisibles (`head/meta/link`) del árbol KV, pasándolos a metadata.
+- KV resultante debe parecerse a la UI real, no al DOM literal.
+
+## 3) Integración con la app real: ScreenManager + navegación
+### 3.1 Mapping explícito (`protonox_studio/mapping.py`)
+- Fuente principal: `protonox_studio.yaml`.
+- Si falta mapping: modo interactivo (`protonox map`) para generarlo.
+- Formato mínimo:
+  ```yaml
+  screens:
+    ArticulosScreen:
       route: /articulos
-      entrypoint: website/views/articulos.html
-navigation:
-  default: home
-  links:
-    - from: home
-      to: articulos
-      when: route:/articulos
-```
+      kv: protobots/protonox_export/articulos-articulos.kv
+      ui_model: protobots/protonox_export/articulos-ui-model.json
+      viewport: { width: 360, height: 800 }
+      strategy: replace_content  # o embed/exported_screen
+  routes:
+    /articulos: ArticulosScreen
+  ```
 
-## 2) Integración con ScreenManager real (protobots)
-### 2.1 Problema actual
-El export genera `PortedWebApp()` con su ScreenManager aislado (p.ej. `articulos-articulos_screen.py`). No sirve para la app real; hay que conectarlo al `ScreenManager` existente.
+### 3.2 Estrategias de integración (3 modos)
+- **replace_content (default, recomendado):** la pantalla real existe; se monta el KV exportado dentro de `ids.export_root` sin tocar lógica ni navegación.
+- **embed/exported_screen:** si no hay pantalla real, crear placeholder en carpeta “generated” y montarlo en la app para demos/prototipos.
+- **apply_router (peligroso):** deduce navegación y propone cambios al ScreenManager real. Solo genera PR/patch; no aplica automáticamente.
 
-### 2.2 Screen Injection Layer
-Crear módulo `protobots/protonox_studio_integration/` con:
-- `__init__.py`
-- `mapping_loader.py`
-- `kv_loader.py`
-- `screen_registry.py`
-- `navigation_sync.py`
-- `hot_reload_hooks.py` (si hot‑reload activo)
+### 3.3 Deducción de navegación desde web (`web_nav/extract.py`)
+- Detectar links internos, rutas, menús, botones.
+- Construir `nav_graph.json` con orden sugerido de screens.
+- Solo propone; nunca aplica sin confirmación humana.
 
-Comportamiento:
-- Leer `.protonox/web2kivy/mapping.yaml`.
-- Para cada Screen real (existente o wrapper) cargar el KV exportado (Builder).
-- Asegurar que el `name` del `Screen` coincide con `kivy_name`.
-- Si no existe la Screen en la app: crear wrapper mínima que monte el layout exportado, sin lógica de negocio.
+## 4) HotReload moderno: batch + rollback
+### 4.1 Recarga por lote (`hotreload/batch_reload.py`)
+- Observa cambios en `protobots/protonox_export/**/*.kv` y `protobots/protonox_export/**/*_screen.py`.
+- Agrupa por pantalla usando el mapping.
+- Recarga atómica: snapshot de estado (si la pantalla implementa contrato), compila en sandbox, aplica; si falla → rollback y overlay de error.
 
-### 2.3 Regla clave de KV exportado
-El KV exportado usa reglas `<ArticulosScreen@Screen>`, con riesgos de:
-- ids repetidos entre pantallas.
-- colisiones con clases reales.
-- ids como strings con comillas.
-- `pos_hint`/`size_hint` absurdos por conversión.
+### 4.2 Preservación de estado (opt‑in)
+Contrato `LiveReloadStateCapable`:
+- `export_state() -> dict`
+- `import_state(state: dict) -> None`
+- `on_reload_begin/on_reload_end`
 
-Requisito: sanitizer previo a integrar:
-- Normalizar ids (sin comillas, snake_case).
-- Namespaces por pantalla (prefijo `articulos__meta_1`, opcional via flag).
-- Bloquear colisiones `<X@Screen>`: renombrar a `<PX_ArticulosScreen@Screen>` si hay conflicto.
-- Reportar anti‑patterns (no corregir a ciegas) y generar `layout_report.json`.
+### 4.3 Golpe grande
+- Si cambian >N archivos en <T segundos → activar “bulk mode”.
+- Esperar quiet period (ej., 600ms) y recargar en orden: KV templates → KV screens → controllers Python (si aplica).
+- Reportar resumen OK/fail.
 
-Salida de reportes: `.protonox/web2kivy/reports/<slug>.layout_report.json`.
+### 4.4 Rollback real
+- Snapshots en `.protonox/web2kivy/rollback/<slug>/<timestamp>.kv`.
+- Log `[HOTRELOAD][ROLLBACK] ...` en caso de revert.
 
-## 3) Navegación Web ↔ Kivy
-### 3.1 Inferencia de navegación (no destructiva)
-- Del `ui-model.json` detectar anchors (`<a href>`) y botones con intención (`/articulos`, `/login`).
-- Construir grafo tentativo `routes_graph.json`.
-- Nunca aplicar sin aprobación: usarlo en CLI interactiva para confirmar.
+## 5) CLI interactivo unificado (sin docs web)
+Comando `protonox` (entrypoint) con subcomandos:
 
-### 3.2 Sync modes
-- **Mode A (mínimo)**: mapping manual, sin tocar navegación.
-- **Mode B (asistido)**: sugiere navegación desde web y pide confirmación.
-- **Mode C (generativo)**: puede crear scaffolding de ScreenManager solo si no existe.
+- `protonox doctor`: detecta WSL/Windows, versión kivy-protonox, buildozer/adb, permisos Android 13–15, rutas, fonts/emoji, OpenGL.
+- `protonox web2kivy --entry website/views/articulos.html`: genera UI‑model + KV export + report.
+- `protonox map`: juego interactivo de emparejar screens reales vs exports, guarda mapping y ejecuta smoke test (Builder). Similaridad por route/name/text.
+- `protonox run --app protobots`: arranca la app con flags y hot‑reload.
+- `protonox android wifi-connect`: conecta ADB WiFi y prueba logcat (WSL‑aware).
+- `protonox validate --baseline web.png --candidate kivy.png`: validación visual.
 
-## 4) Hot reload “para IA” (cambios masivos KV)
-- El hot‑reload debe ser transaccional y por pantalla.
+### Consola formateada
+- Prefijos estandarizados: `[PXKIVY]`, `[PXSTUDIO]`, `[HOTRELOAD]`, `[KV]`, `[ANDROID]`, `[UIIR]`, `[VALIDATE]`.
+- Usar `rich`/`textual` opcional para CLI; no ocultar logs de Kivy. Duplicar a stdout normal y JSON (DiagnosticBus) opcional.
 
-### 4.1 Recarga por pantalla
-- File watcher vigila `protobots/protonox_export/**/*.kv`.
-- Al cambiar `articulos-articulos.kv`:
-  - Compilar en sandbox (`Builder`). Si falla → rollback.
-  - Si pasa → reemplazar solo el contenido de esa Screen.
-  - Opcional: preservar estado si la Screen implementa contrato opt‑in.
+## 6) Android 15 + periféricos: Modern Device Layer
+### 6.1 Objetivo
+Capa opt‑in (Android‑first) para cámara (CameraX), mic (AudioRecord/MediaRecorder), GPS (Fused Location Provider), archivos (SAF), contactos, Bluetooth (BLE + permisos nuevos), llamadas/intents.
 
-### 4.2 Rollback real
-- Guardar snapshot previo en `.protonox/web2kivy/rollback/<slug>/<timestamp>.kv`.
-- Si el nuevo KV rompe: restaurar último estable y loggear `[HOTRELOAD][ROLLBACK] ...`.
+### 6.2 Principios
+- Bridge nativo (Java/Kotlin) + Pyjnius en `protobots/app/core/java/...`.
+- API Python estable, ej.:
+  - `protonox.device.camera.open(front=True)`
+  - `protonox.device.permissions.request([...])`
+  - `protonox.device.bluetooth.scan()`
 
-## 5) CLI interactivo para mapping y diagnóstico
-### 5.1 Comando principal
-- `protonox studio doctor`: detecta entorno (Win11 + WSL, ADB, rutas, buildozer), muestra features activas por flags.
+### 6.3 ADB Bridge + server opcional
+- Servidor dev en desktop (WSL/Windows); cliente Android se conecta (websocket/http).
+- Permite enviar eventos, pedir snapshots, stream de logs, ejecutar “actions” (cámara, permisos) en modo dev.
+- Siempre dev‑only y behind flags.
 
-### 5.2 Mapping game
-- `protonox web2kivy map`: lista Screens detectadas y slugs exportados, sugiere match por similitud, el dev confirma estilo wizard y guarda `mapping.yaml`.
-
-### 5.3 Navigation game
-- `protonox web2kivy nav-sync`: muestra grafo tentativo (web routes → kivy screens), permite aceptar/rechazar edges, genera `navigation.yaml` o sección `navigation` en mapping.
-
-### 5.4 Validate / diff
-- `protonox web2kivy validate --screen articulos`: render snapshot (PNG) + JSON tree, genera fingerprint + simetría heurística, deja todo en `.protonox/web2kivy/exports/`.
-
-## 6) Consola de dev coherente (sin dañar logs Kivy)
-### 6.1 Prefijos de logs
-- Añadir prefijos cuando el output proviene de Protonox/Studio: `[PROTONOX]`, `[STUDIO]`, `[WEB2KIVY]`, `[HOTRELOAD]`, `[ANDROID]`, `[KV]`.
-- No reemplazar el Logger de Kivy; solo wrapper opt‑in.
-
-### 6.2 Help overlay en CLI
-- `protonox help`: imprime features disponibles según flags y ejemplos rápidos (2‑3 líneas por feature). Modo interactivo: “¿Quieres configurar mapping ahora? (y/n)”.
-
-## 7) Android bridge server (idea DEV)
-### 7.1 Qué debe hacer (dev only)
-- Correr en desktop (WSL o Windows host).
-- Exponer comandos: instalar APK, iniciar actividad, logcat streaming filtrado, screenshots, pull/push de artefactos `.protonox/`, canal websocket/http sencillo para eventos (ej. crash → snapshot al host).
-
-### 7.2 Qué NO debe hacer
-- Nunca tocar credenciales del usuario.
-- Nunca modificar código del proyecto remoto.
-- Nunca abrir puertos en producción.
-
-## 8) Wireless debugging y Android 15 (API 35)
-### Requerimiento mínimo
-- `protonox android wifi-connect`: detecta WSL, usa `adb.exe` del host si es necesario, guía pairing (Android 11+), guarda alias en `.protonox/android/devices.json`.
+## 7) Android WiFi + auditoría API35
+- `protonox android wifi-connect`: detecta WSL, usa `adb.exe` del host si hace falta, guía pairing Android 11+, guarda alias en `.protonox/android/devices.json`.
 - `protonox android audit --target 35`: checklist de permisos runtime (Bluetooth, media, etc.), sanity de `targetSdkVersion 35`, reporte en `.protonox/android/audit_api35.json`.
 
-## Checklist final para Codex
-Entregables (en orden):
-1. `docs/PROTONOX_STUDIO_WEB2KIVY_INTEGRATION.md` (este documento).
-2. `.protonox/web2kivy/mapping.yaml` + generador CLI `protonox web2kivy map`.
-3. `protobots/protonox_studio_integration/` con `mapping_loader`, `kv_loader`, `screen_registry`.
-4. Sanitizer/validator de KV export (reporte JSON).
-5. Hot‑reload por pantalla + rollback (adaptar watcher existente si aplica).
-6. Navigation inference + CLI de confirmación.
-7. Prefijos de logs + `protonox help` interactivo.
-8. Android WiFi debugging commands + audit API35.
-9. (Opcional) Bridge server DEV (WSL‑aware).
+## 8) Checklist ejecutable para Codex (copiar/pegar como tareas)
+1. Crear módulo `protobots/protonox_studio/` con: `mapping.py`, `loader.py`, `integrations.py`, `doctor.py`, `cli.py`.
+2. Crear/definir `protonox_studio.yaml` (schema + ejemplo) y soporte de lectura/escritura.
+3. Implementar loader “safe”: `replace_content` por defecto, placeholder si falta mapping.
+4. Implementar `protonox map` interactivo (juego) y guardar manifest.
+5. Implementar `hotreload/batch_reload.py`: agrupar cambios, recargar por pantalla, rollback si falla.
+6. Normalizar export KV: remover nodos web invisibles, reparar `pos_hint` > 1, usar `ScrollView` cuando `height > viewport`.
+7. Integrar `protonox doctor`: bridge de rutas WSL, localización de `adb` (Windows/WSL), checks Android 13–15, fonts/emoji.
+8. Implementar prefijos y consola (`[PXKIVY]`, `[PXSTUDIO]`, etc.) con `rich` opcional sin perder logs.
+9. Implementar `android wifi-connect` / logs / restart y validar en Win11+WSL.
+10. Implementar extracción `nav_graph` web y sugerencias de mapping (no aplicar).
+11. (Opcional) Dev Bridge Server (desktop↔android) dev‑only.
+12. Documentar en `docs/WEB_TO_KIVY_PIPELINE.md` y `docs/CLI.md` con ejemplos reales.
 
-## Prevención de escenarios obvios
-- Colisión de IDs: namespacing o reporte si detecta ids repetidas entre pantallas.
-- Colisión `@Screen`: no asumir `<X@Screen>` seguro; renombrar si hay clase real.
-- `Builder.load_file` duplicado: cache por slug (evitar recarga múltiple del mismo KV).
-- Pantalla en blanco: si el KV export no define root visible, mostrar placeholder + warning.
-- Ruta web ≠ screen: no inferir navegación sin aprobación humana (CLI).
-- Paths WSL: normalizar `/mnt/c/...` ↔ `C:\...` en todo el pipeline.
-- Hot‑reload rompe app: siempre transactional con rollback.
