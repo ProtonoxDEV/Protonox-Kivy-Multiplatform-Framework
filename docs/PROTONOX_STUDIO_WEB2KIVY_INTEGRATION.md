@@ -1,6 +1,9 @@
 # Protonox Studio: Plan de Integración Web→Kivy (Codex)
 
-Este documento define el plan completo para convertir cualquier sitio en `website/` en un conjunto de pantallas Kivy conectadas al proyecto real `protobots/`, sin modificar código del usuario fuera de las áreas controladas. Se basa en UI‑IR como fuente de verdad, exporta KV/Python por pantalla, mapea contra el `ScreenManager` existente, habilita hot‑reload por pantalla o por lote, valida visual/estructuralmente y expone un fast loop Android (USB/WiFi) desde Win11+WSL.
+Este documento define el plan completo para convertir cualquier sitio en `website/` en un conjunto de pantallas Kivy conectadas
+al proyecto real `protobots/`, sin modificar código del usuario fuera de las áreas controladas. Se basa en UI‑IR como fuente de
+verdad, exporta KV/Python por pantalla, mapea contra el `ScreenManager` existente, habilita hot‑reload por pantalla o por lote,
+valida visual/estructuralmente y expone un fast loop Android (USB/WiFi) desde Win11+WSL.
 
 ## 0) Objetivo y principios (no negociable)
 - **No tocar código del usuario** salvo petición explícita. Solo escribir en:
@@ -148,3 +151,20 @@ Capa opt‑in (Android‑first) para cámara (CameraX), mic (AudioRecord/MediaRe
 11. (Opcional) Dev Bridge Server (desktop↔android) dev‑only.
 12. Documentar en `docs/WEB_TO_KIVY_PIPELINE.md` y `docs/CLI.md` con ejemplos reales.
 
+## 9) Operativa incremental y criterios de aceptación
+- **Fase 1 (IR + export limpio):** UI‑IR normalizado, export KV saneado y reportes de layout en `.protonox/web2kivy/reports/`. Criterio: el KV compila sin colisiones de `@Screen` ni `ids`, y elimina nodos invisibles.
+- **Fase 2 (mapping + integración segura):** `protonox map` genera `protonox_studio.yaml`; `replace_content` injerta KV en pantallas reales sin tocar lógica. Criterio: carga en runtime del `ScreenManager` real con placeholder si falta mapping.
+- **Fase 3 (hot‑reload transaccional):** watcher por pantalla/batch con rollback. Criterio: modificación deliberada de un KV provoca rollback limpio y log `[HOTRELOAD][ROLLBACK]` ante fallo de compilación.
+- **Fase 4 (navegación asistida):** `web_nav/extract.py` produce `nav_graph.json` y el CLI pide confirmación antes de sugerir rutas. Criterio: ningún cambio se aplica sin confirmación explícita.
+- **Fase 5 (Android fast loop):** `protonox android wifi-connect` y `android audit` operativos en Win11+WSL con almacenamiento de devices en `.protonox/android/`. Criterio: logcat accesible y pairing registrado.
+- **Fase 6 (device layer opt‑in):** API Python estable que envuelve bridge nativo. Criterio: llamadas básicas (`camera.open`, `bluetooth.scan`) funcionan en modo dev cuando el módulo nativo está presente.
+
+## 10) Ejemplo aplicado al caso actual (`articulos-articulos.kv`)
+- Artefactos presentes: `*.kv`, `*_screen.py`, `*-ui-model.json` viven como mini‑apps aisladas.
+- Próximos pasos inmediatos:
+  - Generar `protonox_studio.yaml` con mapping `ArticulosScreen ↔ articulos-articulos.kv` usando `protonox map`.
+  - Activar loader `replace_content` para montar el layout exportado dentro de la pantalla real (sin tocar controladores).
+  - Encender watcher `hotreload/batch_reload.py` apuntando a `protobots/protonox_export/` para recarga por pantalla con rollback.
+  - Ejecutar normalizador de KV para quitar `pos_hint` inválidos y forzar `ScrollView` donde el contenido desborda viewport.
+  - Generar `layout_report.json` y `nav_graph.json` como evidencia y guías para el CLI de navegación.
+- Resultado esperado: Protonox Studio deja de ser “exportador” aislado y se convierte en un motor de porting repetible: cualquier vista web pasa a ser pantalla Kivy integrada, con navegación confirmada, hot‑reload seguro y ciclo Android listo para pruebas.
