@@ -1209,8 +1209,8 @@ ext_modules = get_extensions_from_sources(sources)
 
 # -----------------------------------------------------------------------------
 # automatically detect data files
-split_examples = int(environ.get('KIVY_SPLIT_EXAMPLES', '0'))
-data_file_prefix = 'share/kivy-'
+split_examples = int(environ.get('KIVY_SPLIT_EXAMPLES', '1'))
+data_file_prefix = 'share/kivy-protonox-'
 examples = {}
 examples_allowed_ext = ('readme', 'py', 'wav', 'png', 'jpg', 'svg', 'json',
                         'avi', 'gif', 'txt', 'ttf', 'obj', 'mtl', 'kv', 'mpg',
@@ -1251,21 +1251,21 @@ def glob_paths(*patterns, excludes=('.pyc', )):
 # setup !
 if not build_examples:
     setup(
-        name='Kivy',
+        name='kivy-protonox',
         version=__version__,
-        author='Kivy Team and other contributors',
-        author_email='kivy-dev@googlegroups.com',
-        url='http://kivy.org',
+        author='ProtonoxDEV (fork maintainers)',
+        author_email='contact@protonox.dev',
+        url='https://github.com/ProtonoxDEV/Protonox-Kivy-Multiplatform-Framework',
         project_urls={
-            'Source': 'https://github.com/kivy/kivy',
-            'Documentation': 'https://kivy.org/doc/stable/',
-            'Bug Reports': "https://github.com/kivy/kivy/issues",
+            'Source': 'https://github.com/ProtonoxDEV/Protonox-Kivy-Multiplatform-Framework',
+            'Documentation': 'https://github.com/ProtonoxDEV/Protonox-Kivy-Multiplatform-Framework/tree/codex/normalize-and-clean-repository-structure/kivy-protonox-version/doc',
+            'Bug Reports': 'https://github.com/ProtonoxDEV/Protonox-Kivy-Multiplatform-Framework/issues',
+            'Upstream Kivy': 'https://github.com/kivy/kivy',
         },
         license='MIT',
         description=(
-            'An open-source Python framework for developing '
-            'GUI apps that work cross-platform, including '
-            'desktop, mobile and embedded platforms.'),
+            'Protonox-maintained fork of Kivy intended as a '
+            'drop-in compatible build for Protonox tooling and deployments.'),
         long_description=get_description(),
         long_description_content_type='text/markdown',
         ext_modules=ext_modules,
@@ -1287,7 +1287,7 @@ if not build_examples:
         },
         data_files=[] if split_examples else list(examples.items()),
         classifiers=[
-            'Development Status :: 5 - Production/Stable',
+            'Development Status :: 4 - Beta',
             'Environment :: MacOS X',
             'Environment :: Win32 (MS Windows)',
             'Environment :: X11 Applications',
@@ -1321,13 +1321,13 @@ if not build_examples:
             'Topic :: Software Development :: User Interfaces'])
 else:
     setup(
-        name='Kivy-examples',
+        name='kivy-protonox-examples',
         version=__version__,
-        author='Kivy Team and other contributors',
-        author_email='kivy-dev@googlegroups.com',
-        url='http://kivy.org',
+        author='ProtonoxDEV (fork maintainers)',
+        author_email='contact@protonox.dev',
+        url='https://github.com/ProtonoxDEV/Protonox-Kivy-Multiplatform-Framework',
         license='MIT',
-        description=('Kivy examples.'),
+        description=('Protonox examples and assets for the kivy-protonox fork.'),
         long_description_content_type='text/markdown',
         long_description=get_description(),
         data_files=list(examples.items()))

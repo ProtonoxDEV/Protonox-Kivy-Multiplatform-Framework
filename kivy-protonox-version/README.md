@@ -7,6 +7,8 @@ Kivy
 for developing GUI apps that work cross-platform, including desktop, mobile and
 embedded platforms.
 
+**Fork notice (ProtonoxDEV)**: este repositorio es un fork mantenido por ProtonoxDEV. La distribución publicada en PyPI/TestPyPI se llama `kivy-protonox` y funciona como reemplazo directo del paquete `kivy`, pero no es la distribución oficial de Kivy. Se mantienen los avisos de licencia MIT del proyecto original.
+
 The aim is to allow for quick and easy interaction design and rapid prototyping
 whilst making your code reusable and deployable: Innovative user interfaces made
 easy.
