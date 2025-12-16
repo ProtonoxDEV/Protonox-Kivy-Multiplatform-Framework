@@ -1,0 +1,52 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "protonox-studio"
+version = "0.1.1"
+description = "Protonox Studio – motor de diseño inteligente con auditorías y ARC Mode"
+readme = "README.md"
+authors = [
+    { name = "Protonox", email = "protonox@outlook.es" }
+]
+license = "LicenseRef-Proprietary"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.95.0",
+    "uvicorn[standard]>=0.22.0",
+    "pillow>=10.0.0",
+    "watchdog>=4.0.0",
+    "pyyaml>=6.0",
+    "requests>=2.31.0",
+]
+license-files = ["LICENSE"]
+keywords = ["design", "audit", "figma", "ux", "protonox"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.scripts]
+protonox = "protonox_studio.cli.protonox:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["protonox_studio*", "protonox_kivy_core*"]
+
+[tool.setuptools.package-data]
+"protonox_studio" = [
+    "ui/**/*.html",
+    "ui/**/*.css",
+    "ui/**/*.js",
+    "modules/**/*.json",
+    "modules/**/*.js",
+    "modules/**/*.css",
+    "modules/**/*.html",
+    "web/**/*.js",
+    "core/website/**/*",
+]

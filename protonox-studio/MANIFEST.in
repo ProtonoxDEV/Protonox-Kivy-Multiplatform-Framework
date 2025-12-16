@@ -1,0 +1,3 @@
+include LICENSE
+include .env.example
+recursive-include src/protonox_studio *.html *.js *.json *.md *.svg

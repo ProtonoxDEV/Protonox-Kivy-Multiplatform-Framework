@@ -6,18 +6,55 @@
 *.gzip
 *.7z
 *.apk
+*.aab
+*.ipa
+*.exe
+*.msi
 *.keystore
 *.log
 *.tmp
+*.spec
+
+# Python
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-.DS_Store
-Thumbs.db
+*.so
+*.egg-info/
+.eggs/
+.build/
 build/
 dist/
-android-*
-*.egg-info
-venv/
+
+# Environments
 .venv/
+venv/
+.env
+.env.*
+.python-version
+
+# Tooling
+.mypy_cache/
+.pytest_cache/
+.cache/
+.coverage*
+htmlcov/
+
+# Editors/OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Protonox Studio
+.protonox/
+logs/
+protonox-export/
+
+# Kivy / build artifacts
+.kivy/
+.kivy_modernisation/
+android-*

@@ -1,0 +1,11 @@
+[Unit]
+Description=Protonox Studio daily automation
+After=default.target
+
+[Service]
+Type=oneshot
+Environment=PYTHON_BIN=python3
+ExecStart=/home/protonox/Protonox/Protonox-Kivy-Multiplatform-Framework/protonox-studio/cli/daily_protonox.sh
+WorkingDirectory=/home/protonox/Protonox/Protonox-Kivy-Multiplatform-Framework
+StandardOutput=append:/home/protonox/Protonox/Protonox-Kivy-Multiplatform-Framework/protonox-studio/logs/systemd.log
+StandardError=inherit
