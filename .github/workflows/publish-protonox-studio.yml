@@ -1,0 +1,58 @@
+name: Publish protonox-studio
+
+on:
+  workflow_dispatch:
+    inputs:
+      repository:
+        description: "Target repository: testpypi or pypi"
+        required: false
+        default: testpypi
+      skip_build:
+        description: "Skip build step (use existing dist/)"
+        required: false
+        default: false
+        type: boolean
+  push:
+    tags:
+      - "protonox-studio-*"
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write   # required for OIDC trusted publishing
+      contents: read
+    defaults:
+      run:
+        working-directory: protonox-studio
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build deps
+        if: ${{ inputs.skip_build != true }}
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build
+
+      - name: Build artifacts
+        if: ${{ inputs.skip_build != true }}
+        run: python -m build
+
+      - name: Publish to TestPyPI (OIDC)
+        if: ${{ inputs.repository == 'testpypi' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: protonox-studio/dist
+
+      - name: Publish to PyPI (OIDC)
+        if: ${{ inputs.repository == 'pypi' }}
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: protonox-studio/dist

@@ -1210,7 +1210,7 @@ ext_modules = get_extensions_from_sources(sources)
 # -----------------------------------------------------------------------------
 # automatically detect data files
 split_examples = int(environ.get('KIVY_SPLIT_EXAMPLES', '1'))
-data_file_prefix = 'share/kivy-protonox-'
+data_file_prefix = 'share/protonox-kivy-'
 examples = {}
 examples_allowed_ext = ('readme', 'py', 'wav', 'png', 'jpg', 'svg', 'json',
                         'avi', 'gif', 'txt', 'ttf', 'obj', 'mtl', 'kv', 'mpg',
@@ -1251,7 +1251,7 @@ def glob_paths(*patterns, excludes=('.pyc', )):
 # setup !
 if not build_examples:
     setup(
-        name='kivy-protonox',
+        name='protonox-kivy',
         version=__version__,
         author='ProtonoxDEV (fork maintainers)',
         author_email='contact@protonox.dev',
@@ -1321,13 +1321,13 @@ if not build_examples:
             'Topic :: Software Development :: User Interfaces'])
 else:
     setup(
-        name='kivy-protonox-examples',
+        name='protonox-kivy-examples',
         version=__version__,
         author='ProtonoxDEV (fork maintainers)',
         author_email='contact@protonox.dev',
         url='https://github.com/ProtonoxDEV/Protonox-Kivy-Multiplatform-Framework',
         license='MIT',
-        description=('Protonox examples and assets for the kivy-protonox fork.'),
+        description=('Protonox examples and assets for the protonox-kivy fork.'),
         long_description_content_type='text/markdown',
         long_description=get_description(),
         data_files=list(examples.items()))

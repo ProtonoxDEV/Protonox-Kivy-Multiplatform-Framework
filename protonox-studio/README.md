@@ -47,13 +47,19 @@ protonox-studio/
 | Design Token Sync            | Genera tokens a partir de colores repetidos            | Tokens sin esfuerzo                            |
 
 ### Instalación y comandos
-- `pip install .` dentro de `protonox-studio/` instala Protonox Studio como paquete (`protonox` queda disponible en el PATH).
+- PyPI: `pip install protonox-studio==0.1.1` (expone el comando `protonox`).
+- Local editable: `pip install -e ./protonox-studio` (usa tu intérprete/venv). Requiere `pip>=23`.
 - `protonox audit` devuelve un reporte JSON y un resumen legible sobre el UI-IR (HTML→modelo intermedio o Kivy introspection).
 - `protonox export` genera KV + scaffolds Python en `.protonox/protonox-exports` sin tocar tu código.
 - `protonox dev` levanta el servidor local con la inyección Arc Mode.
 - `protonox web2kivy` (alias `web-to-kivy`) acepta un `--map protonox_studio.yaml` con rutas↔screens, respeta entrypoints declarativos y exporta bindings reproducibles.
 - `protonox render-web` / `protonox render-kivy` generan PNG basados en el UI-IR para comparar (`protonox diff --baseline ... --candidate ...`).
 - Compatibilidad: los comandos legacy continúan funcionando (`python protonox-studio/cli/protonox.py ...`).
+
+### Producción (protonox.studio)
+- Exponer el servidor detrás de un dominio/proxy: `PROTONOX_HOST=0.0.0.0 PROTONOX_PORT=8080 protonox dev` (ajusta el puerto al que te entregue el proxy o VM).
+- Health check listo para load balancers en `/health` (alias `/healthz` o `/ping`), responde JSON con estado, backend y timestamp.
+- `PROTONOX_BACKEND_URL` sigue sobreescribible por entorno; no se commitean claves ni URLs privadas.
 
 ### Instalación por pip (repo local)
 - Local editable: `pip install -e ./protonox-studio` (usa tu intérprete/venv). Requiere `pip>=23`.

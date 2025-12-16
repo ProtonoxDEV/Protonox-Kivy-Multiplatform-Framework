@@ -36,6 +36,16 @@ and **without touching Android SDK/NDK internals**.
 
 ---
 
+## PyPI availability
+
+- Framework fork: `pip install protonox-kivy==3.0.0.dev1` (sdist; builds a wheel locally).
+- CLI tooling: `pip install protonox-studio==0.1.1` (exposes the `protonox` command).
+- TestPyPI mirrors remain available for staging.
+
+If you had previous editable installs, uninstall them first: `pip uninstall -y protonox-kivy kivy protonox-studio`.
+
+---
+
 ## What this project is NOT
 
 ✖ A rewrite of Kivy  
