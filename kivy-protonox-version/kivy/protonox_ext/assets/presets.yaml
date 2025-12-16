@@ -1,0 +1,16 @@
+presets:
+  hero:
+    max_w: 1200
+    max_h: 700
+    format: webp
+  icon:
+    size: 256
+    format: png
+  video_hq:
+    height: 1080
+    bitrate: 5M
+    format: mp4
+  video_mobile:
+    height: 720
+    bitrate: 2.5M
+    format: mp4
