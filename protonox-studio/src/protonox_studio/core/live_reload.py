@@ -18,9 +18,12 @@ from __future__ import annotations
 import copy
 import fnmatch
 import hashlib
+import json
 import importlib
 import importlib.util
 import os
+import threading
+import time
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -44,6 +47,8 @@ from protonox_studio.devtools.logger import prefixed_logger
 from protonox_studio.devtools.clock_guard import ClockGuard
 from protonox_studio.flags import is_enabled
 from protonox_studio.ui.textinput_unicode import patch_textinput_unicode
+from kivy.protonox_ext.runtime.watch.socket_bridge import SocketReloadBridge
+from kivy.protonox_ext.device.facade import bootstrap_device
 
 
 # ----------------------------- State preservation -----------------------------
@@ -348,12 +353,12 @@ class HotReloadAppBase(MDApp):
     their state when the engine reaches Level 3; others gracefully rebuild.
     """
 
-    DEBUG = BooleanProperty("DEBUG" in os.environ)
+    DEBUG = BooleanProperty("DEBUG" in os.environ or os.getenv("PROTONOX_DEV") == "1")
     FOREGROUND_LOCK = BooleanProperty(False)
     KV_FILES = ListProperty()
     KV_DIRS = ListProperty()
     AUTORELOADER_PATHS = ListProperty([(".", {"recursive": True})])
-    AUTORELOADER_IGNORE_PATTERNS = ListProperty(["*.pyc", "*__pycache__*"])
+    AUTORELOADER_IGNORE_PATTERNS = ListProperty(["*.pyc", "*__pycache__*", ".protonox/**", "protobots/protonox_export/**"])
     CLASSES = DictProperty()
     IDLE_DETECTION = BooleanProperty(False)
     IDLE_TIMEOUT = NumericProperty(60)
@@ -374,12 +379,22 @@ class HotReloadAppBase(MDApp):
         self.approot = None
         self._clock_guard = ClockGuard()
         self.use_error_overlay = is_enabled("ERROR_OVERLAY", default=self.DEBUG)
+        self.export_dir: Optional[Path] = None
+        self._export_thread: Optional[threading.Thread] = None
+        self._export_stop = threading.Event()
+        self.device = bootstrap_device(self)
 
         # Dev-only safety nets (all opt-in via flags)
         enable_kv_strict_mode()
         patch_textinput_unicode()
         if is_enabled("CLOCK_GUARD", False):
             self._clock_guard.install()
+
+        # Autodetect export dir (cero fricción)
+        default_export_dir = Path(os.getenv("PROTONOX_EXPORT_DIR", "protobots/protonox_export"))
+        if default_export_dir.exists():
+            self.export_dir = default_export_dir
+            os.environ.setdefault("PROTONOX_EXPORT_DIR", str(default_export_dir))
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -391,6 +406,9 @@ class HotReloadAppBase(MDApp):
             self.patch_builder()
             self.bind_key(32, self.rebuild)  # Space bar → manual rebuild
             self._install_exception_overlay()
+
+            # Start export bridge if present
+            self._start_export_bridge()
 
         if self.FOREGROUND_LOCK:
             self.prepare_foreground_lock()
@@ -529,6 +547,13 @@ class HotReloadAppBase(MDApp):
             except Exception:
                 pass
             broadcast_lifecycle_event(wid, "on_mount")
+        # Re-bind device lifecycle when widgets change
+        try:
+            if hasattr(self, "device") and self.device:
+                self.device.on_unmount()
+                self.device.on_mount()
+        except Exception:
+            pass
 
     def on_pause(self):  # pragma: no cover - runtime hook
         broadcast_lifecycle_event(self.approot, "on_pause")
@@ -541,6 +566,13 @@ class HotReloadAppBase(MDApp):
         broadcast_lifecycle_event(self.approot, "on_resume")
         try:
             return super().on_resume()
+        except AttributeError:
+            return None
+
+    def on_stop(self):  # pragma: no cover - runtime hook
+        self._stop_export_bridge()
+        try:
+            return super().on_stop()
         except AttributeError:
             return None
 
@@ -632,8 +664,15 @@ class HotReloadAppBase(MDApp):
         return hash_md5.hexdigest()
 
     def _should_ignore(self, path: str) -> bool:
+        norm = path.replace("\\", "/")
+        # Allow manifest and .reload inside export dir even if under ignore glob
+        if self.export_dir:
+            export_str = str(self.export_dir.resolve())
+            if norm.startswith(export_str):
+                if norm.endswith("app_manifest.json") or norm.endswith(".reload"):
+                    return False
         for pat in self.AUTORELOADER_IGNORE_PATTERNS:
-            if fnmatch.fnmatch(path, pat):
+            if fnmatch.fnmatch(norm, pat) or fnmatch.fnmatch(os.path.relpath(norm, os.getcwd()), pat):
                 return True
         return False
 
@@ -667,7 +706,83 @@ class HotReloadAppBase(MDApp):
 
         self._dispatch_change(Path(changed_file))
 
+    # ------------------------------------------------------------------
+    # Export bridge (manifest watcher without loops)
+    # ------------------------------------------------------------------
+    def _start_export_bridge(self):
+        socket_endpoint = os.getenv("PROTONOX_EXPORT_SOCKET")
+        if socket_endpoint:
+            Logger.info(f"{self.appname}: export bridge ON via socket {socket_endpoint}")
+            self._export_stop.clear()
+            bridge = SocketReloadBridge(socket_endpoint, lambda _p: self._dispatch_change(self.export_dir / "app_manifest.json" if self.export_dir else Path("")), manifest_path=(self.export_dir / "app_manifest.json") if self.export_dir else None)
+            bridge.start()
+            self._export_thread = bridge  # type: ignore
+            return
+
+        if self.export_dir is None:
+            Logger.info(f"{self.appname}: export bridge OFF (no export dir)")
+            return
+        manifest = self.export_dir / "app_manifest.json"
+        if not manifest.exists():
+            Logger.info(f"{self.appname}: export bridge OFF (manifest missing at {manifest})")
+            return
+
+        Logger.info(
+            f"{self.appname}: export bridge ON ({self.export_dir}), watching manifest/.reload"
+        )
+
+        def loop():
+            last_hash = ""
+            last_reload_ts = 0.0
+            while not self._export_stop.is_set():
+                try:
+                    if manifest.exists():
+                        data = manifest.read_bytes()
+                        h = hashlib.sha256(data).hexdigest()
+                        reload_file = self.export_dir / ".reload"
+                        reload_ts = reload_file.stat().st_mtime if reload_file.exists() else 0.0
+                        if h != last_hash or reload_ts != last_reload_ts:
+                            last_hash = h
+                            last_reload_ts = reload_ts
+                            self._dispatch_change(manifest)
+                    else:
+                        last_hash = ""
+                    time.sleep(1)
+                except Exception:
+                    time.sleep(1)
+
+        self._export_stop.clear()
+        self._export_thread = threading.Thread(target=loop, daemon=True)
+        self._export_thread.start()
+
+    def _stop_export_bridge(self):
+        self._export_stop.set()
+        if isinstance(self._export_thread, threading.Thread):
+            self._export_thread.join(timeout=2)
+        elif self._export_thread is not None:
+            try:
+                self._export_thread.stop()  # type: ignore[attr-defined]
+            except Exception:
+                pass
+        self._export_thread = None
+
+    # Public toggles for UI buttons/overlays
+    def start_export_bridge(self):
+        self._start_export_bridge()
+
+    def stop_export_bridge(self):
+        self._stop_export_bridge()
+
     def _dispatch_change(self, changed_file: Path) -> None:
+        # Export bridge: if manifest changes, treat as rebuild trigger
+        if self.export_dir and changed_file.resolve() == (self.export_dir / "app_manifest.json").resolve():
+            Logger.info(f"{self.appname}: Export manifest changed → refreshing screens")
+            handled = self._handle_export_refresh()
+            if handled:
+                return
+            Clock.unschedule(self.rebuild)
+            Clock.schedule_once(self.rebuild, 0.1)
+            return
         decision = self.reload_engine.handle_change(changed_file, app=self)
         if decision.applied:
             Logger.info(f"{self.appname}: Applied reload level {decision.level} ({decision.reason})")
@@ -682,6 +797,45 @@ class HotReloadAppBase(MDApp):
         )
         Clock.unschedule(self.rebuild)
         Clock.schedule_once(self.rebuild, 0.1)
+
+    def _handle_export_refresh(self) -> bool:
+        sm = resolve_screen_manager(self)
+        manifest_path = self.export_dir / "app_manifest.json" if self.export_dir else None
+        if sm is None or manifest_path is None or not manifest_path.exists():
+            return False
+        try:
+            payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except Exception:
+            return False
+        screens = payload.get("screens", []) or []
+        handled = False
+        for entry in screens:
+            name = entry.get("screen") or entry.get("screen_id") or entry.get("route") or None
+            if not name:
+                continue
+            # Prefer explicit reload hooks
+            if hasattr(sm, "reload_screen_instance") and callable(getattr(sm, "reload_screen_instance")):
+                try:
+                    sm.reload_screen_instance(name, None)
+                    handled = True
+                    continue
+                except Exception:
+                    pass
+            # Legacy partial reload hook on approot or screen manager
+            target = sm if hasattr(sm, "partial_reload_screen") else getattr(self, "approot", None)
+            if target and hasattr(target, "partial_reload_screen"):
+                try:
+                    target.partial_reload_screen(name)
+                    handled = True
+                    continue
+                except Exception:
+                    pass
+        if handled and os.getenv("PROTONOX_AUDIT_EXPORTS") == "1":
+            self._run_export_audit()
+        return handled
+
+    def _run_export_audit(self):
+        Logger.info(f"{self.appname}: PROTONOX_AUDIT_EXPORTS is set; integrate visual diff runner here")
 
     # ------------------------------------------------------------------
     # Builder patch: preserve filename context
@@ -704,3 +858,24 @@ class HotReloadAppBase(MDApp):
     def inspect(self) -> RuntimeInspector:
         enabled = self.DEBUG or os.getenv("PROTONOX_INSPECT", "0") == "1"
         return RuntimeInspector(self, enabled=enabled)
+
+
+# ------------------------------------------------------------------
+# Screen manager resolution helpers (duck-typed, no naming assumptions)
+# ------------------------------------------------------------------
+
+
+def resolve_screen_manager(app) -> Optional[object]:
+    getter = getattr(app, "get_screen_manager", None)
+    if callable(getter):
+        try:
+            sm = getter()
+            if sm is not None:
+                return sm
+        except Exception:
+            pass
+    if hasattr(app, "screen_manager"):
+        sm = getattr(app, "screen_manager")
+        if sm is not None:
+            return sm
+    return getattr(app, "approot", None)

@@ -1020,6 +1020,20 @@ class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
     super().end_headers()
   def do_GET(self):
     path = self.path.split('?', 1)[0].split('#', 1)[0]
+    if path in {"/health", "/healthz", "/ping"}:
+      payload = {
+        "status": "ok",
+        "root": str(ROOT_DIR),
+        "backend": BACKEND_PROXY,
+        "utc": datetime.now(timezone.utc).isoformat(),
+      }
+      body = json.dumps(payload).encode("utf-8")
+      self.send_response(HTTPStatus.OK)
+      self.send_header("Content-Type", "application/json")
+      self.send_header("Content-Length", str(len(body)))
+      self.end_headers()
+      self.wfile.write(body)
+      return
     if not '.' in Path(path).name and path != '/':
       path = "/index.html"
     if path.endswith(('.html', '/')):
@@ -1089,18 +1103,28 @@ class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
 
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%H:%M:%S")
+  host = os.environ.get("PROTONOX_HOST", "127.0.0.1")
+  port_env = os.environ.get("PROTONOX_PORT")
+  try:
+    port = int(port_env) if port_env else 4173
+  except ValueError:
+    logging.warning("Invalid PROTONOX_PORT %r, falling back to 4173", port_env)
+    port_env = None
     port = 4173
     while True:
         try:
-            server = ThreadingHTTPServer(("127.0.0.1", port), ProtonoxOmnipotenceServer)
+      server = ThreadingHTTPServer((host, port), ProtonoxOmnipotenceServer)
             break
         except OSError:
+      if port_env:
+        raise
             port += 1
 
     print("\n" + "═"*100)
     print("   PROTONOX OMNIPOTENCE 2026 — ARC MODE PROFESSIONAL — ACTIVADO")
     print("═"*100)
-    print(f"   URL → http://localhost:{port}")
+    printed_host = host if host != "0.0.0.0" else "localhost"
+    print(f"   URL → http://{printed_host}:{port}")
     print("   • Ctrl = Muestra el panel Protonox")
     print("   • Alt + Drag = Experiencia profesional absoluta")
     print("   • Alt x2 = Arrastre libre • Ctrl x2 = Panel fijo")
