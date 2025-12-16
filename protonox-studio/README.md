@@ -23,6 +23,12 @@ protonox-studio/
 - **modules**: `resize-pro/`, `move-pro/`, `style-editor/`, `grid-intelligence/`, `ai-nudge/` listos para enchufar nuevas capacidades.
 - **cli**: `protonox.py` expone `protonox dev`, `protonox audit`, `protonox export`.
 
+### Live Reload (Kivy 2.3.1)
+- `HotReloadEngine` aporta reload real de Python + KV con rollback seguro y preservación de estado (`ReloadState` + `LiveReloadStateCapable`).
+- `HotReloadAppBase` mantiene el overlay rojo heredado, soporta mapeo `FILE_TO_SCREEN` para recarga parcial y usa watchdog+hashes para evitar ruido; si falla, cae a rebuild completo.
+- Niveles: 0 (rebuild), 1 (KV), 2 (Python con grafo), 3 (Python+KV+estado) con degradación automática.
+- Flag de control: `PROTONOX_HOT_RELOAD_MAX` limita el nivel máximo en entornos de desarrollo.
+
 ## Requerimientos inteligentes
 | Característica               | Qué hace                                               | Por qué es mágico                              |
 |------------------------------|--------------------------------------------------------|------------------------------------------------|
@@ -42,10 +48,38 @@ protonox-studio/
 
 ### Instalación y comandos
 - `pip install .` dentro de `protonox-studio/` instala Protonox Studio como paquete (`protonox` queda disponible en el PATH).
-- `protonox audit` devuelve un reporte JSON y un resumen legible (usa el snapshot sintético por defecto).
-- `protonox export` crea un manifest base en `protonox-export/`.
+- `protonox audit` devuelve un reporte JSON y un resumen legible sobre el UI-IR (HTML→modelo intermedio o Kivy introspection).
+- `protonox export` genera KV + scaffolds Python en `.protonox/protonox-exports` sin tocar tu código.
 - `protonox dev` levanta el servidor local con la inyección Arc Mode.
+- `protonox web2kivy` (alias `web-to-kivy`) acepta un `--map protonox_studio.yaml` con rutas↔screens, respeta entrypoints declarativos y exporta bindings reproducibles.
+- `protonox render-web` / `protonox render-kivy` generan PNG basados en el UI-IR para comparar (`protonox diff --baseline ... --candidate ...`).
 - Compatibilidad: los comandos legacy continúan funcionando (`python protonox-studio/cli/protonox.py ...`).
+
+### Instalación por pip (repo local)
+- Local editable: `pip install -e ./protonox-studio` (usa tu intérprete/venv). Requiere `pip>=23`.
+- Instalación empaquetada: `pip install ./protonox-studio`.
+- Configura tus variables en `.env` copiando `.env.example` (no commits). Mínimos: Figma (`FIGMA_CLIENT_ID/SECRET`) y MercadoPago (`MP_PUBLIC_KEY/ACCESS_TOKEN`).
+
+### MercadoPago (dev)
+- Variables requeridas: `MP_PUBLIC_KEY`, `MP_ACCESS_TOKEN`; opcionales `MP_SUCCESS_URL`, `MP_FAILURE_URL`, `MP_PENDING_URL`, `MP_NOTIFICATION_URL`, `MP_WEBHOOK_SECRET`.
+- Crear checkout: `POST /__dev_tools` con `{ "type": "mercadopago-create-preference", "plan": "monthly", "email": "test@example.com" }` devuelve `init_point` / `sandbox_init_point`.
+- Estado y gating: `POST /__dev_tools` con `{ "type": "mercadopago-status" }` indica si hay suscripción activa y el último `checkout_url`; las acciones premium (`figma-sync-tokens`, `figma-push-update`) responden 402 si no hay pago.
+- Webhook: `POST /payments/mercadopago/webhook` con payload de MercadoPago (firma opcional via `MP_WEBHOOK_SECRET`) marca la suscripción como activa y actualiza expiración.
+- Modo gratis/donación: si `PROTONOX_FREE_MODE=1` (o `MP_FREE_MODE=1`), todo queda desbloqueado sin cobro; puedes ofrecer un botón “Donar” usando `{ "type": "mercadopago-create-preference", "plan": "donation", "amount": 5 }` y mostrar el `init_point` resultante.
+
+### Figma (OAuth, embedding, webhooks)
+- Variables requeridas: `FIGMA_CLIENT_ID`, `FIGMA_CLIENT_SECRET`; opcionales `FIGMA_REDIRECT_URI` (default `http://localhost:4173/figma-callback`) y `FIGMA_SCOPES` (separadas por espacio o coma; por defecto incluyen contenido, comentarios, dev resources, librerías, proyectos, webhooks y perfil).
+- Auth: `GET /figma-auth` redirige a Figma con `state` aleatorio; `GET /figma-callback?code=...&state=...` guarda token en `.protonox/figma/figma_token.json`.
+- Estado: `POST /__dev_tools` con `{ "type": "figma-status" }` devuelve conexión, expiración y scopes; `figma-sync-tokens` y `figma-push-update` se mantienen premium (402 si no hay pago).
+- Embedding: `POST /__dev_tools` con `{ "type": "figma-embed-config" }` devuelve `client_id` y `redirect_uri` para kits de incrustación (`?client-id=<id>`).
+- Webhooks: `POST /figma-webhook` almacena eventos en `.protonox/figma/webhooks.jsonl` (sin validar firma por ahora); puedes registrar webhooks desde Figma apuntando a esa URL pública o tunelizada.
+
+#### Declaración explícita del proyecto (requisito)
+- Protonox Studio no asume tu proyecto: siempre se declara `--project-type web|kivy` y `--entrypoint` (por ejemplo `index.html` o `main.py`).
+- El modo contenedor y el modo local usan el mismo flujo: `PROTONOX_PROJECT_TYPE`, `PROTONOX_BACKEND_URL` y `PROTONOX_STATE_DIR` controlan el contexto.
+- Ejemplos:
+  - `protonox audit --project-type web --entrypoint website/index.html`
+  - `protonox audit --project-type kivy --entrypoint app/main.py --png screenshots/home.png`
 
 ## Automatización diaria
 Para uso diario sin intervención manual, se incluye un script y plantillas de `systemd` para:
