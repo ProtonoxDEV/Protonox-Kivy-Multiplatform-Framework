@@ -12,7 +12,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, Iterable
+from typing import Dict
 
 # Flags are additive; by default nothing is enabled so behaviour matches
 # upstream Kivy 2.3.1. Profiles are intentionally explicit.

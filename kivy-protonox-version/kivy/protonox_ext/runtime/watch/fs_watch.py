@@ -5,7 +5,6 @@ We avoid extra dependencies by polling the `.reload` sentinel and manifest hash.
 
 from __future__ import annotations
 
-import json
 import threading
 import time
 from hashlib import sha256

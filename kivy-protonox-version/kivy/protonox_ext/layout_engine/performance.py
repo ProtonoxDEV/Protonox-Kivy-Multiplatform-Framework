@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, List, Optional
 
 from kivy.logger import Logger
 from kivy.uix.widget import Widget

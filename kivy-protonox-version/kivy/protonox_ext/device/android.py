@@ -146,7 +146,6 @@ def start_audio_capture(request: Optional[AudioRequest] = None) -> str:
         MediaRecorder = _lazy_autoclass("android.media.MediaRecorder")
         AudioFormat = _lazy_autoclass("android.media.AudioFormat")
 
-        source = MediaRecorder.AudioSource.MIC
         channel_config = AudioFormat.CHANNEL_IN_MONO
         encoding = AudioFormat.ENCODING_PCM_16BIT
         buffer_size = AudioRecord.getMinBufferSize(request.sample_rate, channel_config, encoding)
@@ -202,7 +201,6 @@ def connectivity_snapshot() -> ConnectivitySnapshot:
         transport = "wifi" if active.getType() == ConnectivityManager.TYPE_WIFI else "cellular"
         ssid = None
         if transport == "wifi":
-            WifiManager = _lazy_autoclass("android.net.wifi.WifiManager")
             wifi = app.getApplicationContext().getSystemService(Context.WIFI_SERVICE)
             info = wifi.getConnectionInfo()
             ssid = info.getSSID() if info else None

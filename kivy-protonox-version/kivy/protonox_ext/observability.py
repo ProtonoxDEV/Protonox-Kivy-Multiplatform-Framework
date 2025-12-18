@@ -9,7 +9,7 @@ from __future__ import annotations
 import os
 import platform
 import sys
-from typing import Dict, Optional
+from typing import Dict
 
 from kivy.core.window import Window
 from kivy.uix.widget import Widget

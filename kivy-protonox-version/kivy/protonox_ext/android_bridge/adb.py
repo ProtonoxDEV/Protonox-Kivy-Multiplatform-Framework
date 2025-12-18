@@ -111,8 +111,6 @@ def ensure_adb(adb_path: str = "adb") -> str:
     multiple candidates (space-separated) to try first.
     """
 
-    import os
-
     for candidate in _resolve_adb_candidates(adb_path):
         binary = shutil.which(candidate) if not candidate.endswith(".exe") else candidate
         if not binary:
@@ -337,7 +335,7 @@ def enable_wireless(serial: Optional[str] = None, port: int = 5555, adb_path: st
     base_cmd = [adb_bin]
     if serial:
         base_cmd += ["-s", serial]
-    _run(base_cmd + ["tcpip", str(port)]);
+    _run(base_cmd + ["tcpip", str(port)])
     props = device_props(serial=serial, adb_path=adb_bin)
     host = props.get("dhcp.wlan0.ipaddress") or props.get("dhcp.wlan0.ipaddress", "")
     return f"{host}:{port}" if host else None

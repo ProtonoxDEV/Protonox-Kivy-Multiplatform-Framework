@@ -8,13 +8,13 @@ helper call.
 from __future__ import annotations
 
 import os
+import sys
 from typing import Optional
 
 from kivy.protonox_ext.compat import (
     CompatReport,
     auto_enable_if_fork,
     enable_diagnostics,
-    enable_profile,
     enable_protonox_ui,
     enable_safe_mode,
     is_protonox_runtime,
@@ -90,6 +90,5 @@ enable_protonox = enable
 
 # Allow the conceptual alias `import protonox_kivy` to resolve to this module
 # without changing the distribution name.
-import sys
 
 sys.modules.setdefault("protonox_kivy", sys.modules[__name__])

@@ -7,11 +7,12 @@ images/videos will be plugged in by Studio.
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 
 from .pipeline import AssetProcessor, AssetPreset, AssetJob, load_presets
 
 __all__ = ["AssetProcessor", "AssetPreset", "AssetJob", "load_presets"]
+
 
 def presets_path(base: Optional[Path] = None) -> Path:
     """Return the default presets file path (optional base override)."""

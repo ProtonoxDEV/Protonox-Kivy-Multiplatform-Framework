@@ -7,7 +7,7 @@ behaviour identical to upstream unless explicitly activated.
 from __future__ import annotations
 
 import warnings
-from typing import Callable, Iterable
+from typing import Callable
 
 from .warnings_map import COMPAT_WARNINGS
 

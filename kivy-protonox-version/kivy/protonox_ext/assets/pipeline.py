@@ -11,7 +11,7 @@ import json
 from concurrent.futures import ThreadPoolExecutor, Future
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, Optional
+from typing import Dict, Optional
 
 import yaml
 from kivy.logger import Logger

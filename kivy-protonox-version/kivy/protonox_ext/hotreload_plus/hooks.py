@@ -9,7 +9,7 @@ from __future__ import annotations
 import copy
 import sys
 from dataclasses import dataclass
-from typing import Dict, Optional
+from typing import Dict
 
 from kivy.factory import Factory
 from kivy.lang import Builder

@@ -118,4 +118,3 @@ def persist_layout_report(widget: Widget, path: Path) -> Optional[Path]:
         return path
     except Exception:
         return None
-
