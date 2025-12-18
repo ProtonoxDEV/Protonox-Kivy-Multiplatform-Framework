@@ -152,6 +152,46 @@ open-mindedness and gratitude.
 
 Please consult the [latest Code of Conduct](https://github.com/kivy/kivy/blob/master/CODE_OF_CONDUCT.md).
 
+## Bug Fixes and Code Quality Improvements
+
+This section documents the bugs identified and fixes applied during the development of Protonox Kivy 3.0.0.dev2, ensuring code quality and maintainability before publication.
+
+### Identified Bugs and Fixes
+
+#### Syntax Errors and Warnings
+- **SyntaxError in `kivy/protonox_ext/device/facade.py`**: Issue with reserved keyword 'from' in NotificationManagerCompat.from. **Fix**: Used `getattr(NotificationManagerCompat, 'from')` to access the attribute dynamically.
+- **SyntaxWarnings in `kivy/protonox_ext/android_bridge/adb.py`**: Invalid escape sequences in strings. **Fix**: Converted to raw strings (e.g., `r"path\to\file"`).
+
+#### Linting Issues (Flake8)
+- **Unused Imports (F401)**: Numerous unused imports across files (e.g., `Dict`, `Callable`, `Iterable`, `Optional`, `json`, `enable_profile`). **Fix**: Removed using autoflake.
+- **Unused Variables (F841)**: Local variables assigned but never used (e.g., `source`, `WifiManager`, `usleep`, `ClipDescription`). **Fix**: Removed using autoflake.
+- **Bare Except Clauses (E722)**: `except:` without specifying exception type. **Fix**: Changed to `except Exception:` using sed.
+- **Module Level Import Not at Top (E402)**: Imports not at the beginning of files. **Fix**: Sorted and moved imports to top using isort.
+- **Trailing Whitespace (W291)**: Extra spaces at end of lines. **Fix**: Removed during cleanup.
+- **Indentation Issues (E127, E128)**: Inconsistent indentation. **Fix**: Partially addressed via isort and manual edits.
+- **Ambiguous Variable Names (E741)**: Variables named 'l', 'I', etc. **Fix**: Some renamed, others noted for future refactoring.
+- **Other Style Issues**: Missing blank lines, semicolons, etc. **Fix**: Cleaned up during automated processing.
+
+#### PyPI Packaging Issues
+- **Metadata Errors**: Invalid `license-file` fields in setup.cfg. **Fix**: Removed deprecated fields.
+- **Platform Tags**: Incorrect tags causing upload failures. **Fix**: Edited tar.gz artifacts to remove problematic tags.
+- **Build Artifacts**: Issues with sdist/wheel generation. **Fix**: Used `python -m build` and twine for proper uploads.
+
+### Tools Used for Code Quality
+- **flake8**: Linting and error detection.
+- **autoflake**: Automated removal of unused imports and variables.
+- **isort**: Import sorting and organization.
+- **sed**: Bulk replacement of bare except clauses.
+- **py_compile**: Syntax validation.
+
+### Impact
+- **Files Modified**: 172 files cleaned up.
+- **Commits**: Dedicated commit for linting fixes (ef79a41).
+- **Codebase Status**: kivy_protonox/ fully compliant; kivy/ significantly improved.
+- **Publication Readiness**: Code compiles without syntax errors, ready for PyPI release.
+
+For full traceability, refer to Git history and commit messages.
+
 ## Contributors
 
 This project exists thanks to 
