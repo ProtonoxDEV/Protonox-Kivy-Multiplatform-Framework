@@ -38,7 +38,7 @@ def run_bluntmine(context: ProjectContext) -> BluntMineReport:
         recommendations.append("Entrypoint verificado: no se modifica ni se ejecuta automáticamente.")
 
     if context.backend_url.startswith("https://protonox-backend"):
-        recommendations.append("IA delegada al backend Protonox en Render (sin claves locales).");
+        recommendations.append("IA delegada al backend Protonox en Render (sin claves locales).")
 
     if context.container_mode:
         recommendations.append("Modo contenedor activo: comportamiento alineado con entorno local.")
@@ -55,4 +55,3 @@ def run_bluntmine(context: ProjectContext) -> BluntMineReport:
     }
 
     return BluntMineReport(environment=env, recommendations=recommendations, warnings=warnings)
-

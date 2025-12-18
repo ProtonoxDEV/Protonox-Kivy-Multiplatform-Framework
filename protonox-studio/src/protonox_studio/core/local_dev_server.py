@@ -16,19 +16,15 @@ Características finales:
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
 import os
-import socket
 import threading
-import zipfile
 from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any, Dict, List
-from io import BytesIO
 
 # ====================== CONFIG ======================
 # Base directory for serving website assets even when this file lives in a nested studio folder.
@@ -51,8 +47,10 @@ ERROR_LOCK = threading.Lock()
 
 BACKEND_PROXY = os.getenv("PROTONOX_BACKEND_URL", "https://protonox-backend.onrender.com")
 
+
 def _is_headed_mode() -> bool:
     return os.environ.get("PLAYWRIGHT_HEADED", "0") in {"1", "true", "True"}
+
 
 # ====================== JS INYECTADO — ARC MODE PROFESSIONAL ======================
 DEV_INJECT_SCRIPT = r"""
@@ -1010,114 +1008,120 @@ DEV_INJECT_SCRIPT = r"""
 """
 
 # === RESTO DEL SERVER (sin cambios, todo funciona) ===
+
+
 class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
-  def __init__(self, *args, **kwargs):
-    # Serve files relative to the website directory
-    super().__init__(*args, directory=str(ROOT_DIR), **kwargs)
+    def __init__(self, *args, **kwargs):
+        # Serve files relative to the website directory
+        super().__init__(*args, directory=str(ROOT_DIR), **kwargs)
 
-  def end_headers(self):
-    self.send_header("Access-Control-Allow-Origin", "*")
-    super().end_headers()
-  def do_GET(self):
-    path = self.path.split('?', 1)[0].split('#', 1)[0]
-    if path in {"/health", "/healthz", "/ping"}:
-      payload = {
-        "status": "ok",
-        "root": str(ROOT_DIR),
-        "backend": BACKEND_PROXY,
-        "utc": datetime.now(timezone.utc).isoformat(),
-      }
-      body = json.dumps(payload).encode("utf-8")
-      self.send_response(HTTPStatus.OK)
-      self.send_header("Content-Type", "application/json")
-      self.send_header("Content-Length", str(len(body)))
-      self.end_headers()
-      self.wfile.write(body)
-      return
-    if not '.' in Path(path).name and path != '/':
-      path = "/index.html"
-    if path.endswith(('.html', '/')):
-      if path == '/': path = '/index.html'
-      file_path = ROOT_DIR / path.lstrip('/')
-      if file_path.is_file():
+    def end_headers(self):
+        self.send_header("Access-Control-Allow-Origin", "*")
+        super().end_headers()
+
+    def do_GET(self):
+        path = self.path.split('?', 1)[0].split('#', 1)[0]
+        if path in {"/health", "/healthz", "/ping"}:
+            payload = {
+                "status": "ok",
+                "root": str(ROOT_DIR),
+                "backend": BACKEND_PROXY,
+                "utc": datetime.now(timezone.utc).isoformat(),
+            }
+            body = json.dumps(payload).encode("utf-8")
+            self.send_response(HTTPStatus.OK)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+            return
+        if '.' not in Path(path).name and path != '/':
+            path = "/index.html"
+        if path.endswith(('.html', '/')):
+            if path == '/':
+                path = '/index.html'
+            file_path = ROOT_DIR / path.lstrip('/')
+            if file_path.is_file():
+                try:
+                    content = file_path.read_text(encoding="utf-8", errors="ignore")
+                    if "<head>" in content.lower() and DEV_INJECT_SCRIPT not in content:
+                        # Inject the main ARC script only — main script is the single source of truth.
+                        content = content.replace("<head>", f"<head>{DEV_INJECT_SCRIPT}", 1)
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html; charset=utf-8")
+                    self.end_headers()
+                    self.wfile.write(content.encode("utf-8"))
+                    return
+                except Exception:
+                    pass
+        super().do_GET()
+
+    def do_POST(self):
+        # Read request body if any
+        length = int(self.headers.get('Content-Length', 0) or 0)
+        body = self.rfile.read(length) if length else b''
+        data = None
         try:
-          content = file_path.read_text(encoding="utf-8", errors="ignore")
-          if "<head>" in content.lower() and DEV_INJECT_SCRIPT not in content:
-            # Inject the main ARC script only — main script is the single source of truth.
-            content = content.replace("<head>", f"<head>{DEV_INJECT_SCRIPT}", 1)
-          self.send_response(200)
-          self.send_header("Content-Type", "text/html; charset=utf-8")
-          self.end_headers()
-          self.wfile.write(content.encode("utf-8"))
-          return
-        except: pass
-    super().do_GET()
+            if body:
+                data = json.loads(body.decode('utf-8', errors='ignore'))
+        except Exception:
+            data = {'_raw': body.decode('utf-8', errors='ignore')}
 
-  def do_POST(self):
-    # Read request body if any
-    length = int(self.headers.get('Content-Length', 0) or 0)
-    body = self.rfile.read(length) if length else b''
-    data = None
-    try:
-      if body:
-        data = json.loads(body.decode('utf-8', errors='ignore'))
-    except Exception:
-      data = {'_raw': body.decode('utf-8', errors='ignore')}
+        if self.path == "/__protonox_export":
+            # Placeholder: export logic can be implemented here later
+            logging.info("Received /__protonox_export POST (ignored in dev)")
+        elif self.path == "/__protonox":
+            # Record incoming layout-change / telemetry POSTs to a JSONL file for debugging
+            try:
+                logging.info("POST /__protonox received: %s", data)
+                entry = {'ts': datetime.now(timezone.utc).isoformat(), 'payload': data}
+                # Append to in-memory list and persist to file for later inspection
+                with ERROR_LOCK:
+                    LAYOUT_CHANGES.append(entry)
+                    try:
+                        with open(CHANGES_FILE, 'a', encoding='utf-8') as f:
+                            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+                    except Exception:
+                        logging.exception("Failed to write layout change to %s", CHANGES_FILE)
 
-    if self.path == "/__protonox_export":
-      # Placeholder: export logic can be implemented here later
-      logging.info("Received /__protonox_export POST (ignored in dev)")
-    elif self.path == "/__protonox":
-      # Record incoming layout-change / telemetry POSTs to a JSONL file for debugging
-      try:
-        logging.info("POST /__protonox received: %s", data)
-        entry = { 'ts': datetime.now(timezone.utc).isoformat(), 'payload': data }
-        # Append to in-memory list and persist to file for later inspection
-        with ERROR_LOCK:
-          LAYOUT_CHANGES.append(entry)
-          try:
-            with open(CHANGES_FILE, 'a', encoding='utf-8') as f:
-              f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-          except Exception:
-            logging.exception("Failed to write layout change to %s", CHANGES_FILE)
+                # Forward to upstream MCP server when configured (DEV -> PRODUCTION integration)
+                forward_url = os.environ.get('PROTONOX_FORWARD_URL')
+                if forward_url:
+                    try:
+                        # Import requests lazily (not required for dev unless used)
+                        import requests
+                        headers = {'Content-Type': 'application/json'}
+                        secret = os.environ.get('PROTONOX_SHARED_SECRET')
+                        if secret:
+                            headers['Authorization'] = f'Bearer {secret}'
+                        # Send upstream but do not block failure of local handling
+                        requests.post(forward_url, json=data, headers=headers, timeout=5)
+                    except Exception:
+                        logging.exception('Failed to forward /__protonox to %s', forward_url)
+            except Exception:
+                logging.exception("Error handling /__protonox POST")
 
-        # Forward to upstream MCP server when configured (DEV -> PRODUCTION integration)
-        forward_url = os.environ.get('PROTONOX_FORWARD_URL')
-        if forward_url:
-          try:
-            # Import requests lazily (not required for dev unless used)
-            import requests
-            headers = {'Content-Type': 'application/json'}
-            secret = os.environ.get('PROTONOX_SHARED_SECRET')
-            if secret:
-              headers['Authorization'] = f'Bearer {secret}'
-            # Send upstream but do not block failure of local handling
-            requests.post(forward_url, json=data, headers=headers, timeout=5)
-          except Exception:
-            logging.exception('Failed to forward /__protonox to %s', forward_url)
-      except Exception:
-        logging.exception("Error handling /__protonox POST")
+        self.send_response(HTTPStatus.NO_CONTENT)
+        self.end_headers()
 
-    self.send_response(HTTPStatus.NO_CONTENT)
-    self.end_headers()
 
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%H:%M:%S")
-  host = os.environ.get("PROTONOX_HOST", "127.0.0.1")
-  port_env = os.environ.get("PROTONOX_PORT")
-  try:
-    port = int(port_env) if port_env else 4173
-  except ValueError:
-    logging.warning("Invalid PROTONOX_PORT %r, falling back to 4173", port_env)
-    port_env = None
-    port = 4173
+    host = os.environ.get("PROTONOX_HOST", "127.0.0.1")
+    port_env = os.environ.get("PROTONOX_PORT")
+    try:
+        port = int(port_env) if port_env else 4173
+    except ValueError:
+        logging.warning("Invalid PROTONOX_PORT %r, falling back to 4173", port_env)
+        port_env = None
+        port = 4173
     while True:
         try:
-      server = ThreadingHTTPServer((host, port), ProtonoxOmnipotenceServer)
+            server = ThreadingHTTPServer((host, port), ProtonoxOmnipotenceServer)
             break
         except OSError:
-      if port_env:
-        raise
+            if port_env:
+                raise
             port += 1
 
     print("\n" + "═"*100)
@@ -1138,6 +1142,7 @@ def main():
         server.serve_forever()
     except KeyboardInterrupt:
         print("\nPROTONOX ARC MODE OFF — El mundo ya cambió para siempre.")
+
 
 # Keep the injected script neutral: no claves locales, siempre proxy desde backend Protonox.
 DEV_INJECT_SCRIPT = DEV_INJECT_SCRIPT.replace("%OPENAI_API_KEY%", "PROXYED_BY_BACKEND")

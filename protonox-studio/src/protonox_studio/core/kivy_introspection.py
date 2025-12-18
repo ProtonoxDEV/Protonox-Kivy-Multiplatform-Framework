@@ -101,4 +101,3 @@ def load_kivy_ui_model(context: ProjectContext) -> UIModel:
     root_widget = trees[0]
     component = root_widget.to_component()
     return from_kivy_tree(root_widget.name, component, viewport=Viewport(width=1280, height=720))
-

@@ -88,24 +88,24 @@ class ProtonoxStudioServer(SimpleHTTPRequestHandler):
         if self.path.startswith("/figma-callback"):
             query = parse_qs(urlparse(self.path).query)
             code = query.get("code", [None])[0]
-                        state = query.get("state", [None])[0]
+            state = query.get("state", [None])[0]
             if code:
-                                try:
-                                        exchange_code(code, state=state)
-                                        html = """
-                                        <script>
-                                            alert("Figma conectado! Volvé a Protonox Studio");
-                                            window.close();
-                                        </script>
-                                        """
-                                        self.send_response(200)
-                                        self.send_header("Content-Type", "text/html")
-                                        self.end_headers()
-                                        self.wfile.write(html.encode())
-                                        logging.info("FIGMA CONECTADO! Token guardado.")
-                                except Exception as e:
-                                        logging.error("Figma callback failed: %s", e)
-                                        self._json_response(HTTPStatus.BAD_REQUEST, {"error": str(e)})
+                try:
+                    exchange_code(code, state=state)
+                    html = """
+                    <script>
+                        alert("Figma conectado! Volvé a Protonox Studio");
+                        window.close();
+                    </script>
+                    """
+                    self.send_response(200)
+                    self.send_header("Content-Type", "text/html")
+                    self.end_headers()
+                    self.wfile.write(html.encode())
+                    logging.info("FIGMA CONECTADO! Token guardado.")
+                except Exception as e:
+                    logging.error("Figma callback failed: %s", e)
+                    self._json_response(HTTPStatus.BAD_REQUEST, {"error": str(e)})
             return
 
         return super().do_GET()

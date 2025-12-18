@@ -12,7 +12,7 @@ import threading
 import time
 from hashlib import sha256
 from pathlib import Path
-from typing import Iterable, List, Tuple
+from typing import List
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
@@ -143,7 +143,8 @@ def _bindings_from_args(context: ProjectContext, ui_model, screen_args: List[str
             declarations.append(WebViewDeclaration(name=name, source=context.entrypoint, url=None, route=route))
     else:
         default_route = ui_model.routes[0] if getattr(ui_model, "routes", []) else None
-        declarations.append(WebViewDeclaration(name=context.entrypoint.stem or "web_screen", source=context.entrypoint, url=None, route=default_route))
+        declarations.append(WebViewDeclaration(name=context.entrypoint.stem or "web_screen",
+                            source=context.entrypoint, url=None, route=default_route))
     return declarations
 
 

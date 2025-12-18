@@ -24,7 +24,7 @@ def _bool(ok: bool) -> str:
 def check_node() -> WebCheck:
     node = shutil.which("node")
     if not node:
-        return WebCheck("node", False, "node not found", fix="Install Node.js (use nvm)" )
+        return WebCheck("node", False, "node not found", fix="Install Node.js (use nvm)")
     try:
         out = subprocess.check_output([node, "-v"], text=True).strip()
     except Exception:
@@ -46,8 +46,10 @@ def check_env_files(base: Path) -> List[WebCheck]:
     env = base / ".env"
     env_example = base / ".env.example"
     return [
-        WebCheck("env", env.exists(), str(env), fix="cp .env.example .env" if (not env.exists() and env_example.exists()) else None),
-        WebCheck("env-example", env_example.exists(), str(env_example), fix="create .env.example" if not env_example.exists() else None),
+        WebCheck("env", env.exists(), str(env), fix="cp .env.example .env" if (
+            not env.exists() and env_example.exists()) else None),
+        WebCheck("env-example", env_example.exists(), str(env_example),
+                 fix="create .env.example" if not env_example.exists() else None),
     ]
 
 

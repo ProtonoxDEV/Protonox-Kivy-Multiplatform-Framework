@@ -14,6 +14,7 @@ from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.uix.widget import Widget
 
+
 class _StatefulApp(Protocol):
     def extract_state(self):
         ...

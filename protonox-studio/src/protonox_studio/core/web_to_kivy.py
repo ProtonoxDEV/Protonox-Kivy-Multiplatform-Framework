@@ -166,7 +166,8 @@ def _assign_bounds(node: ComponentNode, viewport: Viewport, y_offset: float = 0.
         style = child.meta.get("style", {}) if isinstance(child.meta, dict) else {}
         text_factor = max(1, len(" ".join(child.meta.get("text_samples", []))) // 20)
 
-        child_width = _parse_px(style.get("width")) or (viewport.width * 0.9 if child.children else viewport.width * 0.8)
+        child_width = _parse_px(style.get("width")) or (
+            viewport.width * 0.9 if child.children else viewport.width * 0.8)
         child_height = _parse_px(style.get("height")) or max(48.0, 64.0 * text_factor)
 
         x_hint = _parse_px(style.get("left"))
@@ -292,7 +293,8 @@ def _kv_for_component(node: ComponentNode, viewport: Viewport, indent: int = 8) 
 
     if node.children:
         style = node.meta.get("style", {}) if isinstance(node.meta, dict) else {}
-        orientation = style.get("flex-direction") or ("horizontal" if node.bounds and node.bounds.width > node.bounds.height * 1.2 else "vertical")
+        orientation = style.get("flex-direction") or ("horizontal" if node.bounds and node.bounds.width >
+                                                      node.bounds.height * 1.2 else "vertical")
         if widget == "BoxLayout":
             lines.append(f"{pad_in}orientation: '{orientation}'")
             gap = style.get("gap") or style.get("column-gap") or style.get("row-gap")
@@ -319,7 +321,8 @@ def plan_web_to_kivy(model: UIModel, bindings: Optional[List[ScreenBinding]] = N
         if bindings:
             binding = next((b for b in bindings if b.screen_name == screen.name or b.web_view == screen.name), None)
         if binding is None:
-            binding = ScreenBinding(web_view=screen.name, screen_name=screen.name, kv_filename=f"{screen.name}.kv", controller_name=f"{screen.name}_screen.py")
+            binding = ScreenBinding(web_view=screen.name, screen_name=screen.name,
+                                    kv_filename=f"{screen.name}.kv", controller_name=f"{screen.name}_screen.py")
 
         kv_lines = [f"<{_screen_class_name(binding.screen_name)}@Screen>:"]
         kv_lines.append("    name: '%s'" % binding.screen_name)
@@ -327,7 +330,8 @@ def plan_web_to_kivy(model: UIModel, bindings: Optional[List[ScreenBinding]] = N
         kv_files[binding.kv_filename or f"{binding.screen_name}.kv"] = "\n".join(kv_lines) + "\n"
 
         controller_name = binding.controller_name or f"{binding.screen_name}_screen.py"
-        controllers[controller_name] = _controller_stub(binding.screen_name, kv_filename=binding.kv_filename or f"{binding.screen_name}.kv")
+        controllers[controller_name] = _controller_stub(
+            binding.screen_name, kv_filename=binding.kv_filename or f"{binding.screen_name}.kv")
 
     return KivyExportPlan(kv_files=kv_files, controllers=controllers, bindings=bindings or [], warnings=warnings)
 

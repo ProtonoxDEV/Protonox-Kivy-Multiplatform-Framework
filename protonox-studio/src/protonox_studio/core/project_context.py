@@ -92,7 +92,8 @@ class ProjectContext:
 
         default_entry = _default_entrypoint(root, resolved_type)
         web_url: Optional[str] = None
-        entry_path = Path(entrypoint).resolve() if entrypoint and not str(entrypoint).startswith("http") else default_entry
+        entry_path = Path(entrypoint).resolve() if entrypoint and not str(
+            entrypoint).startswith("http") else default_entry
 
         if resolved_type == "web":
             if entrypoint and str(entrypoint).startswith("http"):
@@ -195,4 +196,3 @@ class ProjectContext:
         except Exception:
             # Fall back to a neutral placeholder while keeping the audit path intact
             return ui_model.from_web_snapshot([], origin=self.project_type)
-

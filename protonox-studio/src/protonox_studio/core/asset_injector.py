@@ -49,7 +49,6 @@ class KVAssetInjector:
             lines = []
         lines = self._ensure_block(lines)
         try:
-            start_idx = lines.index(self.block_start + "\n")
             end_idx = lines.index(self.block_end + "\n")
         except ValueError:
             Logger.error(f"protonox.injector: malformed block in {kv_path}")

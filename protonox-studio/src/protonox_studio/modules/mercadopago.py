@@ -278,7 +278,8 @@ def create_preference(plan: str = "monthly", email: Optional[str] = None, amount
     init_point = data.get("init_point") or data.get("sandbox_init_point")
     preference_id = data.get("id")
     amount_charged = payload["items"][0]["unit_price"]
-    mark_checkout(preference_id=preference_id, init_point=init_point, plan=plan, amount=amount_charged, currency=currency)
+    mark_checkout(preference_id=preference_id, init_point=init_point,
+                  plan=plan, amount=amount_charged, currency=currency)
     return {
         "preference_id": preference_id,
         "init_point": init_point,
@@ -314,5 +315,3 @@ def apply_webhook(payload: Dict[str, Any], headers: Dict[str, str]) -> Dict[str,
 
     status = mark_inactive(reason=status_text or "pending")
     return {"status": status_text or "pending", **status.as_dict()}
-
-``

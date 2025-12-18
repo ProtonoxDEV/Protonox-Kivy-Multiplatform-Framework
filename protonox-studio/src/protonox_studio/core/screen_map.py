@@ -103,4 +103,3 @@ def load_screen_map(explicit: Optional[Path], root: Path) -> ScreenMap:
         return ScreenMap(routes=routes, meta=meta, path=candidate)
 
     return ScreenMap(routes=[], meta={}, path=None)
-

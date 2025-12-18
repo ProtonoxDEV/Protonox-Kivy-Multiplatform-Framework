@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import unicodedata
-from typing import Callable
 
 from kivy.uix.textinput import TextInput
 

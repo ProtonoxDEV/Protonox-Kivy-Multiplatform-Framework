@@ -44,8 +44,10 @@ def check_assets_layout(base: Path = Path.cwd()) -> List[CheckResult]:
     assets_root = base / "protobots" / "assets"
     presets = assets_root / "presets.yaml"
     results = [
-        CheckResult("assets-root", assets_root.exists(), str(assets_root), fix=f"mkdir -p {assets_root}" if not assets_root.exists() else None),
-        CheckResult("assets-presets", presets.exists(), str(presets), fix=f"cp kivy/protonox_ext/assets/presets.yaml {presets}" if not presets.exists() else None),
+        CheckResult("assets-root", assets_root.exists(), str(assets_root),
+                    fix=f"mkdir -p {assets_root}" if not assets_root.exists() else None),
+        CheckResult("assets-presets", presets.exists(), str(presets),
+                    fix=f"cp kivy/protonox_ext/assets/presets.yaml {presets}" if not presets.exists() else None),
     ]
     return results
 

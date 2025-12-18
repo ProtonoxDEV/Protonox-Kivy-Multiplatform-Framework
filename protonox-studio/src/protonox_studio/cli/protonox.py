@@ -1,6 +1,27 @@
 """CLI for Protonox Studio – now wired to the evolving engine."""
 
 from __future__ import annotations
+from protonox_studio.web2kivy.live import live_loop
+from protonox_studio.core.web_to_kivy import (
+    WebViewDeclaration,
+    bindings_from_views,
+    plan_web_to_kivy,
+)
+from protonox_studio.web import (
+    run_web_dev,
+    run_web_dev_generic,
+    run_web_doctor,
+    write_env_templates,
+    ensure_assets_manifest,
+    ingest_asset,
+    watch_assets,
+)
+from protonox_studio.core.doctor_kivy import run_kivy_doctor
+from protonox_studio.core.doctor import run_doctor
+from protonox_studio.core.visual import compare_png_to_model, diff_pngs, ingest_png, render_model_to_png
+from protonox_studio.core.project_context import ProjectContext
+from protonox_studio.core.bluntmine import run_bluntmine
+from protonox_studio.core import engine
 
 import argparse
 import json
@@ -17,21 +38,6 @@ PACKAGE_ROOT = Path(__file__).resolve().parents[2]
 if str(PACKAGE_ROOT) not in sys.path:
     sys.path.append(str(PACKAGE_ROOT))
 
-from protonox_studio.core import engine
-from protonox_studio.core.bluntmine import run_bluntmine
-from protonox_studio.core.project_context import ProjectContext
-from protonox_studio.core.visual import compare_png_to_model, diff_pngs, ingest_png, render_model_to_png
-from protonox_studio.core.doctor import run_doctor
-from protonox_studio.core.doctor_kivy import run_kivy_doctor
-from protonox_studio.web import (
-    run_web_dev,
-    run_web_dev_generic,
-    run_web_doctor,
-    write_env_templates,
-    ensure_assets_manifest,
-        ingest_asset,
-        watch_assets,
-)
 
 # Android helpers live in the Protonox Kivy fork; import lazily so non-Android
 # users are not penalized.
@@ -39,12 +45,6 @@ try:  # pragma: no cover - optional dependency
     from kivy.protonox_ext.android_bridge import adb
 except Exception:  # pragma: no cover - optional dependency missing
     adb = None
-from protonox_studio.core.web_to_kivy import (
-    WebViewDeclaration,
-    bindings_from_views,
-    plan_web_to_kivy,
-)
-from protonox_studio.web2kivy.live import live_loop
 
 
 def _state_path() -> Path:
@@ -102,6 +102,7 @@ def _maybe_welcome(argv: list[str]) -> None:
 # prevents importing it as a normal Python package when executing this file as
 # a script. To keep `protonox dev` working when running this CLI directly, the
 # `run_dev_server` command will spawn the server script as a subprocess.
+
 
 def run_dev_server(context: ProjectContext) -> None:
     # Spawn the local_dev_server.py script as a subprocess so the CLI can be
@@ -319,7 +320,8 @@ def run_android_restart(package: str, activity: str | None, adb_path: str = "adb
         except adb.ADBError:
             pass
     adb.run_app(package=package, activity=activity, adb_path=resolved)
-    print(json.dumps({"status": "restarted", "package": package, "activity": activity or ".MainActivity"}, ensure_ascii=False))
+    print(json.dumps({"status": "restarted", "package": package,
+          "activity": activity or ".MainActivity"}, ensure_ascii=False))
 
 
 def run_android_reinstall(
@@ -388,6 +390,7 @@ def run_mentor(open_in_code: bool = False) -> None:
     if not start_here.exists():
         print("⚠️ START_HERE.md no se encontró; revisa que estés en el repo completo.")
 
+
 def main(argv=None):
     original_argv = argv if argv is not None else sys.argv[1:]
 
@@ -435,7 +438,8 @@ def main(argv=None):
         help="Comando a ejecutar",
     )
     parser.add_argument("--path", default=".", help="Ruta del proyecto")
-    parser.add_argument("--project-type", choices=["web", "kivy"], help="Tipo de proyecto declarado (obligatorio para IA)")
+    parser.add_argument("--project-type", choices=["web", "kivy"],
+                        help="Tipo de proyecto declarado (obligatorio para IA)")
     parser.add_argument("--entrypoint", help="Punto de entrada (index.html o main.py)")
     parser.add_argument("--map", help="Archivo JSON/YAML que mapea rutas web ↔ pantallas Kivy")
     parser.add_argument("--png", help="Ruta a una captura PNG para comparar con el modelo intermedio")

@@ -358,7 +358,8 @@ class HotReloadAppBase(MDApp):
     KV_FILES = ListProperty()
     KV_DIRS = ListProperty()
     AUTORELOADER_PATHS = ListProperty([(".", {"recursive": True})])
-    AUTORELOADER_IGNORE_PATTERNS = ListProperty(["*.pyc", "*__pycache__*", ".protonox/**", "protobots/protonox_export/**"])
+    AUTORELOADER_IGNORE_PATTERNS = ListProperty(
+        ["*.pyc", "*__pycache__*", ".protonox/**", "protobots/protonox_export/**"])
     CLASSES = DictProperty()
     IDLE_DETECTION = BooleanProperty(False)
     IDLE_TIMEOUT = NumericProperty(60)
@@ -714,7 +715,8 @@ class HotReloadAppBase(MDApp):
         if socket_endpoint:
             Logger.info(f"{self.appname}: export bridge ON via socket {socket_endpoint}")
             self._export_stop.clear()
-            bridge = SocketReloadBridge(socket_endpoint, lambda _p: self._dispatch_change(self.export_dir / "app_manifest.json" if self.export_dir else Path("")), manifest_path=(self.export_dir / "app_manifest.json") if self.export_dir else None)
+            bridge = SocketReloadBridge(socket_endpoint, lambda _p: self._dispatch_change(
+                self.export_dir / "app_manifest.json" if self.export_dir else Path("")), manifest_path=(self.export_dir / "app_manifest.json") if self.export_dir else None)
             bridge.start()
             self._export_thread = bridge  # type: ignore
             return

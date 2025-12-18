@@ -2,11 +2,9 @@ from __future__ import annotations
 
 import http.server
 import importlib.resources as resources
-import shutil
 import socketserver
 import subprocess
 import sys
-import threading
 import urllib.parse
 from pathlib import Path
 from typing import Optional
@@ -76,9 +74,11 @@ def run_web_dev_generic(target: str, overlay_port: int = 4173) -> None:
             url = urllib.parse.urljoin(self.upstream.geturl(), self.path)
             length = int(self.headers.get("content-length") or 0)
             body = self.rfile.read(length) if length else None
-            headers = {k: v for k, v in self.headers.items() if k.lower() not in {"host", "content-length", "accept-encoding"}}
+            headers = {k: v for k, v in self.headers.items() if k.lower() not in {
+                "host", "content-length", "accept-encoding"}}
             try:
-                resp = requests.request(self.command, url, headers=headers, data=body, allow_redirects=False, timeout=10)
+                resp = requests.request(self.command, url, headers=headers,
+                                        data=body, allow_redirects=False, timeout=10)
             except Exception as exc:  # noqa: BLE001 - user facing error
                 self.send_error(502, f"proxy error: {exc}")
                 return
@@ -119,4 +119,3 @@ def run_web_dev_generic(target: str, overlay_port: int = 4173) -> None:
             httpd.serve_forever()
         except KeyboardInterrupt:
             print("[protonox] proxy stopped")
-

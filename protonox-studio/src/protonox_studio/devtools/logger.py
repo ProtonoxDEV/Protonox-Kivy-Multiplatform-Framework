@@ -1,7 +1,6 @@
 """Prefixed logging helpers to keep dev-time logs actionable."""
 from __future__ import annotations
 
-from typing import Callable
 
 from kivy.logger import Logger
 
