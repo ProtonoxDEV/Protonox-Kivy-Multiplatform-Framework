@@ -38,16 +38,52 @@ Kivy is a powerful and flexible framework, but it lacks several features that mo
 
 This project addresses those gaps **without modifying Kivy’s public API** and **without touching Android SDK/NDK internals**.
 
----
+## Wireless Debugging
 
-## What this project is
+Protonox enables **real-time wireless debugging** between Kivy apps running on devices and Protonox Studio on your development machine.
 
-✔ A compatibility-first modernization fork  \
-✔ A developer-experience upgrade  \
-✔ A foundation for industrialized build pipelines  \
-✔ A framework-level live reload engine (DEV only)
+### How it works
+1. **Device side**: Kivy app starts a WebSocket server and displays a QR code with the connection URL.
+2. **Studio side**: Scan the QR or use the CLI to connect and receive live logs, UI state, and touch events.
 
----
+### Quick start
+```bash
+# On device (enable wireless debug)
+PROTONOX_WIRELESS_DEBUG=1 python your_app.py
+
+# On development machine (connect Studio)
+# For Android via ADB wireless:
+protonox wireless-connect --adb-wireless-ip-port 192.168.1.100:5555
+# For direct WebSocket:
+protonox wireless-connect --wireless-url ws://192.168.1.100:8765
+```
+
+### Features
+- Live log streaming
+- UI state snapshots
+- Touch event recording
+- QR code pairing
+- **Live reload** without app restart
+- **Remote file push** for Android devices
+- Cross-platform (Android, iOS, Desktop)
+
+### Live Reload Usage
+Once connected, you can trigger live reloads remotely:
+
+```bash
+# Reload the entire app
+protonox wireless-reload
+
+# Reload specific module
+protonox wireless-reload --reload-module myapp
+
+# Push and reload a specific file
+protonox wireless-reload-file --reload-file main.py
+```
+
+For Android devices, files are automatically pushed via ADB before reloading.
+
+See `examples/wireless_debug_example.py` for a complete example.
 
 ## What this project is NOT
 

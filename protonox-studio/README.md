@@ -179,11 +179,28 @@ Este documento guía el rollout completo. Cualquier agente puede retomarlo leyen
 
 Protonox Studio maintains **extreme code quality** standards, ensuring reliability and maintainability.
 
-### Linting and Formatting
-- **Flake8**: All critical errors (E999, E722, F841, etc.) resolved.
-- **Black**: Code formatted with 120-character line length.
-- **Autoflake**: Unused imports and variables removed.
-- **Autopep8**: Consistent style applied.
+### Wireless Debugging con QR
+- **Protonox Kivy Core** inicia un servidor WebSocket que transmite logs, estado UI y eventos táctiles en tiempo real.
+- **Protonox Studio** se conecta al servidor para recibir datos de debugging.
+- El dispositivo muestra un QR con la URL del servidor; escanéalo desde Studio para conectar.
+
+#### Uso
+1. En tu app Kivy, habilita wireless debugging: `PROTONOX_WIRELESS_DEBUG=1 python main.py`
+2. La app mostrará un QR con la IP:puerto para ADB wireless (en Android) o la URL WebSocket (en otros).
+3. En Studio: 
+   - Para Android: `protonox wireless-connect --adb-wireless-ip-port IP:5555`
+   - Para otros: `protonox wireless-connect --wireless-url ws://192.168.1.100:8765`
+4. Los datos de debugging fluyen en tiempo real.
+
+#### Comandos CLI
+- `protonox wireless-connect --wireless-url <url>` — Conectar directamente a WebSocket.
+- `protonox wireless-connect --adb-wireless-ip-port <ip:puerto>` — Conectar vía ADB wireless (Android).
+- `protonox wireless-disconnect` — Desconectar.
+- `protonox wireless-status` — Ver estado de conexión.
+
+#### Requerimientos
+- Instalar dependencias: `pip install websockets qrcode[pil]`
+- Puerto 8765 debe estar abierto en el dispositivo.
 
 ### Test Coverage
 - Test files formatted and linted.

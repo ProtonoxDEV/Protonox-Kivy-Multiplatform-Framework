@@ -31,6 +31,8 @@ from .telemetry import (collect_layout_report, export_widget_tree,
 from .ui import emoji
 from .visual_state import freeze, png_reference, snapshot
 from .web_mapper import dom_bridge
+from .wireless_debug import (generate_qr, send_data, send_log, send_touch_event,
+                             send_ui_state, start_server, stop_server)
 
 __all__ = [
     "collect_layout_report",
@@ -90,4 +92,11 @@ __all__ = [
     "is_protonox_runtime",
     "emit_all_warnings",
     "register_shim",
+    "generate_qr",
+    "send_data",
+    "send_log",
+    "send_touch_event",
+    "send_ui_state",
+    "start_server",
+    "stop_server",
 ]

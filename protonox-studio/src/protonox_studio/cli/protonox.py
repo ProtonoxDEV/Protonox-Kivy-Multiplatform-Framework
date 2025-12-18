@@ -22,6 +22,7 @@ from protonox_studio.core.visual import compare_png_to_model, diff_pngs, ingest_
 from protonox_studio.core.project_context import ProjectContext
 from protonox_studio.core.bluntmine import run_bluntmine
 from protonox_studio.core import engine
+from protonox_studio.core.wireless_client import connect_to_device, disconnect_from_device, is_connected, get_connected_url, reload_remote_app, reload_remote_file
 
 import argparse
 import json
@@ -370,6 +371,71 @@ def run_android_wifi_logs(package: str, adb_path: str = "adb") -> None:
         return
 
 
+def run_wireless_connect(url: str = "", adb_ip_port: str = "") -> None:
+    """Connect to a wireless debug server."""
+    if adb_ip_port:
+        # Handle ADB wireless connection
+        if not adb:
+            print(json.dumps({"status": "failed", "error": "ADB bridge not available"}, indent=2, ensure_ascii=False))
+            return
+        
+        try:
+            adb_bin = adb.ensure_adb()
+            # Connect ADB wirelessly
+            adb.connect_wireless(adb_ip_port, adb_path=adb_bin)
+            # Forward WebSocket port
+            import subprocess
+            subprocess.run([adb_bin, "forward", "tcp:8765", "tcp:8765"], check=True)
+            # Connect WebSocket to localhost
+            ws_url = "ws://localhost:8765"
+            if connect_to_device(ws_url):
+                print(json.dumps({"status": "connected", "adb_target": adb_ip_port, "ws_url": ws_url}, indent=2, ensure_ascii=False))
+            else:
+                print(json.dumps({"status": "failed", "adb_target": adb_ip_port}, indent=2, ensure_ascii=False))
+        except Exception as e:
+            print(json.dumps({"status": "failed", "adb_target": adb_ip_port, "error": str(e)}, indent=2, ensure_ascii=False))
+    elif url:
+        if connect_to_device(url):
+            print(json.dumps({"status": "connected", "url": url}, indent=2, ensure_ascii=False))
+        else:
+            print(json.dumps({"status": "failed", "url": url}, indent=2, ensure_ascii=False))
+    else:
+        print(json.dumps({"status": "failed", "error": "Either --wireless-url or --adb-wireless-ip-port required"}, indent=2, ensure_ascii=False))
+
+
+def run_wireless_disconnect() -> None:
+    """Disconnect from wireless debug server."""
+    disconnect_from_device()
+    print(json.dumps({"status": "disconnected"}, indent=2, ensure_ascii=False))
+
+
+def run_wireless_status() -> None:
+    """Check wireless debug connection status."""
+    connected = is_connected()
+    url = get_connected_url() if connected else None
+    print(json.dumps({"connected": connected, "url": url}, indent=2, ensure_ascii=False))
+
+
+def run_wireless_reload(module: str = None) -> None:
+    """Trigger a reload of the remote app."""
+    if not is_connected():
+        print(json.dumps({"status": "error", "message": "Not connected to wireless debug server"}, indent=2, ensure_ascii=False))
+        return
+    
+    reload_remote_app(module)
+    print(json.dumps({"status": "reload_triggered", "module": module}, indent=2, ensure_ascii=False))
+
+
+def run_wireless_reload_file(file_path: str, file_content: str) -> None:
+    """Reload a specific file on the remote app."""
+    if not is_connected():
+        print(json.dumps({"status": "error", "message": "Not connected to wireless debug server"}, indent=2, ensure_ascii=False))
+        return
+    
+    reload_remote_file(file_path, file_content)
+    print(json.dumps({"status": "file_reload_triggered", "file": file_path}, indent=2, ensure_ascii=False))
+
+
 def run_mentor(open_in_code: bool = False) -> None:
     repo_root = Path(__file__).resolve().parents[4]
     start_here = repo_root / "docs" / "mentor" / "START_HERE.md"
@@ -435,6 +501,11 @@ def main(argv=None):
             "android-wifi-connect",
             "android-wifi-restart",
             "android-wifi-logs",
+            "wireless-connect",
+            "wireless-disconnect",
+            "wireless-status",
+            "wireless-reload",
+            "wireless-reload-file",
             "mentor",
         ],
         help="Comando a ejecutar",
@@ -468,6 +539,11 @@ def main(argv=None):
     parser.add_argument("--preset", help="Preset para web env (firebase/render/local)")
     parser.add_argument("--asset", help="Ruta de asset a importar (web)")
     parser.add_argument("--watch-dir", dest="watch_dir", help="Directorio a observar para assets")
+    parser.add_argument("--wireless-url", help="WebSocket URL para conectar wireless debugging")
+    parser.add_argument("--adb-wireless-ip-port", help="IP:puerto para ADB wireless connect (Android)")
+    parser.add_argument("--reload-module", help="Módulo a recargar (para wireless-reload)")
+    parser.add_argument("--reload-file", help="Archivo a recargar (para wireless-reload-file)")
+    parser.add_argument("--reload-content", help="Contenido del archivo a recargar (para wireless-reload-file)")
     args = parser.parse_args(argv_for_parser)
 
     context = ProjectContext.from_cli(
@@ -554,6 +630,26 @@ def main(argv=None):
         if not args.package:
             raise SystemExit("android-wifi-logs requiere --package")
         run_android_wifi_logs(package=args.package, adb_path=args.adb_path or "adb")
+    elif args.command == "wireless-connect":
+        if not args.wireless_url and not args.adb_wireless_ip_port:
+            raise SystemExit("wireless-connect requiere --wireless-url o --adb-wireless-ip-port")
+        run_wireless_connect(url=args.wireless_url or "", adb_ip_port=args.adb_wireless_ip_port or "")
+    elif args.command == "wireless-disconnect":
+        run_wireless_disconnect()
+    elif args.command == "wireless-status":
+        run_wireless_status()
+    elif args.command == "wireless-reload":
+        run_wireless_reload(module=args.reload_module)
+    elif args.command == "wireless-reload-file":
+        if not args.reload_file:
+            raise SystemExit("wireless-reload-file requiere --reload-file")
+        if not args.reload_content:
+            # Read content from file
+            with open(args.reload_file, 'r', encoding='utf-8') as f:
+                content = f.read()
+        else:
+            content = args.reload_content
+        run_wireless_reload_file(file_path=args.reload_file, file_content=content)
     elif args.command == "mentor":
         run_mentor(open_in_code=open_mentor or os.getenv("PROTONOX_MENTOR_OPEN") == "1")
 
