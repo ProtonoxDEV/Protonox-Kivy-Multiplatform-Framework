@@ -10,7 +10,6 @@ __all__ = ('Shape', 'ShapeRect')
 
 class Shape(object):
     '''Abstract class for all implementations of a shape'''
-    pass
 
 
 class ShapeRect(Shape):

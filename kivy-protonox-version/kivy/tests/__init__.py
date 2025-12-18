@@ -1,5 +1,6 @@
-from kivy.tests.common import GraphicUnitTest, UnitTestTouch, UTMotionEvent, \
-    async_run
+from kivy.tests.common import (GraphicUnitTest, UnitTestTouch, UTMotionEvent,
+                               async_run)
+
 try:
     from kivy.tests.async_common import UnitKivyApp
 except SyntaxError:

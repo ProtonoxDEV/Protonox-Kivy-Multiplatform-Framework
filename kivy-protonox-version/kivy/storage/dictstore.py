@@ -13,7 +13,8 @@ except ImportError:
     import pickle
 
 import errno
-from os.path import exists, abspath, dirname
+from os.path import abspath, dirname, exists
+
 from kivy.storage import AbstractStore
 
 

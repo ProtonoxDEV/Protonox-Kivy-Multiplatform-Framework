@@ -129,33 +129,35 @@ __all__ = ("start", "stop", "create_console", "Console", "ConsoleAddon",
            "ConsoleButton", "ConsoleToggleButton", "ConsoleLabel")
 
 import kivy
+
 kivy.require('1.9.0')
 
 import weakref
 from functools import partial
 from itertools import chain
-from kivy.logger import Logger
-from kivy.uix.widget import Widget
-from kivy.uix.button import Button
-from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.label import Label
-from kivy.uix.textinput import TextInput
-from kivy.uix.image import Image
-from kivy.uix.treeview import TreeViewNode, TreeView
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.modalview import ModalView
-from kivy.graphics import Color, Rectangle, PushMatrix, PopMatrix
-from kivy.graphics.context_instructions import Transform
-from kivy.graphics.transformation import Matrix
-from kivy.properties import (ObjectProperty, BooleanProperty, ListProperty,
-                             NumericProperty, StringProperty, OptionProperty,
-                             ReferenceListProperty, AliasProperty,
-                             VariableListProperty)
-from kivy.graphics.texture import Texture
+
 from kivy.clock import Clock
+from kivy.graphics import Color, PopMatrix, PushMatrix, Rectangle
+from kivy.graphics.context_instructions import Transform
+from kivy.graphics.texture import Texture
+from kivy.graphics.transformation import Matrix
 from kivy.lang import Builder
+from kivy.logger import Logger
+from kivy.properties import (AliasProperty, BooleanProperty, ListProperty,
+                             NumericProperty, ObjectProperty, OptionProperty,
+                             ReferenceListProperty, StringProperty,
+                             VariableListProperty)
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.image import Image
+from kivy.uix.label import Label
+from kivy.uix.modalview import ModalView
+from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.textinput import TextInput
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.treeview import TreeView, TreeViewNode
+from kivy.uix.widget import Widget
 
 Builder.load_string("""
 <Console>:
@@ -285,7 +287,7 @@ def ignore_exception(f):
     def f2(*args, **kwargs):
         try:
             return f(*args, **kwargs)
-        except:
+        except Exception:
             pass
 
     return f2
@@ -311,17 +313,14 @@ class TreeViewProperty(BoxLayout, TreeViewNode):
 
 class ConsoleButton(Button):
     """Button specialized for the Console"""
-    pass
 
 
 class ConsoleToggleButton(ToggleButton):
     """ToggleButton specialized for the Console"""
-    pass
 
 
 class ConsoleLabel(Label):
     """LabelButton specialized for the Console"""
-    pass
 
 
 class ConsoleAddonSeparator(Widget):
@@ -342,18 +341,15 @@ class ConsoleAddon(object):
     def init(self):
         """Method called when the addon is instantiated by the Console
         """
-        pass
 
     def activate(self):
         """Method called when the addon is activated by the console
         (when the console is displayed)"""
-        pass
 
     def deactivate(self):
         """Method called when the addon is deactivated by the console
         (when the console is hidden)
         """
-        pass
 
 
 class ConsoleAddonMode(ConsoleAddon):
@@ -493,7 +489,7 @@ class ConsoleAddonWidgetPanel(ConsoleAddon):
                 widget.bind(**{
                     key: partial(self.update_node_content, weakref.ref(node))
                 })
-            except:
+            except Exception:
                 pass
             treeview.add_node(node)
 

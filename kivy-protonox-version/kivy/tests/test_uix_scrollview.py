@@ -1,14 +1,12 @@
-from kivy.tests.common import GraphicUnitTest
+from itertools import count
+from time import sleep
 
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.label import Label
 from kivy.base import EventLoop
 from kivy.clock import Clock
-from kivy.tests.common import UTMotionEvent
-
-from time import sleep
-from itertools import count
+from kivy.tests.common import GraphicUnitTest, UTMotionEvent
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
 
 DEBUG = False
 touch_id = count()

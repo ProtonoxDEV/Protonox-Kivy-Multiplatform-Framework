@@ -1,8 +1,7 @@
 from itertools import product
 
-from kivy import setupconfig
-from kivy.tests import GraphicUnitTest
 from kivy.logger import LoggerHistory
+from kivy.tests import GraphicUnitTest
 
 
 class WindowBaseTest(GraphicUnitTest):

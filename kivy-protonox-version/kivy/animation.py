@@ -83,10 +83,11 @@ already in place in the animation module.
 
 __all__ = ('Animation', 'AnimationTransition')
 
-from math import sqrt, cos, sin, pi
 from collections import ChainMap
-from kivy.event import EventDispatcher
+from math import cos, pi, sin, sqrt
+
 from kivy.clock import Clock
+from kivy.event import EventDispatcher
 from kivy.weakproxy import WeakProxy
 
 

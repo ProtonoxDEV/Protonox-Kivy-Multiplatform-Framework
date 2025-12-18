@@ -32,6 +32,7 @@ must consistently use units 'dp' and 'sp' throughout your app. See
 
 import sys
 from os import environ
+
 from kivy.config import Config
 from kivy.logger import Logger
 
@@ -129,7 +130,7 @@ def apply_device(device, scale, orientation):
                                          orientation))
     try:
         scale = float(scale)
-    except:
+    except Exception:
         scale = 1
     environ['KIVY_METRICS_DENSITY'] = str(density * scale)
     environ['KIVY_DPI'] = str(dpi * scale)

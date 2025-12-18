@@ -8,11 +8,11 @@ for help during the debugging process.
 '''
 
 import os
-import sys
 import platform as plf
-from time import ctime
+import sys
 from configparser import ConfigParser
 from io import StringIO
+from time import ctime
 
 import kivy
 
@@ -32,8 +32,9 @@ def title(t):
 
 
 def send_report(dict_report):
-    import requests
     import json
+
+    import requests
 
     gist_report = {
         "description": "Report",
@@ -97,6 +98,7 @@ report = []
 title('OpenGL')
 from kivy.core import gl
 from kivy.core.window import Window
+
 report.append('GL Vendor: %s' % gl.glGetString(gl.GL_VENDOR))
 report.append('GL Renderer: %s' % gl.glGetString(gl.GL_RENDERER))
 report.append('GL Version: %s' % gl.glGetString(gl.GL_VERSION))
@@ -117,14 +119,19 @@ report = []
 
 title('Core selection')
 from kivy.core.audio_output import SoundLoader
+
 report.append('Audio  = %s' % SoundLoader._classes)
 from kivy.core.camera import Camera
+
 report.append('Camera = %s' % Camera)
 from kivy.core.image import ImageLoader
+
 report.append('Image  = %s' % ImageLoader.loaders)
 from kivy.core.text import Label
+
 report.append('Text   = %s' % Label)
 from kivy.core.video import Video
+
 report.append('Video  = %s' % Video)
 report.append('Window = %s' % Window)
 report_dict['Core'] = report
@@ -159,6 +166,7 @@ report = []
 title('Configuration')
 s = StringIO()
 from kivy.config import Config
+
 ConfigParser.write(Config, s)
 report.extend(s.getvalue().split('\n'))
 report_dict['Configuration'] = report
@@ -166,6 +174,7 @@ report = []
 
 title('Input availability')
 from kivy.input.factory import MotionEventFactory
+
 for x in MotionEventFactory.list():
     report.append(x)
 report_dict['InputAvailability'] = report

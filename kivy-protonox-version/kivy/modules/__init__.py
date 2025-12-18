@@ -94,12 +94,13 @@ be passed to stop() too.
 
 __all__ = ('Modules', )
 
-from kivy.config import Config
-from kivy.logger import Logger
-import kivy
 import importlib
 import os
 import sys
+
+import kivy
+from kivy.config import Config
+from kivy.logger import Logger
 
 
 class ModuleContext:
@@ -225,7 +226,7 @@ class ModuleBase:
             for name in modules_to_activate:
                 try:
                     self.activate_module(name, win)
-                except:
+                except Exception:
                     import traceback
                     traceback.print_exc()
                     raise

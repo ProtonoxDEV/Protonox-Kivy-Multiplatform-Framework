@@ -238,30 +238,22 @@ Those only control touch and touchpad gesture behavior.
 
 __all__ = ("ScrollView",)
 
+from enum import Enum
 from functools import partial
 from math import isclose
-from enum import Enum
 
 from kivy.animation import Animation
-from kivy.config import Config
 from kivy.clock import Clock
-from kivy.factory import Factory
-from kivy.graphics import PushMatrix, Translate, PopMatrix, Canvas
-from kivy.uix.stencilview import StencilView
-from kivy.metrics import dp
+from kivy.config import Config
 from kivy.effects.dampedscroll import DampedScrollEffect
-from kivy.properties import (
-    NumericProperty,
-    BooleanProperty,
-    AliasProperty,
-    ObjectProperty,
-    ListProperty,
-    ReferenceListProperty,
-    OptionProperty,
-    ColorProperty,
-)
+from kivy.factory import Factory
+from kivy.graphics import Canvas, PopMatrix, PushMatrix, Translate
+from kivy.metrics import dp
+from kivy.properties import (AliasProperty, BooleanProperty, ColorProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, ReferenceListProperty)
 from kivy.uix.behaviors import FocusBehavior
-
+from kivy.uix.stencilview import StencilView
 
 # =============================================================================
 # STATE MACHINE ENUMS
@@ -1955,7 +1947,7 @@ class ScrollView(StencilView):
 
     def _handle_scrollbar_jump(self, touch, in_bar_x, in_bar_y):
         # Handle scrollbar position jump when clicking in bar but not handle.
-        ud = touch.ud
+        touch.ud
         if in_bar_y and not self._touch_in_handle(
                 self._handle_y_pos, self._handle_y_size, touch
         ):
@@ -2448,7 +2440,7 @@ class ScrollView(StencilView):
             # hierarchy.depth >= 2 (self + at least one child)
 
             # For backward compatibility with 2-level code, extract outer/inner
-            outer_sv = hierarchy.outer
+            hierarchy.outer
             inner_sv = hierarchy.inner  # Innermost (deepest) ScrollView
 
             # Get config for the LAST relationship
@@ -2911,7 +2903,7 @@ class ScrollView(StencilView):
 
             # Check if current handler has scroll state
             current_uid = current_sv._get_uid()
-            has_state = current_uid in touch.ud
+            current_uid in touch.ud
 
             # Finalize the current handler
             if current_sv is self:
@@ -3455,7 +3447,6 @@ class ScrollView(StencilView):
             Removed touch parameter. Use on_touch_down/move/up for
             touch-specific handling.
         """
-        pass
 
     def on_scroll_move(self):
         """Event fired when the scroll position changes.
@@ -3475,7 +3466,6 @@ class ScrollView(StencilView):
             handling. Now fires for all scroll_x/scroll_y changes including
             programmatic updates.
         """
-        pass
 
     def on_scroll_stop(self):
         """Event fired when scrolling motion stops.
@@ -3492,14 +3482,12 @@ class ScrollView(StencilView):
             Removed touch parameter. Use on_touch_down/move/up for
             touch-specific handling.
         """
-        pass
 
 
 if __name__ == "__main__":
     from kivy.app import App
-
-    from kivy.uix.gridlayout import GridLayout
     from kivy.uix.button import Button
+    from kivy.uix.gridlayout import GridLayout
 
 
     class ScrollViewApp(App):

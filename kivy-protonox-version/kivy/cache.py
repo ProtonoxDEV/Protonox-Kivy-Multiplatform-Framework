@@ -25,8 +25,9 @@ not used the label for 5 seconds and you've reach the limit.
 '''
 
 from os import environ
-from kivy.logger import Logger
+
 from kivy.clock import Clock
+from kivy.logger import Logger
 
 __all__ = ('Cache', )
 

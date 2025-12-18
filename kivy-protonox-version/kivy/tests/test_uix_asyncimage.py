@@ -4,6 +4,7 @@ from shutil import copyfile, rmtree
 from tempfile import mkdtemp
 from threading import Event
 from zipfile import ZipFile
+
 try:
     from urllib import urlretrieve
 except ImportError:

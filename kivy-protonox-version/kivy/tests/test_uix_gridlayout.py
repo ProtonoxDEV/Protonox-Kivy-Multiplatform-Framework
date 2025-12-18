@@ -4,9 +4,10 @@ uix.gridlayout tests
 '''
 
 import unittest
-import pytest
-from kivy.tests.common import GraphicUnitTest
 
+import pytest
+
+from kivy.tests.common import GraphicUnitTest
 from kivy.uix.gridlayout import GridLayout
 
 
@@ -86,8 +87,8 @@ def test_create_idx_iter2(orientation):
 
 class TestLayout_fixed_sized_children:
     def compute_layout(self, *, n_cols, n_rows, ori, n_children):
-        from kivy.uix.widget import Widget
         from kivy.uix.gridlayout import GridLayout
+        from kivy.uix.widget import Widget
         gl = GridLayout(cols=n_cols, rows=n_rows, orientation=ori, pos=(0, 0))
         gl.bind(minimum_size=gl.setter("size"))
         for __ in range(n_children):

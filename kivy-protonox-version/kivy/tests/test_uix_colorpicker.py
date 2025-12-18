@@ -4,7 +4,7 @@ Color Wheel and Color Picker Tests
 """
 
 from kivy.tests.common import GraphicUnitTest, UTMotionEvent
-from kivy.uix.colorpicker import ColorWheel, ColorPicker
+from kivy.uix.colorpicker import ColorPicker, ColorWheel
 
 
 class ColorWheelTest(GraphicUnitTest):

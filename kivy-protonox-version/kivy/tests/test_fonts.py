@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+
 from .common import requires_graphics
 
 
@@ -8,7 +9,7 @@ class FontTestCase(unittest.TestCase):
     def setUp(self):
         import os
         import tempfile
-        from os.path import join, dirname, exists
+        from os.path import dirname, exists, join
 
         fdir = dirname(__file__)
         self.temp_dir = join(tempfile.gettempdir(), 'kivy_test_fonts')
@@ -38,5 +39,5 @@ class FontTestCase(unittest.TestCase):
         if exists(self.temp_dir):
             try:
                 shutil.rmtree(self.temp_dir)
-            except:
+            except Exception:
                 pass

@@ -30,7 +30,7 @@ An example usage::
 
 __all__ = ("CheckBox",)
 
-from kivy.properties import StringProperty, ColorProperty
+from kivy.properties import ColorProperty, StringProperty
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.widget import Widget
 
@@ -165,6 +165,7 @@ class CheckBox(ToggleButtonBehavior, Widget):
 
 if __name__ == "__main__":
     from random import uniform
+
     from kivy.base import runTouchApp
     from kivy.uix.gridlayout import GridLayout
 

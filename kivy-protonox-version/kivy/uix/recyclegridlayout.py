@@ -15,11 +15,13 @@ The RecycleGridLayout is designed to provide a
 """
 
 import itertools
+
 chain_from_iterable = itertools.chain.from_iterable
-from kivy.uix.recyclelayout import RecycleLayout
-from kivy.uix.gridlayout import GridLayout, GridLayoutException, nmax, nmin
 from collections import defaultdict
 from math import ceil
+
+from kivy.uix.gridlayout import GridLayout, GridLayoutException, nmax, nmin
+from kivy.uix.recyclelayout import RecycleLayout
 
 __all__ = ('RecycleGridLayout', )
 
@@ -88,7 +90,7 @@ class RecycleGridLayout(RecycleLayout, GridLayout):
         remove_view = self.remove_view
         n_cols = len(cols)
         n_rows = len(rows)
-        orientation = self.orientation
+        self.orientation
 
         # this can be further improved to reduce re-comp, but whatever...
         for index, widget, (w, h), (wn, hn), sh, shn, sh_min, shn_min, \

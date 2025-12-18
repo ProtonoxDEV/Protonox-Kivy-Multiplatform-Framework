@@ -22,8 +22,8 @@ documentation for further details.
 
 import os
 import time
-from ctypes import cdll, Structure, c_ulong, c_int, c_ushort, \
-                   c_void_p, pointer, POINTER, byref
+from ctypes import (POINTER, Structure, byref, c_int, c_ulong, c_ushort,
+                    c_void_p, cdll, pointer)
 
 # load library
 if 'KIVY_DOC' not in os.environ:

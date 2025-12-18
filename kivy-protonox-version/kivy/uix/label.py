@@ -281,12 +281,14 @@ The following example marks the anchors and references contained in a label::
 __all__ = ('Label', )
 
 from kivy.clock import Clock
-from kivy.uix.widget import Widget
-from kivy.core.text import Label as CoreLabel, DEFAULT_FONT
+from kivy.core.text import DEFAULT_FONT
+from kivy.core.text import Label as CoreLabel
 from kivy.core.text.markup import MarkupLabel as CoreMarkupLabel
-from kivy.properties import StringProperty, OptionProperty, \
-    NumericProperty, BooleanProperty, ListProperty, \
-    ObjectProperty, DictProperty, ColorProperty, VariableListProperty
+from kivy.properties import (BooleanProperty, ColorProperty, DictProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, StringProperty,
+                             VariableListProperty)
+from kivy.uix.widget import Widget
 from kivy.utils import get_hex_from_color
 
 

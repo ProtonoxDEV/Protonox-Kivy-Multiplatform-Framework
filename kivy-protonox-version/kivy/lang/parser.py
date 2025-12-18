@@ -4,25 +4,24 @@ Parser
 
 Class used for the parsing of .kv files into rules.
 '''
+import ast
+import importlib
 import os
-
 import re
 import sys
 import traceback
-import ast
-import importlib
-from re import sub, findall
-from types import CodeType
-from functools import partial
 from collections import OrderedDict, defaultdict
+from functools import partial
+from re import findall, sub
+from types import CodeType
 
 import kivy.lang.builder  # imported as absolute to avoid circular import
-from kivy.logger import Logger
-from kivy.cache import Cache
+import kivy.metrics as Metrics
 from kivy import require
+from kivy.cache import Cache
+from kivy.logger import Logger
 from kivy.resources import resource_find
 from kivy.utils import rgba
-import kivy.metrics as Metrics
 
 __all__ = ('Parser', 'ParserException')
 
@@ -501,12 +500,12 @@ class Parser(object):
             elif cmd[:4] == 'set ':
                 try:
                     name, value = cmd[4:].strip().split(' ', 1)
-                except:
+                except Exception:
                     Logger.exception('')
                     raise ParserException(self, ln, 'Invalid directive syntax')
                 try:
                     value = eval(value, global_idmap)
-                except:
+                except Exception:
                     Logger.exception('')
                     raise ParserException(self, ln, 'Invalid value')
                 global_idmap[name] = value

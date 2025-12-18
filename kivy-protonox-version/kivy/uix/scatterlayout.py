@@ -48,9 +48,9 @@ size_hint, size_hint_x, size_hint_y and pos_hint.
 
 __all__ = ('ScatterLayout', 'ScatterPlaneLayout')
 
+from kivy.properties import ObjectProperty
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.scatter import Scatter, ScatterPlane
-from kivy.properties import ObjectProperty
 
 
 class ScatterLayout(Scatter):

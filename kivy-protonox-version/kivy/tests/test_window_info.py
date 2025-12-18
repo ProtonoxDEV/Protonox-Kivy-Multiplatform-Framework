@@ -1,5 +1,5 @@
-from kivy.tests.common import GraphicUnitTest
 from kivy import setupconfig
+from kivy.tests.common import GraphicUnitTest
 
 
 class WindowInfoTest(GraphicUnitTest):

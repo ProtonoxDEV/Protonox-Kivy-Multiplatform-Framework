@@ -46,17 +46,16 @@ if self.horizontal else 'path to vertical pressed image'
 __all__ = ('Splitter', )
 
 from kivy.factory import Factory
-from kivy.uix.button import Button
-from kivy.properties import (OptionProperty, NumericProperty, ObjectProperty,
-                             ListProperty, BooleanProperty)
+from kivy.properties import (BooleanProperty, ListProperty, NumericProperty,
+                             ObjectProperty, OptionProperty)
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 
 
 class SplitterStrip(Button):
     '''Class used for the graphical representation of a
     :class:`kivy.uix.splitter.SplitterStripe`.
     '''
-    pass
 
 
 class Splitter(BoxLayout):

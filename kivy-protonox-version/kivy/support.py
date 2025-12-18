@@ -74,9 +74,10 @@ def install_android():
         print('Android lib is missing, cannot install android hooks')
         return
 
+    import pygame
+
     from kivy.clock import Clock
     from kivy.logger import Logger
-    import pygame
 
     Logger.info('Support: Android install hooks')
 
@@ -94,8 +95,8 @@ def install_android():
 
         from kivy.app import App
         from kivy.base import stopTouchApp
-        from kivy.logger import Logger
         from kivy.core.window import Window
+        from kivy.logger import Logger
         global g_android_redraw_count, _redraw_event
 
         # try to get the current running application
@@ -182,13 +183,14 @@ def install_twisted_reactor(**kwargs):
     _threadedselect.install()
 
     # now we can import twisted reactor as usual
+    from collections import deque
+
     from twisted.internet import reactor
     from twisted.internet.error import ReactorNotRunning
 
-    from collections import deque
     from kivy.base import EventLoop
-    from kivy.logger import Logger
     from kivy.clock import Clock
+    from kivy.logger import Logger
 
     # will hold callbacks to twisted callbacks
     q = deque()

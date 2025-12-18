@@ -46,9 +46,9 @@ Kv Example::
 
 __all__ = ('Button', )
 
-from kivy.uix.label import Label
-from kivy.properties import StringProperty, ListProperty, ColorProperty
+from kivy.properties import ColorProperty, ListProperty, StringProperty
 from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.label import Label
 
 
 class Button(ButtonBehavior, Label):

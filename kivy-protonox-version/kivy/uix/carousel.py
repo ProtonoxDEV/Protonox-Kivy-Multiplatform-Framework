@@ -62,13 +62,15 @@ Kv Example::
 __all__ = ('Carousel', )
 
 from functools import partial
+
+from kivy.animation import Animation
 from kivy.clock import Clock
 from kivy.factory import Factory
-from kivy.animation import Animation
-from kivy.uix.stencilview import StencilView
+from kivy.properties import (AliasProperty, BooleanProperty, ListProperty,
+                             NumericProperty, ObjectProperty, OptionProperty,
+                             StringProperty)
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.properties import BooleanProperty, OptionProperty, AliasProperty, \
-    NumericProperty, ListProperty, ObjectProperty, StringProperty
+from kivy.uix.stencilview import StencilView
 
 
 class Carousel(StencilView):

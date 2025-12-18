@@ -7,11 +7,12 @@ import os
 import unittest
 from unittest.mock import patch
 
-from kivy.utils import (boundary, escape_markup, format_bytes_to_human,
-        is_color_transparent, SafeList, get_random_color, get_hex_from_color,
-        get_color_from_hex, strtotuple, QueryDict, intersection, difference,
-        interpolate, _get_platform, deprecated, reify)
 from kivy import utils
+from kivy.utils import (QueryDict, SafeList, _get_platform, boundary,
+                        deprecated, difference, escape_markup,
+                        format_bytes_to_human, get_color_from_hex,
+                        get_hex_from_color, get_random_color, interpolate,
+                        intersection, is_color_transparent, reify, strtotuple)
 
 
 class UtilsTest(unittest.TestCase):
@@ -47,7 +48,6 @@ class UtilsTest(unittest.TestCase):
     @deprecated
     def a_deprecated_function(self):
         """ This one has doc string. """
-        pass
 
     def test_deprecated(self):
         self.a_deprecated_function()
@@ -128,7 +128,7 @@ class UtilsTest(unittest.TestCase):
         toto = qd.toto
         self.assertEqual(toto, 1)
         with self.assertRaises(AttributeError):
-            foo = qd.not_an_attribute
+            qd.not_an_attribute
 
     def test_intersection(self):
         abcd = ['a', 'b', 'c', 'd']

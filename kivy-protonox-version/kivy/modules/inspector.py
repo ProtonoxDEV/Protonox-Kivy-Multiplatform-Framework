@@ -59,17 +59,16 @@ from functools import partial
 from itertools import chain
 
 from kivy.animation import Animation
-from kivy.logger import Logger
-from kivy.graphics.transformation import Matrix
 from kivy.clock import Clock
-from kivy.lang import Builder
 from kivy.factory import Factory
+from kivy.graphics.transformation import Matrix
+from kivy.lang import Builder
+from kivy.logger import Logger
+from kivy.properties import (AliasProperty, BooleanProperty, ListProperty,
+                             NumericProperty, ObjectProperty, OptionProperty,
+                             ReferenceListProperty, StringProperty,
+                             VariableListProperty)
 from kivy.weakproxy import WeakProxy
-from kivy.properties import (
-    ObjectProperty, BooleanProperty, ListProperty,
-    NumericProperty, StringProperty, OptionProperty,
-    ReferenceListProperty, AliasProperty, VariableListProperty
-)
 
 Builder.load_string('''
 <Inspector>:
@@ -530,7 +529,7 @@ class Inspector(Factory.FloatLayout):
             try:
                 widget.bind(**{key: partial(
                     self.update_node_content, weakref.ref(node))})
-            except:
+            except Exception:
                 pass
             treeview.add_node(node)
 
@@ -652,7 +651,7 @@ class Inspector(Factory.FloatLayout):
                 getattr(widget, key)[index] = float(instance.text)
             else:
                 setattr(widget, key, float(instance.text))
-        except:
+        except Exception:
             pass
 
     def save_property_text(self, widget, key, index, instance, value):
@@ -661,7 +660,7 @@ class Inspector(Factory.FloatLayout):
                 getattr(widget, key)[index] = instance.text
             else:
                 setattr(widget, key, instance.text)
-        except:
+        except Exception:
             pass
 
     def save_property_boolean(self, widget, key, index, instance, ):
@@ -671,13 +670,13 @@ class Inspector(Factory.FloatLayout):
                 getattr(widget, key)[index] = value
             else:
                 setattr(widget, key, value)
-        except:
+        except Exception:
             pass
 
     def save_property_option(self, widget, key, instance, *largs):
         try:
             setattr(widget, key, instance.text)
-        except:
+        except Exception:
             pass
 
     def _update_widget_tree_node(self, node, widget, is_open=False):

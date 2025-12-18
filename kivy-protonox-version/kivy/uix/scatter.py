@@ -94,11 +94,13 @@ Behavior
 __all__ = ('Scatter', 'ScatterPlane')
 
 from math import radians
-from kivy.properties import BooleanProperty, AliasProperty, \
-    NumericProperty, ObjectProperty, BoundedNumericProperty
-from kivy.vector import Vector
-from kivy.uix.widget import Widget
+
 from kivy.graphics.transformation import Matrix
+from kivy.properties import (AliasProperty, BooleanProperty,
+                             BoundedNumericProperty, NumericProperty,
+                             ObjectProperty)
+from kivy.uix.widget import Widget
+from kivy.vector import Vector
 
 
 class Scatter(Widget):
@@ -594,7 +596,6 @@ class Scatter(Widget):
 
         .. versionadded:: 1.8.0
         '''
-        pass
 
     def on_bring_to_front(self, touch):
         '''
@@ -607,7 +608,6 @@ class Scatter(Widget):
 
         .. versionadded:: 1.9.0
         '''
-        pass
 
     def on_touch_up(self, touch):
         x, y = touch.x, touch.y

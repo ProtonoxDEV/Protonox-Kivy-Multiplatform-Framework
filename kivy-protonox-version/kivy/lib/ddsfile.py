@@ -55,7 +55,7 @@ DDS Format
 '''
 # ruff: noqa
 
-from struct import pack, unpack, calcsize
+from struct import calcsize, pack, unpack
 
 # DDSURFACEDESC2 dwFlags
 DDSD_CAPS                  = 0x00000001

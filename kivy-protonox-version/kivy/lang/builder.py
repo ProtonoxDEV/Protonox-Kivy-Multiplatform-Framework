@@ -5,27 +5,22 @@ Builder
 Class used for the registering and application of rules for specific widgets.
 '''
 import sys
+from copy import copy
+from functools import partial
 from os import environ
 from os.path import join
-from copy import copy
 from types import CodeType
-from functools import partial
 
-from kivy.factory import Factory
-from kivy.lang.parser import (
-    Parser,
-    ParserException,
-    _handlers,
-    global_idmap,
-    ParserRuleProperty,
-)
-from kivy.logger import Logger
-from kivy.utils import QueryDict
-from kivy.cache import Cache
 from kivy import kivy_data_dir
+from kivy._event import EventDispatcher, Observable
+from kivy.cache import Cache
 from kivy.context import register_context
+from kivy.factory import Factory
+from kivy.lang.parser import (Parser, ParserException, ParserRuleProperty,
+                              _handlers, global_idmap)
+from kivy.logger import Logger
 from kivy.resources import resource_find
-from kivy._event import Observable, EventDispatcher
+from kivy.utils import QueryDict
 
 __all__ = ('Observable', 'Builder', 'BuilderBase', 'BuilderException')
 
@@ -45,7 +40,6 @@ _delayed_start = None
 class BuilderException(ParserException):
     '''Exception raised when the Builder fails to apply a rule on a widget.
     '''
-    pass
 
 
 def get_proxy(widget):
@@ -994,7 +988,7 @@ if 'KIVY_PROFILE_LANG' in environ:
             try:
                 with open(fn) as f:
                     lines = f.readlines()
-            except (IOError, TypeError) as e:
+            except (IOError, TypeError):
                 continue
             html += ['<h2>', fn, '</h2>', '<table>']
             count = 0

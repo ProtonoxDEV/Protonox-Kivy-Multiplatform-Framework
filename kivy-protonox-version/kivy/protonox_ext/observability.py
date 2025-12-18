@@ -14,14 +14,11 @@ from typing import Dict
 from kivy.core.window import Window
 from kivy.uix.widget import Widget
 
+from .layout_engine.antipatterns import detect_antipatterns
 from .layout_engine.fingerprint import export_snapshot
 from .layout_engine.health import compute_layout_health
-from .layout_engine.antipatterns import detect_antipatterns
-from .telemetry import (
-    PROTONOX_TELEMETRY,
-    collect_layout_report,
-    export_widget_tree,
-)
+from .telemetry import (PROTONOX_TELEMETRY, collect_layout_report,
+                        export_widget_tree)
 
 OBS_FLAG = os.environ.get("PROTONOX_UI_OBSERVABILITY", "0").lower() in {"1", "true", "yes"}
 

@@ -5,10 +5,9 @@
     external kivy-pytest package or similar in the future. Use at your own
     risk.
 """
+import math
 import random
 import time
-import math
-import os
 from collections import deque
 
 from kivy.tests import UnitTestTouch
@@ -199,7 +198,7 @@ class UnitKivyApp(object):
             await self.async_sleep(sleep_time)
 
     def get_widget_pos_pixel(self, widget, positions):
-        from kivy.graphics import Fbo, ClearColor, ClearBuffers
+        from kivy.graphics import ClearBuffers, ClearColor, Fbo
 
         canvas_parent_index = -2
         if widget.parent is not None:

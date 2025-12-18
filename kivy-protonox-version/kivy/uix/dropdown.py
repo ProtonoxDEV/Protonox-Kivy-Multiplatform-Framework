@@ -94,12 +94,12 @@ And then, create the associated python class and use it::
 
 __all__ = ('DropDown', )
 
-from kivy.uix.scrollview import ScrollView
-from kivy.properties import ObjectProperty, NumericProperty, BooleanProperty
-from kivy.core.window import Window
-from kivy.lang import Builder
 from kivy.clock import Clock
 from kivy.config import Config
+from kivy.core.window import Window
+from kivy.lang import Builder
+from kivy.properties import BooleanProperty, NumericProperty, ObjectProperty
+from kivy.uix.scrollview import ScrollView
 
 _grid_kv = '''
 GridLayout:
@@ -112,7 +112,6 @@ GridLayout:
 class DropDownException(Exception):
     '''DropDownException class.
     '''
-    pass
 
 
 class DropDown(ScrollView):
@@ -370,8 +369,8 @@ class DropDown(ScrollView):
 
 
 if __name__ == '__main__':
-    from kivy.uix.button import Button
     from kivy.base import runTouchApp
+    from kivy.uix.button import Button
 
     def show_dropdown(button, *largs):
         dp = DropDown()

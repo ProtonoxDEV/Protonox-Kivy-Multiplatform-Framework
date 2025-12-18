@@ -26,11 +26,10 @@ several default modules for :
 '''
 
 
+from kivy.input.factory import MotionEventFactory
 from kivy.input.motionevent import MotionEvent
 from kivy.input.postproc import kivy_postproc_modules
 from kivy.input.provider import MotionEventProvider
-from kivy.input.factory import MotionEventFactory
-import kivy.input.providers
 
 __all__ = (
     MotionEvent.__name__,

@@ -89,14 +89,15 @@ Next, let's fix the row height to a specific size::
 
 __all__ = ('GridLayout', 'GridLayoutException')
 
-from kivy.logger import Logger
-from kivy.uix.layout import Layout
-from kivy.properties import NumericProperty, BooleanProperty, DictProperty, \
-    BoundedNumericProperty, ReferenceListProperty, VariableListProperty, \
-    ObjectProperty, StringProperty, OptionProperty
+from itertools import accumulate, chain, islice, product
 from math import ceil
-from itertools import accumulate, product, chain, islice
 from operator import sub
+
+from kivy.logger import Logger
+from kivy.properties import (BooleanProperty, BoundedNumericProperty,
+                             DictProperty, NumericProperty, OptionProperty,
+                             ReferenceListProperty, VariableListProperty)
+from kivy.uix.layout import Layout
 
 
 def nmax(*args):
@@ -114,7 +115,6 @@ def nmin(*args):
 class GridLayoutException(Exception):
     '''Exception for errors if the grid layout manipulation fails.
     '''
-    pass
 
 
 class GridLayout(Layout):
@@ -516,7 +516,7 @@ class GridLayout(Layout):
                     rows[index] += stretch_h * row_stretch / rows_weight
 
     def _iterate_layout(self, count):
-        orientation = self.orientation
+        self.orientation
         padding = self.padding
         spacing_x, spacing_y = self.spacing
 

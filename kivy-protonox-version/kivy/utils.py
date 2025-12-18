@@ -22,8 +22,8 @@ __all__ = ('intersection', 'difference', 'strtotuple',
            'format_bytes_to_human')
 
 from os import environ, path
+from re import IGNORECASE, MULTILINE, match, search, split
 from sys import platform as _sys_platform
-from re import match, split, search, MULTILINE, IGNORECASE
 
 
 def boundary(value, minvalue, maxvalue):
@@ -297,8 +297,8 @@ def deprecated(func=None, msg=''):
     as deprecated. It will result in a warning being emitted the first time
     the function is used.'''
 
-    import inspect
     import functools
+    import inspect
 
     if func is None:
         return functools.partial(deprecated, msg=msg)

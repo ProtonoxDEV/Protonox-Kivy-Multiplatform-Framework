@@ -1,11 +1,12 @@
 '''Pygments lexer for kv language
 '''
+import sys
+
+from pygments import highlight
+from pygments.formatters import get_formatter_by_name
 from pygments.lexer import RegexLexer, bygroups, using
 from pygments.lexers.agile import PythonLexer
-from pygments import highlight
-from pygments.token import Comment, Text, Name, Punctuation, Operator
-from pygments.formatters import get_formatter_by_name
-import sys
+from pygments.token import Comment, Name, Operator, Punctuation, Text
 
 
 class KivyLexer(RegexLexer):

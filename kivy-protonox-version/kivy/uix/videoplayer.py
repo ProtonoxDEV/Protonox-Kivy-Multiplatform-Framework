@@ -81,18 +81,18 @@ __all__ = ('VideoPlayer', 'VideoPlayerAnnotation')
 
 from json import load
 from os.path import exists
-from kivy.properties import ObjectProperty, StringProperty, BooleanProperty, \
-    NumericProperty, DictProperty, OptionProperty
+
 from kivy.animation import Animation
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.progressbar import ProgressBar
-from kivy.uix.label import Label
-from kivy.uix.video import Video
-from kivy.uix.video import Image
+from kivy.clock import Clock
 from kivy.factory import Factory
 from kivy.logger import Logger
-from kivy.clock import Clock
+from kivy.properties import (BooleanProperty, DictProperty, NumericProperty,
+                             ObjectProperty, OptionProperty, StringProperty)
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.label import Label
+from kivy.uix.progressbar import ProgressBar
+from kivy.uix.video import Image, Video
 
 
 class VideoPlayerVolume(Image):
@@ -666,6 +666,7 @@ class VideoPlayer(GridLayout):
 
 if __name__ == '__main__':
     import sys
+
     from kivy.base import runTouchApp
     player = VideoPlayer(source=sys.argv[1])
     runTouchApp(player)

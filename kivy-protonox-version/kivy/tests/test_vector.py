@@ -1,7 +1,7 @@
 import unittest
+from operator import truediv
 
 from kivy.vector import Vector
-from operator import truediv
 
 
 class VectorTestCase(unittest.TestCase):

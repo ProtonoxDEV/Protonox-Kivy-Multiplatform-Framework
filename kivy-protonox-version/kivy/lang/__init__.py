@@ -875,8 +875,8 @@ will first be unloaded and then reloaded again. For example:
 '''
 
 
-from kivy.lang.builder import (Observable, Builder, BuilderBase,
-                               BuilderException)
+from kivy.lang.builder import (Builder, BuilderBase, BuilderException,
+                               Observable)
 from kivy.lang.parser import Parser, ParserException, global_idmap
 
 __all__ = ('Observable', 'Builder', 'BuilderBase', 'BuilderException',

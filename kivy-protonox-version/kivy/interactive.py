@@ -160,7 +160,7 @@ Any use cases besides compacting code?
 __all__ = ('SafeMembrane', 'InteractiveLauncher')
 
 import inspect
-from threading import Thread, Event
+from threading import Event, Thread
 
 from kivy.app import App
 from kivy.base import EventLoop

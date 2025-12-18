@@ -1,9 +1,8 @@
 # coding=utf-8
 
-from os import environ
-import shlex
 import subprocess
 import sys
+from os import environ
 
 import pytest
 

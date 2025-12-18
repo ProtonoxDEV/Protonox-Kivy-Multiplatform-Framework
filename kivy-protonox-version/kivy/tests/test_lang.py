@@ -3,11 +3,11 @@ Language tests
 ==============
 '''
 
-import unittest
 import os
-from weakref import proxy
+import unittest
 from functools import partial
 from textwrap import dedent
+from weakref import proxy
 
 
 class BaseClass(object):
@@ -95,7 +95,7 @@ class LangTestCase(unittest.TestCase):
         try:
             Builder.load_string(kv_code)
             self.fail('Invalid indentation.')
-        except ParserException as e:
+        except ParserException:
             pass
 
     def test_loading_failed_1(self):
@@ -324,6 +324,7 @@ class LangTestCase(unittest.TestCase):
 
     def test_load_utf8(self):
         from tempfile import mkstemp
+
         from kivy.lang import Builder
         fd, name = mkstemp()
         os.write(fd, dedent('''
@@ -427,10 +428,10 @@ class LangTestCase(unittest.TestCase):
         assert root.ids.target3.text == '400'
 
     def test_fstring_nested_property_binding(self):
-        from kivy.uix.boxlayout import BoxLayout
         from kivy.event import EventDispatcher
-        from kivy.properties import NumericProperty, ObjectProperty
         from kivy.lang import Builder
+        from kivy.properties import NumericProperty, ObjectProperty
+        from kivy.uix.boxlayout import BoxLayout
 
         class Person(EventDispatcher):
             age = NumericProperty()

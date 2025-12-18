@@ -454,17 +454,19 @@ __all__ = (
     'ClockBaseInterruptFreeBehavior', 'ClockBase', 'ClockBaseInterrupt',
     'ClockBaseFreeInterruptAll', 'ClockBaseFreeInterruptOnly', 'mainthread')
 
-from sys import platform
-from os import environ
-from functools import wraps, partial
-from kivy.context import register_context
-from kivy.config import Config
-from kivy.logger import Logger
-from time import perf_counter as _default_time
 import time
+from functools import partial, wraps
+from os import environ
+from sys import platform
+from time import perf_counter as _default_time
+
+from kivy.config import Config
+from kivy.context import register_context
+from kivy.logger import Logger
+
 try:
-    from kivy._clock import CyClockBase, ClockEvent, FreeClockEvent, \
-        CyClockBaseFree, ClockNotRunningError
+    from kivy._clock import (ClockEvent, ClockNotRunningError, CyClockBase,
+                             CyClockBaseFree, FreeClockEvent)
 except ImportError:
     Logger.error(
         'Clock: Unable to import kivy._clock. Have you perhaps forgotten to '
@@ -672,7 +674,6 @@ class ClockBaseBehavior(object):
     def usleep(self, microseconds):
         '''Sleeps for the number of microseconds.
         '''
-        pass
 
     def idle(self):
         '''(internal) waits here until the next frame.
@@ -965,7 +966,6 @@ class ClockBaseInterrupt(ClockBaseInterruptBehavior, CyClockBase):
     '''The ``interrupt`` kivy clock. See module for details.
     '''
 
-    pass
 
 
 class ClockBaseFreeInterruptAll(
@@ -973,7 +973,6 @@ class ClockBaseFreeInterruptAll(
     '''The ``free_all`` kivy clock. See module for details.
     '''
 
-    pass
 
 
 class ClockBaseFreeInterruptOnly(
@@ -987,7 +986,7 @@ class ClockBaseFreeInterruptOnly(
         event = self._event
         if fps > 0:
             min_sleep = self.get_resolution()
-            usleep = self.usleep
+            self.usleep
             undershoot = 4 / 5. * min_sleep
             min_t = self.get_min_free_timeout
             interupt_next_only = self.interupt_next_only
@@ -1025,7 +1024,7 @@ class ClockBaseFreeInterruptOnly(
         event = self._async_event
         if fps > 0:
             min_sleep = self.get_resolution()
-            usleep = self.usleep
+            self.usleep
             undershoot = 4 / 5. * min_sleep
             min_t = self.get_min_free_timeout
             interupt_next_only = self.interupt_next_only

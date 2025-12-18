@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 # ruff: noqa
 
-import threading
 import json
-from gc import get_objects, garbage
-from kivy.clock import Clock
-from kivy.cache import Cache
+import threading
 from collections import OrderedDict
+from gc import garbage, get_objects
+
+from kivy.cache import Cache
+from kivy.clock import Clock
 from kivy.logger import Logger
 
 try:
-    from flask import Flask, render_template_string, make_response
+    from flask import Flask, make_response, render_template_string
 except ImportError:
     Logger.error('WebDebugger: unable to import Flask. Install it!')
     raise

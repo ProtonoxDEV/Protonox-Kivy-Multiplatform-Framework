@@ -36,8 +36,9 @@ For normal module usage, please see the :mod:`~kivy.modules` documentation.
 
 __all__ = ('start', 'stop')
 
-from kivy.logger import Logger
 from functools import partial
+
+from kivy.logger import Logger
 
 
 def replay(recorder, *args):

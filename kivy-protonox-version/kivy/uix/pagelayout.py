@@ -38,9 +38,9 @@ widgets on that page.
 
 __all__ = ('PageLayout', )
 
-from kivy.uix.layout import Layout
-from kivy.properties import NumericProperty, DictProperty
 from kivy.animation import Animation
+from kivy.properties import DictProperty, NumericProperty
+from kivy.uix.layout import Layout
 
 
 class PageLayout(Layout):

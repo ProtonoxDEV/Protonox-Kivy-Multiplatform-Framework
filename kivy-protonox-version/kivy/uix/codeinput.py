@@ -37,17 +37,15 @@ To create a CodeInput with highlighting for `Cython`::
 
 __all__ = ('CodeInput', )
 
-from pygments import highlight
-from pygments import lexers
-from pygments import styles
+from pygments import highlight, lexers, styles
 from pygments.formatters import BBCodeFormatter
 
-from kivy.uix.textinput import TextInput
-from kivy.core.text.markup import MarkupLabel as Label
 from kivy.cache import Cache
+from kivy.core.text.markup import MarkupLabel as Label
 from kivy.properties import ObjectProperty, OptionProperty
-from kivy.utils import get_hex_from_color, get_color_from_hex
 from kivy.uix.behaviors import CodeNavigationBehavior
+from kivy.uix.textinput import TextInput
+from kivy.utils import get_color_from_hex, get_hex_from_color
 
 Cache_get = Cache.get
 Cache_append = Cache.append
@@ -198,7 +196,7 @@ class CodeInput(CodeNavigationBehavior, TextInput):
                 offset = self._get_text_width(
                     self._lines[self.cursor_row][:self.cursor_col])
                 return offset
-        except:
+        except Exception:
             pass
         finally:
             return offset
@@ -217,8 +215,8 @@ class CodeInput(CodeNavigationBehavior, TextInput):
 
 
 if __name__ == '__main__':
-    from kivy.extras.highlight import KivyLexer
     from kivy.app import App
+    from kivy.extras.highlight import KivyLexer
 
     class CodeInputTest(App):
         def build(self):

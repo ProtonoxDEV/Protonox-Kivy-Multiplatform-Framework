@@ -31,9 +31,9 @@ For example, to display widgets that get progressively larger in width::
 
 __all__ = ('StackLayout', )
 
+from kivy.properties import (NumericProperty, OptionProperty,
+                             ReferenceListProperty, VariableListProperty)
 from kivy.uix.layout import Layout
-from kivy.properties import NumericProperty, OptionProperty, \
-    ReferenceListProperty, VariableListProperty
 
 
 def _compute_size(c, available_size, idx):
@@ -220,7 +220,7 @@ class StackLayout(Layout):
 
         urev = (deltau < 0)
         vrev = (deltav < 0)
-        firstchild = self.children[0]
+        self.children[0]
         sizes = []
         lc = []
         for c in reversed(self.children):

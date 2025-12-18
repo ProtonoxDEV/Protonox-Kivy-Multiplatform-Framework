@@ -1,7 +1,9 @@
-import pytest
 import unittest
+
+import pytest
+
 import kivy.multistroke
-from kivy.multistroke import Recognizer, MultistrokeGesture
+from kivy.multistroke import MultistrokeGesture, Recognizer
 from kivy.vector import Vector
 
 best_score = 0.0
@@ -45,7 +47,6 @@ class MultistrokeTestCase(unittest.TestCase):
     def setUp(self):
         global best_score
         best_score = 0
-        counter = 0
 
         self.Tinvar = MultistrokeGesture('T', [TGesture],
             orientation_sensitive=False)
@@ -92,7 +93,7 @@ class MultistrokeTestCase(unittest.TestCase):
         global best_score
         from kivy.clock import Clock
         gdb = Recognizer(db=[self.Ninvar])
-        tpls = len(self.Ninvar.templates)
+        len(self.Ninvar.templates)
 
         best_score = 0
         gdb.db.append(self.Ninvar)
@@ -162,8 +163,9 @@ class MultistrokeTestCase(unittest.TestCase):
 
     def test_timeout_case_1(self):
         global best_score
-        from kivy.clock import Clock
         from time import sleep
+
+        from kivy.clock import Clock
 
         best_score = 0
         gdb = Recognizer(db=[self.Tbound, self.Ninvar])
@@ -179,8 +181,9 @@ class MultistrokeTestCase(unittest.TestCase):
 
     def test_timeout_case_2(self):
         global best_score
-        from kivy.clock import Clock
         from time import sleep
+
+        from kivy.clock import Clock
 
         best_score = 0
         gdb = Recognizer(db=[self.Tbound, self.Ninvar, self.Tinvar])
@@ -330,8 +333,8 @@ class MultistrokeTestCase(unittest.TestCase):
         self.assertTrue(r.best['score'] > 0.94 and r.best['score'] < 0.95)
 
     def test_export_import_case_2(self):
-        from tempfile import mkstemp
         import os
+        from tempfile import mkstemp
         gdb1 = Recognizer(db=[self.Ninvar, self.Tinvar])
         gdb2 = Recognizer()
         fh, fn = mkstemp()

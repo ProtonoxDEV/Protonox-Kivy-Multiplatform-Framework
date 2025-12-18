@@ -42,10 +42,10 @@ and paste into the
 [changelog here](https://github.com/kivy/kivy/blob/master/doc/sources\
 /changelog.rst).
 """
-from os.path import exists
+import json
 import sys
 from collections import defaultdict
-import json
+from os.path import exists
 
 __all__ = ('process_changelog', )
 

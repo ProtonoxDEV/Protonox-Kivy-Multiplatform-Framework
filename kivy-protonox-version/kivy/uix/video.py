@@ -45,11 +45,11 @@ One can display the placeholder image when the video stops by reacting on eos::
 __all__ = ('Video', )
 
 from kivy.clock import Clock
-from kivy.uix.image import Image
 from kivy.core.video import Video as CoreVideo
-from kivy.resources import resource_find
 from kivy.properties import (BooleanProperty, NumericProperty, ObjectProperty,
                              OptionProperty, StringProperty)
+from kivy.resources import resource_find
+from kivy.uix.image import Image
 
 
 class Video(Image):
@@ -254,8 +254,9 @@ class Video(Image):
 
 
 if __name__ == '__main__':
-    from kivy.app import App
     import sys
+
+    from kivy.app import App
 
     if len(sys.argv) != 2:
         print("usage: %s file" % sys.argv[0])

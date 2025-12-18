@@ -55,9 +55,10 @@ constructor arguments::
 
 __all__ = ('Layout', )
 
+from math import isclose
+
 from kivy.clock import Clock
 from kivy.uix.widget import Widget
-from math import isclose
 
 
 class Layout(Widget):

@@ -26,15 +26,12 @@ class MotionEventProvider(object):
         application is started and if the configuration uses the current
         provider.
         '''
-        pass
 
     def stop(self):
         '''Stop the provider.
         '''
-        pass
 
     def update(self, dispatch_fn):
         '''Update the provider and dispatch all the new touch events though the
         `dispatch_fn` argument.
         '''
-        pass

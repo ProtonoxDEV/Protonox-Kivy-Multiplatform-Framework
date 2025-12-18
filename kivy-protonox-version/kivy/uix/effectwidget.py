@@ -120,17 +120,16 @@ file, simply set the :attr:`EffectBase.source` property of an effect.
 
 '''
 
-from kivy.clock import Clock
-from kivy.uix.relativelayout import RelativeLayout
-from kivy.properties import (StringProperty, ObjectProperty, ListProperty,
-                             NumericProperty, DictProperty)
-from kivy.graphics import (RenderContext, Fbo, Color, Rectangle,
-                           Translate, PushMatrix, PopMatrix, ClearColor,
-                           ClearBuffers)
-from kivy.event import EventDispatcher
 from kivy.base import EventLoop
-from kivy.resources import resource_find
+from kivy.clock import Clock
+from kivy.event import EventDispatcher
+from kivy.graphics import (ClearBuffers, ClearColor, Color, Fbo, PopMatrix,
+                           PushMatrix, Rectangle, RenderContext)
 from kivy.logger import Logger
+from kivy.properties import (DictProperty, ListProperty, NumericProperty,
+                             ObjectProperty, StringProperty)
+from kivy.resources import resource_find
+from kivy.uix.relativelayout import RelativeLayout
 
 __all__ = ('EffectWidget', 'EffectBase', 'AdvancedEffectBase',
            'MonochromeEffect', 'InvertEffect', 'ChannelMixEffect',

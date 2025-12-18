@@ -3,17 +3,18 @@ Storage tests
 =============
 '''
 
-import unittest
-from os.path import abspath, dirname, join
 import errno
 import os
+import unittest
+from os.path import abspath, dirname, join
 
 
 class StorageTestCase(unittest.TestCase):
     def test_dict_storage(self):
-        from kivy.storage.dictstore import DictStore
+        from os import close, unlink
         from tempfile import mkstemp
-        from os import unlink, close
+
+        from kivy.storage.dictstore import DictStore
 
         try:
             tmpfd, tmpfn = mkstemp('.dict')
@@ -33,9 +34,10 @@ class StorageTestCase(unittest.TestCase):
         self._do_store_test_nofolder(JsonStore)
 
     def test_json_storage(self):
-        from kivy.storage.jsonstore import JsonStore
+        from os import close, unlink
         from tempfile import mkstemp
-        from os import unlink, close
+
+        from kivy.storage.jsonstore import JsonStore
 
         try:
             tmpfd, tmpfn = mkstemp('.json')
@@ -65,8 +67,9 @@ class StorageTestCase(unittest.TestCase):
         if os.environ.get('NONETWORK'):
             return
         try:
-            from kivy.storage.redisstore import RedisStore
             from redis.exceptions import ConnectionError
+
+            from kivy.storage.redisstore import RedisStore
             try:
                 params = dict(db=15)
                 self._do_store_test_empty(RedisStore(params))
@@ -127,7 +130,7 @@ class StorageTestCase(unittest.TestCase):
             'test.' + ext
         )
         with self.assertRaises(IOError) as context:
-            store = store_cls(path)
+            store_cls(path)
         self.assertEqual(context.exception.errno, errno.ENOENT)
 
 

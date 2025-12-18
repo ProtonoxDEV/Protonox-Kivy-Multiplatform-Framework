@@ -19,13 +19,14 @@ opening a new Bug report instead of relying on your library.
 '''
 
 
-import os
-import sysconfig
-import sys
-import traceback
-import tempfile
-import subprocess
 import importlib
+import os
+import subprocess
+import sys
+import sysconfig
+import tempfile
+import traceback
+
 import kivy
 from kivy.logger import Logger
 

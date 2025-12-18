@@ -1,7 +1,8 @@
+from unittest.mock import patch
+
 import pytest
 
-from kivy.tests import async_run, UnitKivyApp, GraphicUnitTest
-from unittest.mock import patch
+from kivy.tests import UnitKivyApp, async_run
 
 
 def videoplayer_app():

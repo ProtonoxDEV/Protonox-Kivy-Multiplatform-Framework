@@ -25,8 +25,8 @@ To use it, simply assign a value to indicate the current progress::
 
 __all__ = ('ProgressBar', )
 
+from kivy.properties import AliasProperty, NumericProperty
 from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty, AliasProperty
 
 
 class ProgressBar(Widget):

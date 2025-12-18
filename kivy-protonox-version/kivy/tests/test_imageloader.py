@@ -6,6 +6,7 @@ import re
 import sys
 import unittest
 from collections import defaultdict
+
 from kivy.core.image import ImageLoader
 
 DEBUG = False
@@ -283,7 +284,7 @@ class ImageLoaderTestCase(unittest.TestCase):
                 result = loadercls(asset(ASSETDIR, filename), keep_data=True)
                 if not result:
                     raise Exception('invalid result')
-            except:
+            except Exception:
                 ctx.skip('Error loading file, result=None')
                 continue
             self._test_image(filedata, ctx, loadercls, result)
@@ -359,31 +360,31 @@ class ImageLoaderTestCase(unittest.TestCase):
         # GIF format not listed as supported in sdl3 loader
         if loadercls:
             exts = list(loadercls.extensions()) + ['gif']
-            ctx = self._test_imageloader(loadercls, exts)
+            self._test_imageloader(loadercls, exts)
 
     def test_ImageLoaderPIL(self):
         loadercls = LOADERS.get('ImageLoaderPIL')
-        ctx = self._test_imageloader(loadercls)
+        self._test_imageloader(loadercls)
 
     def test_ImageLoaderFFPy(self):
         loadercls = LOADERS.get('ImageLoaderFFPy')
-        ctx = self._test_imageloader(loadercls)
+        self._test_imageloader(loadercls)
 
     def test_ImageLoaderGIF(self):
         loadercls = LOADERS.get('ImageLoaderGIF')
-        ctx = self._test_imageloader(loadercls)
+        self._test_imageloader(loadercls)
 
     def test_ImageLoaderDDS(self):
         loadercls = LOADERS.get('ImageLoaderDDS')
-        ctx = self._test_imageloader(loadercls)
+        self._test_imageloader(loadercls)
 
     def test_ImageLoaderTex(self):
         loadercls = LOADERS.get('ImageLoaderTex')
-        ctx = self._test_imageloader(loadercls)
+        self._test_imageloader(loadercls)
 
     def test_ImageLoaderImageIO(self):
         loadercls = LOADERS.get('ImageLoaderImageIO')
-        ctx = self._test_imageloader(loadercls)
+        self._test_imageloader(loadercls)
 
     def test_missing_tests(self):
         for loader in ImageLoader.loaders:

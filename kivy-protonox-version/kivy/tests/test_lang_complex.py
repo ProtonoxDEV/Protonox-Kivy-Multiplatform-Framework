@@ -40,12 +40,12 @@ class LangComplexTestCase(unittest.TestCase):
         # and was used for testing the validity of the new rewrite lang
         # however, it's not self explained enough :/
 
-        from kivy.lang import Builder
-        from kivy.uix.widget import Widget
-        from kivy.uix.label import Label
         from kivy.factory import Factory
-        from kivy.properties import StringProperty, ObjectProperty, \
-            BooleanProperty
+        from kivy.lang import Builder
+        from kivy.properties import (BooleanProperty, ObjectProperty,
+                                     StringProperty)
+        from kivy.uix.label import Label
+        from kivy.uix.widget import Widget
 
         Builder.load_string(rules)
 

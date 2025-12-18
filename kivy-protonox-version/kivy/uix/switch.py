@@ -47,9 +47,9 @@ Kv Example::
 '''
 
 
-from kivy.uix.widget import Widget
 from kivy.animation import Animation
-from kivy.properties import BooleanProperty, ObjectProperty, NumericProperty
+from kivy.properties import BooleanProperty, NumericProperty, ObjectProperty
+from kivy.uix.widget import Widget
 
 
 class Switch(Widget):

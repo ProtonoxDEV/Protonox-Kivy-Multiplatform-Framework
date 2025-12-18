@@ -112,16 +112,16 @@ correctly handle adapting the graphical representation nodes, if needed.
 '''
 
 from kivy.clock import Clock
+from kivy.properties import (AliasProperty, BooleanProperty, ColorProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             ReferenceListProperty)
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
-from kivy.properties import BooleanProperty, ListProperty, ObjectProperty, \
-    AliasProperty, NumericProperty, ReferenceListProperty, ColorProperty
 
 
 class TreeViewException(Exception):
     '''Exception for errors in the :class:`TreeView`.
     '''
-    pass
 
 
 class TreeViewNode(object):

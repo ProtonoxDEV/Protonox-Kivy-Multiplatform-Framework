@@ -2,13 +2,15 @@
 Resource loading tests
 ======================
 """
-import pytest
-import tempfile
 import os
+import tempfile
 from unittest.mock import patch
+
+import pytest
+
 from kivy.cache import Cache
 from kivy.clock import Clock
-from kivy.resources import resource_find, resource_add_path
+from kivy.resources import resource_add_path, resource_find
 
 
 @pytest.fixture

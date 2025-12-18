@@ -1,8 +1,8 @@
-import pytest
 import gc
-import weakref
 import time
-import os.path
+import weakref
+
+import pytest
 
 __all__ = ('kivy_clock', 'kivy_metrics', 'kivy_exception_manager', 'kivy_app',
            'kivy_init')
@@ -60,8 +60,8 @@ def kivy_init():
 
 @pytest.fixture()
 def kivy_clock():
-    from kivy.context import Context
     from kivy.clock import ClockBase
+    from kivy.context import Context
 
     context = Context(init=False)
     context['Clock'] = ClockBase()
@@ -80,9 +80,9 @@ def kivy_clock():
 
 @pytest.fixture()
 def kivy_metrics():
-    from kivy.context import Context
-    from kivy.metrics import MetricsBase, Metrics
     from kivy._metrics import dispatch_pixel_scale
+    from kivy.context import Context
+    from kivy.metrics import Metrics, MetricsBase
 
     context = Context(init=False)
     context['Metrics'] = MetricsBase()
@@ -99,8 +99,8 @@ def kivy_metrics():
 
 @pytest.fixture()
 def kivy_exception_manager():
+    from kivy.base import ExceptionManager, ExceptionManagerBase
     from kivy.context import Context
-    from kivy.base import ExceptionManagerBase, ExceptionManager
 
     context = Context(init=False)
     context['ExceptionManager'] = ExceptionManagerBase()
@@ -135,14 +135,12 @@ async def kivy_app(request, nursery):
     for items in Config.items('input'):
         Config.remove_option('input', items[0])
 
-    from kivy.core.window import Window
-    from kivy.context import Context
-    from kivy.clock import ClockBase
-    from kivy.factory import FactoryBase, Factory
-    from kivy.app import App
-    from kivy.lang.builder import BuilderBase, Builder
     from kivy.base import stopTouchApp
-    from kivy import kivy_data_dir
+    from kivy.clock import ClockBase
+    from kivy.context import Context
+    from kivy.core.window import Window
+    from kivy.factory import Factory, FactoryBase
+    from kivy.lang.builder import Builder, BuilderBase
     from kivy.logger import LoggerHistory
 
     kivy_eventloop = environ.get('KIVY_EVENTLOOP', 'asyncio')

@@ -9,8 +9,8 @@ from kivy.tests.common import GraphicUnitTest
 class UIXAnchorLayoutTestcase(GraphicUnitTest):
 
     def box(self, r, g, b):
-        from kivy.uix.widget import Widget
         from kivy.graphics import Color, Rectangle
+        from kivy.uix.widget import Widget
         wid = Widget(size_hint=(None, None), size=(100, 100))
         with wid.canvas:
             Color(r, g, b)

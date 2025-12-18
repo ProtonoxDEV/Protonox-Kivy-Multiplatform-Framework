@@ -84,20 +84,19 @@ background when the item is collapsed or opened::
 __all__ = ('Accordion', 'AccordionItem', 'AccordionException')
 
 from kivy.animation import Animation
-from kivy.uix.floatlayout import FloatLayout
 from kivy.clock import Clock
 from kivy.lang import Builder
-from kivy.properties import (ObjectProperty, StringProperty,
-                             BooleanProperty, NumericProperty,
-                             ListProperty, OptionProperty, DictProperty)
-from kivy.uix.widget import Widget
 from kivy.logger import Logger
+from kivy.properties import (BooleanProperty, DictProperty, ListProperty,
+                             NumericProperty, ObjectProperty, OptionProperty,
+                             StringProperty)
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.widget import Widget
 
 
 class AccordionException(Exception):
     '''AccordionException class.
     '''
-    pass
 
 
 class AccordionItem(FloatLayout):
@@ -437,8 +436,8 @@ class Accordion(Widget):
 
 if __name__ == '__main__':
     from kivy.base import runTouchApp
-    from kivy.uix.button import Button
     from kivy.uix.boxlayout import BoxLayout
+    from kivy.uix.button import Button
     from kivy.uix.label import Label
 
     acc = Accordion()

@@ -17,11 +17,12 @@ For normal module usage, please see the :mod:`~kivy.modules` documentation.
 
 __all__ = ('start', 'stop')
 
-from kivy.uix.label import Label
-from kivy.graphics import Rectangle, Color
-from kivy.metrics import dp
-from kivy.clock import Clock
 from functools import partial
+
+from kivy.clock import Clock
+from kivy.graphics import Color, Rectangle
+from kivy.metrics import dp
+from kivy.uix.label import Label
 
 _statsinput = 0
 _maxinput = -1

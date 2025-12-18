@@ -35,16 +35,15 @@ Usage::
 
 __all__ = ('ColorPicker', 'ColorWheel')
 
-from math import cos, sin, pi, sqrt, atan
-from colorsys import rgb_to_hsv, hsv_to_rgb
+from colorsys import hsv_to_rgb, rgb_to_hsv
+from math import atan, cos, pi, sin, sqrt
 
 from kivy.clock import Clock
-from kivy.graphics import Mesh, InstructionGroup, Color
+from kivy.graphics import Color, InstructionGroup, Mesh
 from kivy.logger import Logger
-from kivy.properties import (NumericProperty, BoundedNumericProperty,
-                             ListProperty, ObjectProperty,
-                             ReferenceListProperty, StringProperty,
-                             AliasProperty)
+from kivy.properties import (AliasProperty, BoundedNumericProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             ReferenceListProperty, StringProperty)
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
 from kivy.utils import get_color_from_hex, get_hex_from_color

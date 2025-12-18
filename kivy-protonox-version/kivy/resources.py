@@ -30,14 +30,15 @@ images and icons.
 
 __all__ = ('resource_find', 'resource_add_path', 'resource_remove_path')
 
-from os.path import join, dirname, exists, abspath
+import os
+import sys
+from os.path import abspath, dirname, exists, join
+
+import kivy
 from kivy import kivy_data_dir
 from kivy.cache import Cache
-from kivy.utils import platform
 from kivy.logger import Logger
-import sys
-import os
-import kivy
+from kivy.utils import platform
 
 resource_paths = ['.', dirname(sys.argv[0])]
 if platform == 'ios':

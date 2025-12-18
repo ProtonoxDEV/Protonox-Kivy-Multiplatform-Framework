@@ -1,5 +1,7 @@
-import pytest
 import os
+
+import pytest
+
 try:
     import coverage
 except ImportError:
@@ -16,7 +18,7 @@ def test_coverage_base():
 
     fname = os.path.join(os.path.dirname(__file__), 'coverage_lang.kv')
     try:
-        widget = Builder.load_file(fname)
+        Builder.load_file(fname)
     finally:
         cov.stop()
 

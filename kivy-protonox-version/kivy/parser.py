@@ -10,6 +10,7 @@ __all__ = ('parse_color', 'parse_int', 'parse_float',
            'parse_float4', 'parse_filename')
 
 import re
+
 from kivy.logger import Logger
 from kivy.resources import resource_find
 

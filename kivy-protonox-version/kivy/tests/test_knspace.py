@@ -1,5 +1,6 @@
 
 import unittest
+
 '''ACHTUNG: when testing, never re-use widget names, otherwise the tests
 may fail as the namespace will remember the names between tests.
 '''
@@ -18,7 +19,7 @@ class KNSpaceTestCase(unittest.TestCase):
         self.assertIsNone(knspace.label2)
 
     def test_allow_none(self):
-        from kivy.uix.behaviors.knspace import knspace, KNSpaceBehavior
+        from kivy.uix.behaviors.knspace import KNSpaceBehavior, knspace
         from kivy.uix.widget import Widget
 
         class MyWidget(KNSpaceBehavior, Widget):
@@ -30,7 +31,7 @@ class KNSpaceTestCase(unittest.TestCase):
         w.knspace = None
 
     def test_name(self):
-        from kivy.uix.behaviors.knspace import knspace, KNSpaceBehavior
+        from kivy.uix.behaviors.knspace import KNSpaceBehavior
         from kivy.uix.widget import Widget
 
         class MyWidget(KNSpaceBehavior, Widget):
@@ -50,7 +51,7 @@ class KNSpaceTestCase(unittest.TestCase):
         self.assertIs(55, knspace.widget1)
 
     def test_constructor(self):
-        from kivy.uix.behaviors.knspace import knspace, KNSpaceBehavior
+        from kivy.uix.behaviors.knspace import KNSpaceBehavior, knspace
         from kivy.uix.widget import Widget
 
         class MyWidget(KNSpaceBehavior, Widget):
@@ -60,7 +61,7 @@ class KNSpaceTestCase(unittest.TestCase):
         self.assertEqual(knspace.construct_name, w)
 
     def test_re_assign(self):
-        from kivy.uix.behaviors.knspace import knspace, KNSpaceBehavior
+        from kivy.uix.behaviors.knspace import KNSpaceBehavior, knspace
         from kivy.uix.widget import Widget
 
         class MyWidget(KNSpaceBehavior, Widget):
@@ -143,7 +144,6 @@ NamedLabel:
 
     def test_fork_string(self):
         from kivy.lang import Builder
-        from kivy.uix.behaviors.knspace import knspace
 
         w = Builder.load_string('''
 <NamedLabel@KNSpaceBehavior+Label>
@@ -162,13 +162,12 @@ BoxLayout:
         self.assertEqual(w.children[1].knspace.label9.text, 'Hello')
 
     def test_fork(self):
-        from kivy.lang import Builder
-        from kivy.uix.behaviors.knspace import knspace, KNSpaceBehavior
+        from kivy.uix.behaviors.knspace import KNSpaceBehavior, knspace
         from kivy.uix.widget import Widget
 
         class NamedWidget(KNSpaceBehavior, Widget):
             pass
-        nw = NamedWidget()
+        NamedWidget()
         w = Widget()
         w2 = Widget()
 
@@ -194,7 +193,6 @@ BoxLayout:
 
     def test_fork_binding(self):
         from kivy.lang import Builder
-        from kivy.uix.behaviors.knspace import knspace
 
         w = Builder.load_string('''
 <NamedLabel@KNSpaceBehavior+Label>

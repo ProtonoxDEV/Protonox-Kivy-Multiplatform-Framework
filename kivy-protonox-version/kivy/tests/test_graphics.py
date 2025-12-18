@@ -5,19 +5,21 @@ Graphics tests
 Testing the simple vertex instructions
 '''
 
-import sys
-import pytest
 import itertools
+import sys
 from threading import Thread
+
+import pytest
+
 from kivy.tests.common import GraphicUnitTest, requires_graphics
 
 
 class BoxShadowTest(GraphicUnitTest):
 
     def test_create(self):
+        from kivy.graphics import Color
         from kivy.graphics.boxshadow import BoxShadow
         from kivy.uix.widget import Widget
-        from kivy.graphics import Color
 
         r = self.render
 
@@ -241,9 +243,9 @@ class BoxShadowTest(GraphicUnitTest):
         )
 
     def test_canvas_management(self):
+        from kivy.graphics import Color
         from kivy.graphics.boxshadow import BoxShadow
         from kivy.uix.widget import Widget
-        from kivy.graphics import Color
 
         r = self.render
 
@@ -271,8 +273,8 @@ class BoxShadowTest(GraphicUnitTest):
 class VertexInstructionTest(GraphicUnitTest):
 
     def test_circle(self):
+        from kivy.graphics import Color, Ellipse
         from kivy.uix.widget import Widget
-        from kivy.graphics import Ellipse, Color
 
         r = self.render
 
@@ -299,8 +301,8 @@ class VertexInstructionTest(GraphicUnitTest):
         r(wid)
 
     def test_ellipse(self):
+        from kivy.graphics import Color, Ellipse
         from kivy.uix.widget import Widget
-        from kivy.graphics import Ellipse, Color
 
         r = self.render
 
@@ -312,8 +314,8 @@ class VertexInstructionTest(GraphicUnitTest):
         r(wid)
 
     def test_point(self):
+        from kivy.graphics import Color, Point
         from kivy.uix.widget import Widget
-        from kivy.graphics import Point, Color
 
         r = self.render
 
@@ -332,8 +334,8 @@ class VertexInstructionTest(GraphicUnitTest):
         r(wid)
 
     def test_point_add(self):
+        from kivy.graphics import Color, Point
         from kivy.uix.widget import Widget
-        from kivy.graphics import Point, Color
 
         r = self.render
 
@@ -352,8 +354,8 @@ class VertexInstructionTest(GraphicUnitTest):
         r(wid)
 
     def test_line_rounded_rectangle(self):
+        from kivy.graphics import Color, Line
         from kivy.uix.widget import Widget
-        from kivy.graphics import Line, Color
         r = self.render
 
         # basic rounded_rectangle
@@ -442,8 +444,8 @@ class VertexInstructionTest(GraphicUnitTest):
         )
 
     def test_smoothline_rounded_rectangle(self):
+        from kivy.graphics import Color, SmoothLine
         from kivy.uix.widget import Widget
-        from kivy.graphics import SmoothLine, Color
         r = self.render
 
         # If width and/or height < 2px, the figure should not be rendered.
@@ -458,9 +460,9 @@ class VertexInstructionTest(GraphicUnitTest):
         assert line.rounded_rectangle is None
 
     def test_enlarged_line(self):
+        from kivy.graphics import (Color, Line, PopMatrix, PushMatrix, Scale,
+                                   Translate)
         from kivy.uix.widget import Widget
-        from kivy.graphics import Line, Color, PushMatrix, PopMatrix, Scale, \
-            Translate
         r = self.render
         wid = Widget()
         with wid.canvas:
@@ -528,9 +530,9 @@ class SmoothVertexInstructionTest(GraphicUnitTest):
         return Texture.create()
 
     def test_antialiasing_line(self):
-        from kivy.uix.widget import Widget
-        from kivy.graphics import Color, Rectangle, Instruction
+        from kivy.graphics import Color, Instruction, Rectangle
         from kivy.graphics.vertex_instructions import AntiAliasingLine
+        from kivy.uix.widget import Widget
 
         r = self.render
 
@@ -631,8 +633,8 @@ class SmoothVertexInstructionTest(GraphicUnitTest):
             assert aa_line.points == self._filtered_points(points)
 
     def test_smoothrectangle(self):
-        from kivy.uix.widget import Widget
         from kivy.graphics import Color, SmoothRectangle
+        from kivy.uix.widget import Widget
 
         r = self.render
 
@@ -695,8 +697,8 @@ class SmoothVertexInstructionTest(GraphicUnitTest):
         assert rect.antialiasing_line_points == []
 
     def test_smoothroundedrectangle(self):
-        from kivy.uix.widget import Widget
         from kivy.graphics import Color, SmoothRoundedRectangle
+        from kivy.uix.widget import Widget
 
         r = self.render
 
@@ -781,8 +783,8 @@ class SmoothVertexInstructionTest(GraphicUnitTest):
         assert rounded_rect.antialiasing_line_points == []
 
     def test_smoothellipse(self):
-        from kivy.uix.widget import Widget
         from kivy.graphics import Color, SmoothEllipse
+        from kivy.uix.widget import Widget
 
         r = self.render
 
@@ -870,8 +872,8 @@ class SmoothVertexInstructionTest(GraphicUnitTest):
         assert ellipse.antialiasing_line_points == []
 
     def test_smoothtriangle(self):
-        from kivy.uix.widget import Widget
         from kivy.graphics import Color, SmoothTriangle
+        from kivy.uix.widget import Widget
 
         r = self.render
 
@@ -943,8 +945,8 @@ class SmoothVertexInstructionTest(GraphicUnitTest):
         )
 
     def test_smoothquad(self):
-        from kivy.uix.widget import Widget
         from kivy.graphics import Color, SmoothQuad
+        from kivy.uix.widget import Widget
 
         r = self.render
 
@@ -1005,7 +1007,7 @@ class SmoothVertexInstructionTest(GraphicUnitTest):
 class FBOInstructionTestCase(GraphicUnitTest):
 
     def test_fbo_pixels(self):
-        from kivy.graphics import Fbo, ClearColor, ClearBuffers, Ellipse
+        from kivy.graphics import ClearBuffers, ClearColor, Ellipse, Fbo
 
         fbo = Fbo(size=(512, 512))
         with fbo:
@@ -1055,6 +1057,7 @@ class CallbackInstructionTest(GraphicUnitTest):
 
     def test_from_kv(self):
         from textwrap import dedent
+
         from kivy.lang import Builder
 
         root = Builder.load_string(dedent("""\
@@ -1070,8 +1073,8 @@ class CallbackInstructionTest(GraphicUnitTest):
 
 @pytest.fixture
 def widget_verify_thread(request):
-    from kivy.uix.widget import Widget
     from kivy.config import Config
+    from kivy.uix.widget import Widget
 
     original = Config.get('graphics', 'verify_gl_main_thread')
     Config.set('graphics', 'verify_gl_main_thread', request.param)

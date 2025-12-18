@@ -98,14 +98,14 @@ You can also simulate an alternative user preference for fontscale as follows::
 
 
 from os import environ
-from kivy.utils import platform
-from kivy.properties import AliasProperty
-from kivy.event import EventDispatcher
-from kivy.setupconfig import USE_SDL3
-from kivy.context import register_context
-from kivy._metrics import dpi2px, NUMERIC_FORMATS, dispatch_pixel_scale, \
-    sync_pixel_scale
 
+from kivy._metrics import (NUMERIC_FORMATS, dispatch_pixel_scale, dpi2px,
+                           sync_pixel_scale)
+from kivy.context import register_context
+from kivy.event import EventDispatcher
+from kivy.properties import AliasProperty
+from kivy.setupconfig import USE_SDL3
+from kivy.utils import platform
 
 __all__ = (
     'Metrics', 'MetricsBase', 'pt', 'inch', 'cm', 'mm', 'dp', 'sp', 'dpi2px',

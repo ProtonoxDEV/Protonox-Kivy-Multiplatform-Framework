@@ -172,27 +172,28 @@ __all__ = ('Settings', 'SettingsPanel', 'SettingItem', 'SettingString',
 
 import json
 import os
+
 import kivy.utils as utils
+from kivy.animation import Animation
+from kivy.config import ConfigParser
+from kivy.core.window import Window
 from kivy.factory import Factory
 from kivy.metrics import dp
-from kivy.config import ConfigParser
-from kivy.animation import Animation
-from kivy.core.window import Window
+from kivy.properties import (BooleanProperty, DictProperty, ListProperty,
+                             NumericProperty, ObjectProperty, StringProperty)
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.uix.button import Button
-from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.colorpicker import ColorPicker
-from kivy.uix.scrollview import ScrollView
+from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.tabbedpanel import TabbedPanelHeader
 from kivy.uix.textinput import TextInput
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.widget import Widget
-from kivy.properties import ObjectProperty, StringProperty, ListProperty, \
-    BooleanProperty, NumericProperty, DictProperty
 
 
 class SettingSpacer(Widget):
@@ -1096,9 +1097,10 @@ class Settings(BoxLayout):
         enabling/disabling the automatic kivy panel.
 
         '''
+        from os.path import join
+
         from kivy import kivy_data_dir
         from kivy.config import Config
-        from os.path import join
         self.add_json_panel('Kivy', Config,
                             join(kivy_data_dir, 'settings_kivy.json'))
 

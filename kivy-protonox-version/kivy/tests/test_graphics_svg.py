@@ -7,7 +7,6 @@ Testing Svg rendering.
 
 from kivy.tests.common import GraphicUnitTest
 
-
 SIMPLE_SVG = """<?xml version="1.0" standalone="no"?>
 <svg width="256" height="256" viewBox="0 0 256 256" version="1.1"
     xmlns="http://www.w3.org/2000/svg">
@@ -37,8 +36,9 @@ class SvgTest(GraphicUnitTest):
 
     def test_simple(self):
         import xml.etree.ElementTree as ET
-        from kivy.uix.widget import Widget
+
         from kivy.graphics.svg import Svg
+        from kivy.uix.widget import Widget
 
         # create a root widget
         wid = Widget()
@@ -53,8 +53,9 @@ class SvgTest(GraphicUnitTest):
 
     def test_scale(self):
         import xml.etree.ElementTree as ET
-        from kivy.uix.widget import Widget
+
         from kivy.graphics.svg import Svg
+        from kivy.uix.widget import Widget
 
         # create a root widget
         wid = Widget()
@@ -69,8 +70,9 @@ class SvgTest(GraphicUnitTest):
 
     def test_rotate(self):
         import xml.etree.ElementTree as ET
-        from kivy.uix.widget import Widget
+
         from kivy.graphics.svg import Svg
+        from kivy.uix.widget import Widget
 
         # create a root widget
         wid = Widget()

@@ -1,5 +1,5 @@
-import unittest
 import textwrap
+import unittest
 from collections import defaultdict
 
 

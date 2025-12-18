@@ -5,59 +5,32 @@ compatibility. Production apps see no behavioural changes unless the developer
 explicitly imports and enables these helpers.
 """
 
-from .telemetry import collect_layout_report, export_widget_tree, persist_layout_report, safe_export_to_png
-from .layout_engine import antipatterns, fingerprint, health, introspect
+from .android_bridge import adb
+from .compat import (COMPAT_WARNINGS, CompatReport, CompatWarning,
+                     auto_enable_if_fork, emit_all_warnings,
+                     enable_diagnostics, enable_profile, enable_protonox_ui,
+                     enable_safe_mode, is_protonox_runtime, register_shim)
+from .device import (AudioRequest, CameraRequest, ConnectivitySnapshot,
+                     DeviceCapabilities, DeviceLayerError, LocationRequest,
+                     PermissionResult, SensorSnapshot, StorageHandle,
+                     bluetooth_route_snapshot, capabilities,
+                     connectivity_snapshot, diagnostics_snapshot,
+                     ensure_permissions, fused_location_snapshot, open_camerax,
+                     start_audio_capture, storage_handle)
+from .diagnostics import (BUS_ENABLED, DiagnosticBus, DiagnosticEvent,
+                          DiagnosticItem, DiagnosticReport)
+from .diagnostics import as_lines as diagnostics_as_lines
+from .diagnostics import collect_runtime_diagnostics, get_bus
+from .hotreload_plus import hooks
 from .inspector import overlay, runtime
 from .kv_bridge import compiler, ir
-from .hotreload_plus import hooks
-from .web_mapper import dom_bridge
-from .visual_state import freeze, png_reference, snapshot
-from .android_bridge import adb
-from .device import (
-    AudioRequest,
-    CameraRequest,
-    ConnectivitySnapshot,
-    DeviceCapabilities,
-    DeviceLayerError,
-    LocationRequest,
-    PermissionResult,
-    SensorSnapshot,
-    StorageHandle,
-    bluetooth_route_snapshot,
-    capabilities,
-    connectivity_snapshot,
-    diagnostics_snapshot,
-    ensure_permissions,
-    fused_location_snapshot,
-    open_camerax,
-    start_audio_capture,
-    storage_handle,
-)
-from .ui import emoji
+from .layout_engine import antipatterns, fingerprint, health, introspect
 from .observability import export_observability
-from .diagnostics import (
-    BUS_ENABLED,
-    DiagnosticBus,
-    DiagnosticEvent,
-    DiagnosticItem,
-    DiagnosticReport,
-    as_lines as diagnostics_as_lines,
-    collect_runtime_diagnostics,
-    get_bus,
-)
-from .compat import (
-    CompatReport,
-    CompatWarning,
-    COMPAT_WARNINGS,
-    auto_enable_if_fork,
-    enable_diagnostics,
-    enable_profile,
-    enable_protonox_ui,
-    enable_safe_mode,
-    is_protonox_runtime,
-    emit_all_warnings,
-    register_shim,
-)
+from .telemetry import (collect_layout_report, export_widget_tree,
+                        persist_layout_report, safe_export_to_png)
+from .ui import emoji
+from .visual_state import freeze, png_reference, snapshot
+from .web_mapper import dom_bridge
 
 __all__ = [
     "collect_layout_report",

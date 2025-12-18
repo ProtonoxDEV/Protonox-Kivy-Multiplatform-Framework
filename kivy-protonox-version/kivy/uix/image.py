@@ -69,20 +69,13 @@ And in your kivy language file::
 '''
 __all__ = ('Image', 'AsyncImage')
 
-from kivy.uix.widget import Widget
 from kivy.core.image import Image as CoreImage
-from kivy.resources import resource_find
-from kivy.properties import (
-    StringProperty,
-    ObjectProperty,
-    ListProperty,
-    AliasProperty,
-    BooleanProperty,
-    NumericProperty,
-    ColorProperty,
-    OptionProperty
-)
 from kivy.logger import Logger
+from kivy.properties import (AliasProperty, BooleanProperty, ColorProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, StringProperty)
+from kivy.resources import resource_find
+from kivy.uix.widget import Widget
 
 # delayed imports
 Loader = None

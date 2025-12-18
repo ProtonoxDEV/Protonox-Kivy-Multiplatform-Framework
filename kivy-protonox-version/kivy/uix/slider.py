@@ -39,11 +39,11 @@ Kv Example::
 """
 __all__ = ('Slider', )
 
+from kivy.properties import (AliasProperty, BooleanProperty,
+                             BoundedNumericProperty, ColorProperty,
+                             ListProperty, NumericProperty, OptionProperty,
+                             ReferenceListProperty, StringProperty)
 from kivy.uix.widget import Widget
-from kivy.properties import (NumericProperty, AliasProperty, OptionProperty,
-                             ReferenceListProperty, BoundedNumericProperty,
-                             StringProperty, ListProperty, BooleanProperty,
-                             ColorProperty)
 
 
 class Slider(Widget):

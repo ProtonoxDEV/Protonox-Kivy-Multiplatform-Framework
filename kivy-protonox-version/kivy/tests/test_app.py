@@ -1,12 +1,11 @@
-from os import name
 import os.path
 from math import isclose
 from textwrap import dedent
 
+from kivy import lang
 from kivy.app import App
 from kivy.clock import Clock
-from kivy import lang
-from kivy.tests import GraphicUnitTest, async_run, UnitKivyApp
+from kivy.tests import GraphicUnitTest, UnitKivyApp, async_run
 
 
 class AppTest(GraphicUnitTest):
@@ -139,8 +138,8 @@ async def test_text_app(kivy_app):
 
 def graphics_app():
     from kivy.app import App
-    from kivy.uix.widget import Widget
     from kivy.graphics import Color, Rectangle
+    from kivy.uix.widget import Widget
 
     class TestApp(UnitKivyApp, App):
         def build(self):

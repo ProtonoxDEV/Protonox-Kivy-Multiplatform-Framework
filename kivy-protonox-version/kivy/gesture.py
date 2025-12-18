@@ -33,14 +33,13 @@ gestures and compare them::
 
 __all__ = ('Gesture', 'GestureDatabase', 'GesturePoint', 'GestureStroke')
 
-import pickle
 import base64
-import zlib
 import math
+import pickle
+import zlib
+from io import BytesIO
 
 from kivy.vector import Vector
-
-from io import BytesIO
 
 
 class GestureDatabase(object):

@@ -90,16 +90,17 @@ Known limitations
 
 __all__ = ('Recorder', )
 
-from os.path import exists
-from time import time
-from kivy.event import EventDispatcher
-from kivy.properties import ObjectProperty, BooleanProperty, StringProperty, \
-    NumericProperty, ListProperty
-from kivy.input.motionevent import MotionEvent
-from kivy.base import EventLoop
-from kivy.logger import Logger
 from ast import literal_eval
 from functools import partial
+from os.path import exists
+from time import time
+
+from kivy.base import EventLoop
+from kivy.event import EventDispatcher
+from kivy.input.motionevent import MotionEvent
+from kivy.logger import Logger
+from kivy.properties import (BooleanProperty, ListProperty, NumericProperty,
+                             ObjectProperty, StringProperty)
 
 
 class RecorderMotionEvent(MotionEvent):

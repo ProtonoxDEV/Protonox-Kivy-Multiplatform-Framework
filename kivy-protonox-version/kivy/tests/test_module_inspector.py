@@ -1,9 +1,9 @@
 import unittest
-from kivy.tests.common import GraphicUnitTest, UnitTestTouch
-from kivy.base import EventLoop
-from kivy.modules import inspector
-from kivy.factory import Factory
 
+from kivy.base import EventLoop
+from kivy.factory import Factory
+from kivy.modules import inspector
+from kivy.tests.common import GraphicUnitTest, UnitTestTouch
 
 KV = '''
 #:import Factory kivy.factory.Factory

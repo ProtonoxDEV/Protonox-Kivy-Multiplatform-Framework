@@ -1,16 +1,17 @@
-import unittest
 import io
 import os
 import tempfile
+import unittest
+
 from kivy import setupconfig
 
 
 class ImageTestCase(unittest.TestCase):
 
     def setUp(self):
-        from kivy.core.window import Window
-        from kivy.core.image import Image
         import os
+
+        from kivy.core.image import Image
         self.cls = Image
         self.image = os.path.join(os.path.dirname(__file__), 'test_button.png')
         print(self.image)
@@ -18,7 +19,7 @@ class ImageTestCase(unittest.TestCase):
 
     def test_keep_data(self):
         root = self.root
-        texture = root.texture
+        root.texture
         self.assertEqual(root._image._data[0].data, None)
         i1 = self.cls(self.image, keep_data=True)
         if not i1._image._data[0].data:

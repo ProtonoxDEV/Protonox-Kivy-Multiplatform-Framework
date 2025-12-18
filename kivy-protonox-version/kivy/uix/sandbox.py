@@ -25,13 +25,14 @@ Don't use it unless you know what you are doing.
 __all__ = ('Sandbox', )
 
 from functools import wraps
-from kivy.context import Context
+
 from kivy.base import ExceptionManagerBase
 from kivy.clock import Clock
-from kivy.uix.widget import Widget
+from kivy.context import Context
+from kivy.lang import Builder
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.lang import Builder
+from kivy.uix.widget import Widget
 
 
 def sandbox(f):
@@ -94,7 +95,6 @@ class Sandbox(FloatLayout):
         '''Override this method in order to load your kv file or do anything
         else with the newly created context.
         '''
-        pass
 
     def on_exception(self, exception, _traceback=None):
         '''Override this method in order to catch all the exceptions from

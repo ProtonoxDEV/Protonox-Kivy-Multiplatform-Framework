@@ -32,7 +32,9 @@ support the above, deeper changes will be required.
 """
 
 import os
+
 import coverage
+
 from kivy.lang.parser import Parser
 
 

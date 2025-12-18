@@ -84,8 +84,9 @@ def test_logger_history_size():
 )
 def test_trace_level():
     """Kivy logger defines a custom level of Trace."""
-    from kivy.logger import Logger, LOG_LEVELS, LoggerHistory
     import logging
+
+    from kivy.logger import LOG_LEVELS, Logger, LoggerHistory
 
     Logger.setLevel(9)
 
@@ -119,6 +120,7 @@ def test_logging_does_not_deep_copy():
     # data structure, it will fail. See issues #7585 and #7528.
 
     import threading
+
     from kivy.logger import Logger
 
     class UncopyableDatastructure:
@@ -440,7 +442,7 @@ def are_regular_logs_handled():
 
 
 def are_kivy_logger_logs_handled():
-    from kivy.logger import LoggerHistory, Logger
+    from kivy.logger import Logger, LoggerHistory
 
     LoggerHistory.clear_history()
     Logger.info(1)
@@ -503,7 +505,7 @@ def test_logger_fix_8345():
     Pythonw and Pyinstaller 5.7+ (with console set to false) set stderr
     to None.
     """
-    from kivy.logger import Logger, add_kivy_handlers, ConsoleHandler
+    from kivy.logger import ConsoleHandler, Logger, add_kivy_handlers
     original_sys_stderr = sys.stderr
     sys.stderr = None
     add_kivy_handlers(Logger)

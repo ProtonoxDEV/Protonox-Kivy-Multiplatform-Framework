@@ -15,15 +15,16 @@ example.
 '''
 __all__ = ('GestureSurface', 'GestureContainer')
 
-from random import random
-from kivy.event import EventDispatcher
-from kivy.clock import Clock
-from kivy.vector import Vector
-from kivy.uix.floatlayout import FloatLayout
-from kivy.graphics import Color, Line, Rectangle
-from kivy.properties import (NumericProperty, BooleanProperty,
-                             DictProperty, ColorProperty)
 from colorsys import hsv_to_rgb
+from random import random
+
+from kivy.clock import Clock
+from kivy.event import EventDispatcher
+from kivy.graphics import Color, Line, Rectangle
+from kivy.properties import (BooleanProperty, ColorProperty, DictProperty,
+                             NumericProperty)
+from kivy.uix.floatlayout import FloatLayout
+from kivy.vector import Vector
 
 # Clock undershoot margin, FIXME: this is probably too high?
 UNDERSHOOT_MARGIN = 0.1

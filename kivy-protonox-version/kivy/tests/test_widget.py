@@ -1,6 +1,6 @@
 import unittest
-from tempfile import mkdtemp
 from shutil import rmtree
+from tempfile import mkdtemp
 
 
 class WidgetTestCase(unittest.TestCase):
@@ -100,9 +100,10 @@ class WidgetTestCase(unittest.TestCase):
     # Currently rejected with a Shader didn't link, but work alone.
     @unittest.skip("Doesn't work with testsuite, but work alone")
     def test_export_to_png(self):
+        from os.path import join
+
         from kivy.core.image import Image as CoreImage
         from kivy.uix.button import Button
-        from os.path import join
 
         wid = Button(text='test', size=(200, 100), size_hint=(None, None))
         self.root.add_widget(wid)

@@ -124,25 +124,25 @@ __all__ = ('StripLayout', 'TabbedPanel', 'TabbedPanelContent',
            'TabbedPanelException')
 
 from functools import partial
+
 from kivy.clock import Clock
 from kivy.factory import Factory
-from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.widget import Widget
-from kivy.uix.scatter import Scatter
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.floatlayout import FloatLayout
 from kivy.logger import Logger
 from kivy.metrics import dp
-from kivy.properties import ObjectProperty, StringProperty, OptionProperty, \
-    ListProperty, NumericProperty, AliasProperty, BooleanProperty, \
-    ColorProperty
+from kivy.properties import (AliasProperty, BooleanProperty, ColorProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, StringProperty)
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.scatter import Scatter
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.widget import Widget
 
 
 class TabbedPanelException(Exception):
     '''The TabbedPanelException class.
     '''
-    pass
 
 
 class TabbedPanelHeader(ToggleButton):
@@ -265,7 +265,6 @@ class StripLayout(GridLayout):
 class TabbedPanelContent(FloatLayout):
     '''The TabbedPanelContent class.
     '''
-    pass
 
 
 class TabbedPanel(GridLayout):

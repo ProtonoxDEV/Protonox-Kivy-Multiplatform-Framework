@@ -190,25 +190,24 @@ __all__ = ('Screen', 'ScreenManager', 'ScreenManagerException',
            'FallOutTransition', 'RiseInTransition', 'NoTransition',
            'CardTransition')
 
-from kivy.logger import Logger
-from kivy.event import EventDispatcher
-from kivy.clock import Clock
-from kivy.uix.floatlayout import FloatLayout
-from kivy.properties import (StringProperty, ObjectProperty, AliasProperty,
-                             NumericProperty, ListProperty, OptionProperty,
-                             BooleanProperty, ColorProperty)
 from kivy.animation import Animation, AnimationTransition
-from kivy.uix.relativelayout import RelativeLayout
+from kivy.clock import Clock
+from kivy.event import EventDispatcher
+from kivy.graphics import (BindTexture, Callback, ClearBuffers, ClearColor,
+                           Fbo, PopMatrix, PushMatrix, Rectangle,
+                           RenderContext, Scale, Translate)
 from kivy.lang import Builder
-from kivy.graphics import (RenderContext, Rectangle, Fbo,
-                           ClearColor, ClearBuffers, BindTexture, PushMatrix,
-                           PopMatrix, Translate, Callback, Scale)
+from kivy.logger import Logger
+from kivy.properties import (AliasProperty, BooleanProperty, ColorProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, StringProperty)
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.relativelayout import RelativeLayout
 
 
 class ScreenManagerException(Exception):
     '''Exception for the :class:`ScreenManager`.
     '''
-    pass
 
 
 class Screen(RelativeLayout):

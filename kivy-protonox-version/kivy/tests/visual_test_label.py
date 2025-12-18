@@ -1,12 +1,13 @@
-from kivy.app import runTouchApp
-from kivy.uix.gridlayout import GridLayout
-from kivy.properties import StringProperty
-from kivy.lang import Builder
-from kivy.utils import get_hex_from_color, get_random_color
-import timeit
-import re
 import random
+import re
+import timeit
 from functools import partial
+
+from kivy.app import runTouchApp
+from kivy.lang import Builder
+from kivy.properties import StringProperty
+from kivy.uix.gridlayout import GridLayout
+from kivy.utils import get_hex_from_color, get_random_color
 
 
 def layout_perf(label, repeat):

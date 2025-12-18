@@ -5,8 +5,8 @@ import unittest
 class InvalidLangTestCase(unittest.TestCase):
 
     def test_invalid_childname(self):
-        from kivy.lang import Builder, ParserException
         from kivy.factory import FactoryException
+        from kivy.lang import Builder, ParserException
         try:
             Builder.load_string('''
 Widget:

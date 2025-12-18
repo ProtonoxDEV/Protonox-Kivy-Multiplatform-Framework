@@ -20,9 +20,10 @@ __all__ = ('ScrollEffect', )
 
 
 from time import time
+
 from kivy.effects.kinetic import KineticEffect
-from kivy.uix.widget import Widget
 from kivy.properties import NumericProperty, ObjectProperty
+from kivy.uix.widget import Widget
 
 
 class ScrollEffect(KineticEffect):

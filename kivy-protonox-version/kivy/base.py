@@ -21,14 +21,14 @@ __all__ = (
 )
 
 import sys
-import os
-from kivy.config import Config
-from kivy.logger import Logger
-from kivy.utils import platform
+
 from kivy.clock import Clock
+from kivy.config import Config
+from kivy.context import register_context
 from kivy.event import EventDispatcher
 from kivy.lang import Builder
-from kivy.context import register_context
+from kivy.logger import Logger
+from kivy.utils import platform
 
 # private vars
 EventLoop = None
@@ -463,17 +463,14 @@ class EventLoopBase(EventDispatcher):
     def on_stop(self):
         '''Event handler for `on_stop` events which will be fired right
         after all input providers have been stopped.'''
-        pass
 
     def on_pause(self):
         '''Event handler for `on_pause` which will be fired when
         the event loop is paused.'''
-        pass
 
     def on_start(self):
         '''Event handler for `on_start` which will be fired right
         after all input providers have been started.'''
-        pass
 
 
 #: EventLoop instance

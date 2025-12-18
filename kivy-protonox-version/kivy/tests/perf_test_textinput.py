@@ -1,10 +1,10 @@
+import timeit
+
 from kivy.app import App
-from kivy.uix.floatlayout import FloatLayout
+from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.resources import resource_find
-from kivy.clock import Clock
-
-import timeit
+from kivy.uix.floatlayout import FloatLayout
 
 Builder.load_string('''
 <PerfApp>:

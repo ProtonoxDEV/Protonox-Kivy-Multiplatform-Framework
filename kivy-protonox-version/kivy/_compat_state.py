@@ -16,8 +16,8 @@ API.
 """
 from __future__ import annotations
 
-from kivy.uix.behaviors import togglebutton
 from kivy.properties import AliasProperty
+from kivy.uix.behaviors import togglebutton
 
 
 def _get_state(self) -> str:

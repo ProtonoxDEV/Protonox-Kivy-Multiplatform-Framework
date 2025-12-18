@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # XXX: please be careful to only save this file with an utf-8 editor
 
-from os import remove, rmdir, mkdir
-from os.path import join, dirname, isdir
 import unittest
+from os import mkdir, remove, rmdir
+from os.path import dirname, isdir, join
 from zipfile import ZipFile
 
 import pytest

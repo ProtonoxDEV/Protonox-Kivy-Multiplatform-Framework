@@ -32,15 +32,16 @@ class UIXWidgetTestCase(GraphicUnitTest):
         r(Slider(orientation='vertical', min=-100, max=100, value=0))
 
     def test_image_properties(self):
-        from kivy.uix.image import Image
         from os.path import dirname, join
+
+        from kivy.uix.image import Image
         r = self.render
         filename = join(dirname(__file__), 'test_button.png')
         r(Image(source=filename))
 
     def test_add_widget_index_0(self):
-        from kivy.uix.widget import Widget
         from kivy.uix.button import Button
+        from kivy.uix.widget import Widget
         r = self.render
         root = Widget()
         a = Button(text='Hello')
@@ -52,8 +53,8 @@ class UIXWidgetTestCase(GraphicUnitTest):
         r(root)
 
     def test_add_widget_index_1(self):
-        from kivy.uix.widget import Widget
         from kivy.uix.button import Button
+        from kivy.uix.widget import Widget
         r = self.render
         root = Widget()
         a = Button(text='Hello')
@@ -65,8 +66,8 @@ class UIXWidgetTestCase(GraphicUnitTest):
         r(root)
 
     def test_add_widget_index_2(self):
-        from kivy.uix.widget import Widget
         from kivy.uix.button import Button
+        from kivy.uix.widget import Widget
         r = self.render
         root = Widget()
         a = Button(text='Hello')
@@ -78,8 +79,8 @@ class UIXWidgetTestCase(GraphicUnitTest):
         r(root)
 
     def test_widget_root_from_code_with_kv(self):
-        from kivy.lang import Builder
         from kivy.factory import Factory
+        from kivy.lang import Builder
         from kivy.properties import StringProperty
         from kivy.uix.floatlayout import FloatLayout
 

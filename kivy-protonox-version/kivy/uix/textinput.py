@@ -162,37 +162,34 @@ Control + r     redo
 '''
 
 
+import math
 import re
 import sys
-import math
+from itertools import chain, islice
 from os import environ
 from weakref import ref
-from itertools import chain, islice
 
 from kivy.animation import Animation
 from kivy.base import EventLoop
 from kivy.cache import Cache
 from kivy.clock import Clock
 from kivy.config import Config
+from kivy.core.text import DEFAULT_FONT, Label
 from kivy.core.window import Window
-from kivy.metrics import inch
-from kivy.utils import boundary, platform
-from kivy.uix.behaviors import FocusBehavior
-
-from kivy.core.text import Label, DEFAULT_FONT
-from kivy.graphics import Color, Rectangle, PushMatrix, PopMatrix, Callback
+from kivy.graphics import Callback, Color, PopMatrix, PushMatrix, Rectangle
 from kivy.graphics.context_instructions import Transform
 from kivy.graphics.texture import Texture
-
-from kivy.uix.widget import Widget
+from kivy.metrics import inch
+from kivy.properties import (AliasProperty, BooleanProperty,
+                             BoundedNumericProperty, ColorProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, StringProperty,
+                             VariableListProperty)
+from kivy.uix.behaviors import ButtonBehavior, FocusBehavior
 from kivy.uix.bubble import Bubble
-from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.image import Image
-
-from kivy.properties import StringProperty, NumericProperty, \
-    BooleanProperty, AliasProperty, OptionProperty, \
-    ListProperty, ObjectProperty, VariableListProperty, ColorProperty, \
-    BoundedNumericProperty
+from kivy.uix.widget import Widget
+from kivy.utils import boundary, platform
 
 __all__ = ('TextInput', )
 
@@ -2485,7 +2482,7 @@ class TextInput(FocusBehavior, Widget):
 
         dy = self.line_height + self.line_spacing
         x = self.x
-        y = top - padding_top + self.scroll_y - selection_start_row * dy
+        top - padding_top + self.scroll_y - selection_start_row * dy
         width = self.width
 
         miny = self.y + padding_bottom
@@ -2707,7 +2704,7 @@ class TextInput(FocusBehavior, Widget):
                     else:
                         break
 
-                except:
+                except Exception:
                     # exception happen when we tried to render the text
                     # reduce it...
                     if ld is None:
@@ -3936,8 +3933,8 @@ class TextInput(FocusBehavior, Widget):
 
 if __name__ == '__main__':
     from textwrap import dedent
+
     from kivy.app import App
-    from kivy.uix.boxlayout import BoxLayout
     from kivy.lang import Builder
 
     KV = dedent(r'''

@@ -15,8 +15,8 @@ The RecycleBoxLayout is designed to provide a
 
 """
 
-from kivy.uix.recyclelayout import RecycleLayout
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.recyclelayout import RecycleLayout
 
 __all__ = ('RecycleBoxLayout', )
 

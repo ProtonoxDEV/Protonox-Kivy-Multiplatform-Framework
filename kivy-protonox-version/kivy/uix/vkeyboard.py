@@ -111,24 +111,24 @@ your main.py)::
 
 __all__ = ('VKeyboard', )
 
-from kivy import kivy_data_dir
-from kivy.vector import Vector
-from kivy.config import Config
-from kivy.uix.scatter import Scatter
-from kivy.uix.label import Label
-from kivy.properties import ObjectProperty, NumericProperty, StringProperty, \
-    BooleanProperty, DictProperty, OptionProperty, ListProperty, ColorProperty
-from kivy.logger import Logger
-from kivy.graphics import Color, BorderImage, Canvas
-from kivy.core.image import Image
-from kivy.resources import resource_find
-from kivy.clock import Clock
-
 from io import open
-from os.path import join, splitext, basename
-from os import listdir
 from json import loads
+from os import listdir
+from os.path import basename, join, splitext
 
+from kivy import kivy_data_dir
+from kivy.clock import Clock
+from kivy.config import Config
+from kivy.core.image import Image
+from kivy.graphics import BorderImage, Canvas, Color
+from kivy.logger import Logger
+from kivy.properties import (BooleanProperty, ColorProperty, DictProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, StringProperty)
+from kivy.resources import resource_find
+from kivy.uix.label import Label
+from kivy.uix.scatter import Scatter
+from kivy.vector import Vector
 
 default_layout_path = join(kivy_data_dir, 'keyboards')
 

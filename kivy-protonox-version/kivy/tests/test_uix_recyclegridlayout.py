@@ -5,6 +5,7 @@ class TestLayout_all_the_data_is_visible:
     def compute_layout(self, *, n_cols, n_rows, orientation, n_data, clock):
         '''Returns {view-index: pos, view-index: pos, ...}'''
         from textwrap import dedent
+
         from kivy.lang import Builder
 
         # Use Kv because RecycleView cannot be constructed from python
@@ -185,6 +186,7 @@ class TestLayout_only_a_part_of_the_data_is_visible:
                        scroll_to, clock):
         '''Returns {view-index: pos, view-index: pos, ...}'''
         from textwrap import dedent
+
         from kivy.lang import Builder
 
         # Use Kv because RecycleView cannot be constructed from python

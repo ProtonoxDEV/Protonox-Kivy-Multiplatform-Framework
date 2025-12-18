@@ -35,21 +35,20 @@ parameters:
 
 __all__ = ('Loader', 'LoaderBase', 'ProxyImage')
 
-from kivy import kivy_data_dir
-from kivy.logger import Logger
-from kivy.clock import Clock
-from kivy.cache import Cache
-from kivy.core.image import ImageLoader, Image
-from kivy.config import Config
-from kivy.utils import platform
-
-from collections import deque
-from time import sleep
-from os.path import join
-from os import write, close, unlink, environ
-import threading
 import mimetypes
+import threading
+from collections import deque
+from os import close, environ, unlink, write
+from os.path import join
+from time import sleep
 
+from kivy import kivy_data_dir
+from kivy.cache import Cache
+from kivy.clock import Clock
+from kivy.config import Config
+from kivy.core.image import Image, ImageLoader
+from kivy.logger import Logger
+from kivy.utils import platform
 
 # Register a cache for loader
 Cache.register('kv.loader', limit=500, timeout=60)
@@ -230,7 +229,6 @@ class LoaderBase(object):
 
     def run(self, *largs):
         '''Main loop for the loader.'''
-        pass
 
     def stop(self):
         '''Stop the loader thread/process.'''
@@ -276,7 +274,7 @@ class LoaderBase(object):
         post_callback = kwargs['post_callback']
         try:
             proto = filename.split(':', 1)[0]
-        except:
+        except Exception:
             # if blank filename then return
             return
         if load_callback is not None:
@@ -301,8 +299,8 @@ class LoaderBase(object):
     def _load_urllib(self, filename, kwargs):
         '''(internal) Loading a network file. First download it, save it to a
         temporary file, and pass it to _load_local().'''
-        import urllib.request
         import tempfile
+        import urllib.request
 
         proto = filename.split(':', 1)[0]
         if proto == 'smb':
@@ -334,8 +332,9 @@ class LoaderBase(object):
                 # as we need to use the certs provided via certifi.
                 ssl_ctx = None
                 if platform in ['android', 'ios']:
-                    import certifi
                     import ssl
+
+                    import certifi
                     ssl_ctx = ssl.create_default_context(cafile=certifi.where())
                     ssl_ctx.verify_mode = ssl.CERT_REQUIRED
 
@@ -566,7 +565,7 @@ else:
             while self._running:
                 try:
                     parameters = self._q_load.pop()
-                except:
+                except Exception:
                     return
                 self.pool.add_task(self._load, parameters)
 

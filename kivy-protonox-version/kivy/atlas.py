@@ -141,12 +141,12 @@ Manual usage of the Atlas
 __all__ = ('Atlas', )
 
 import json
+import os
 from os.path import basename, dirname, join, splitext
+
 from kivy.event import EventDispatcher
 from kivy.logger import Logger
 from kivy.properties import AliasProperty, DictProperty, ListProperty
-import os
-
 
 # late import to prevent recursion
 CoreImage = None

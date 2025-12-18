@@ -1,8 +1,8 @@
 import unittest
 
+from kivy.graphics import Color, Fbo, Rectangle
 from kivy.tests.common import GraphicUnitTest
 from kivy.uix.widget import Widget
-from kivy.graphics import Fbo, Color, Rectangle
 
 
 class FboTest(Widget):

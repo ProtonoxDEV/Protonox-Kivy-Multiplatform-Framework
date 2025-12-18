@@ -1,8 +1,8 @@
-from kivy import (
-    kivy_configure, kivy_register_post_configuration, get_includes,
-    kivy_usage)
-from unittest.mock import Mock, patch
 from os.path import exists, isdir
+from unittest.mock import Mock, patch
+
+from kivy import (get_includes, kivy_configure,
+                  kivy_register_post_configuration, kivy_usage)
 
 
 def test_kivy_configure():

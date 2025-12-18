@@ -39,11 +39,12 @@ After multiple clock interaction, the velocity will decrease according to
 __all__ = ('KineticEffect', )
 
 
-from time import time
 from collections import deque
-from kivy.event import EventDispatcher
-from kivy.properties import NumericProperty, BooleanProperty
+from time import time
+
 from kivy.clock import Clock
+from kivy.event import EventDispatcher
+from kivy.properties import BooleanProperty, NumericProperty
 
 
 class KineticEffect(EventDispatcher):

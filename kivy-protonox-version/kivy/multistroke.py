@@ -119,19 +119,22 @@ Some of the code is derived from the JavaScript implementation here:
 __all__ = ('Recognizer', 'ProgressTracker', 'MultistrokeGesture',
            'UnistrokeTemplate', 'Candidate')
 
-import pickle
 import base64
+import pickle
 import zlib
-from re import match as re_match
 from collections import deque
-from math import sqrt, pi, radians, acos, atan, atan2, pow, floor
-from math import sin as math_sin, cos as math_cos
-from kivy.vector import Vector
+from io import BytesIO
+from math import acos, atan, atan2
+from math import cos as math_cos
+from math import floor, pi, pow, radians
+from math import sin as math_sin
+from math import sqrt
+from re import match as re_match
+
 from kivy.clock import Clock
 from kivy.event import EventDispatcher
 from kivy.properties import ListProperty
-from io import BytesIO
-
+from kivy.vector import Vector
 
 # Default number of gesture matches per frame
 # FIXME: relevant number

@@ -1,6 +1,7 @@
 """ modal view unit tests. """
-from kivy.tests import async_run, UnitKivyApp
 from math import isclose
+
+from kivy.tests import UnitKivyApp, async_run
 
 
 def modal_app():

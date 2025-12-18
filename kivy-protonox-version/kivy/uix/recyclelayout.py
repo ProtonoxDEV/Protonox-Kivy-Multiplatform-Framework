@@ -9,12 +9,11 @@ RecycleLayout
     the documentation is not complete at this time.
 """
 
-from kivy.uix.recycleview.layout import RecycleLayoutManagerBehavior
-from kivy.uix.layout import Layout
-from kivy.properties import (
-    ObjectProperty, StringProperty, ReferenceListProperty, NumericProperty
-)
 from kivy.factory import Factory
+from kivy.properties import (NumericProperty, ObjectProperty,
+                             ReferenceListProperty, StringProperty)
+from kivy.uix.layout import Layout
+from kivy.uix.recycleview.layout import RecycleLayoutManagerBehavior
 
 __all__ = ('RecycleLayout', )
 

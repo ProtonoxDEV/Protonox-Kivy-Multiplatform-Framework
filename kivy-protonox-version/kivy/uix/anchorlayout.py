@@ -27,8 +27,8 @@ To draw a button in the lower-right corner::
 
 __all__ = ('AnchorLayout', )
 
-from kivy.uix.layout import Layout
 from kivy.properties import OptionProperty, VariableListProperty
+from kivy.uix.layout import Layout
 
 
 class AnchorLayout(Layout):

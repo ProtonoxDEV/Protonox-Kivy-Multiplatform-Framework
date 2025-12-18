@@ -28,24 +28,21 @@ __all__ = (
     'kivy_config_fn', 'kivy_usermodules_dir', 'kivy_examples_dir'
 )
 
-import sys
-import shutil
-from getopt import getopt, GetoptError
+import importlib
 import os
-from os import environ, mkdir
-from os.path import dirname, join, basename, exists, expanduser
 import pkgutil
 import re
-import importlib
+import shutil
+import sys
+from getopt import GetoptError, getopt
+from os import environ, mkdir
+from os.path import basename, dirname, exists, expanduser, join
+
+from kivy._version import RELEASE as _KIVY_RELEASE
+from kivy._version import __version__, _kivy_build_date, _kivy_git_hash
 # Run small compatibility shims (safe, best-effort)
-try:
-    from . import _compat_state  # adds legacy 'state' alias when needed
-except Exception: 
-    pass
-from kivy.logger import Logger, LOG_LEVELS
+from kivy.logger import LOG_LEVELS, Logger, file_log_handler
 from kivy.utils import platform
-from kivy._version import __version__, RELEASE as _KIVY_RELEASE, \
-    _kivy_git_hash, _kivy_build_date
 
 # internals for post-configuration
 __kivy_post_configuration = []
@@ -379,7 +376,7 @@ if not environ.get('KIVY_DOC_INCLUDE'):
         if platform not in {'android', 'ios'} and not exists(icon_dir):
             try:
                 shutil.copytree(join(kivy_data_dir, 'logo'), icon_dir)
-            except:
+            except Exception:
                 Logger.exception('Error when copying logo directory')
 
     # configuration
@@ -415,7 +412,7 @@ if not environ.get('KIVY_DOC_INCLUDE'):
                 if opt == '--multiprocessing-fork':
                     mp_fork = True
                     break
-        except:
+        except Exception:
             pass
 
         # set argv to the non-read args
@@ -523,6 +520,5 @@ Logger.info('Kivy: Installed at "{}"'.format(__file__))
 Logger.info('Python: v{}'.format(sys.version))
 Logger.info('Python: Interpreter at "{}"'.format(sys.executable))
 
-from kivy.logger import file_log_handler
 if file_log_handler is not None:
     file_log_handler.purge_logs()

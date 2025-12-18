@@ -77,9 +77,8 @@ returning `True` from your callback::
 __all__ = ('ModalView', )
 
 from kivy.animation import Animation
-from kivy.properties import (
-    StringProperty, BooleanProperty, ObjectProperty, NumericProperty,
-    ListProperty, ColorProperty)
+from kivy.properties import (BooleanProperty, ColorProperty, ListProperty,
+                             NumericProperty, ObjectProperty, StringProperty)
 from kivy.uix.anchorlayout import AnchorLayout
 
 
@@ -317,10 +316,10 @@ class ModalView(AnchorLayout):
 
 if __name__ == '__main__':
     from kivy.base import runTouchApp
-    from kivy.uix.button import Button
     from kivy.core.window import Window
-    from kivy.uix.label import Label
+    from kivy.uix.button import Button
     from kivy.uix.gridlayout import GridLayout
+    from kivy.uix.label import Label
 
     # add view
     content = GridLayout(cols=1)

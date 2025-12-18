@@ -49,6 +49,7 @@ effect are different, and allow for more control over the effect.
 __all__ = ('DampedScrollEffect',)
 
 from math import sqrt
+
 from kivy.effects.scroll import ScrollEffect
 from kivy.properties import NumericProperty
 
@@ -188,9 +189,9 @@ class DampedScrollEffect(ScrollEffect):
 
         # Determine target (min or max)
         if self.overscroll > 0:
-            target = self.max
+            self.max
         else:
-            target = self.min
+            self.min
 
         # Apply distance
         self.apply_distance(distance)

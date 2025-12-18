@@ -14,22 +14,21 @@ from __future__ import print_function
 
 benchmark_version = '1'
 
+import gc
+import json
 import os
 import sys
-import json
-import kivy
-import gc
-from time import clock, time, ctime
 from random import randint
+from time import clock, ctime, time
 
-from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.widget import Widget
-from kivy.graphics import RenderContext
-from kivy.input.motionevent import MotionEvent
+import kivy
 from kivy.cache import Cache
 from kivy.clock import Clock
-
+from kivy.graphics import RenderContext
+from kivy.input.motionevent import MotionEvent
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.widget import Widget
 
 clockfn = time
 if sys.platform == 'win32':
@@ -206,7 +205,7 @@ if __name__ == '__main__':
     log('OpenGL information')
     log('-------------------')
 
-    from kivy.core.gl import glGetString, GL_VENDOR, GL_RENDERER, GL_VERSION
+    from kivy.core.gl import GL_RENDERER, GL_VENDOR, GL_VERSION, glGetString
     log('GL Vendor: %s' % glGetString(GL_VENDOR))
     log('GL Renderer: %s' % glGetString(GL_RENDERER))
     log('GL Version: %s' % glGetString(GL_VERSION))

@@ -26,12 +26,11 @@ for a :class:`~kivy.uix.button.Button` class.
 
 __all__ = ('ToggleButton', )
 
-from kivy.uix.button import Button
 from kivy.uix.behaviors import ToggleButtonBehavior
+from kivy.uix.button import Button
 
 
 class ToggleButton(ToggleButtonBehavior, Button):
     '''Toggle button class, see module documentation for more information.
     '''
 
-    pass

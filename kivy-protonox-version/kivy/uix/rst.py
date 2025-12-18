@@ -61,28 +61,28 @@ document.
 __all__ = ('RstDocument', )
 
 import os
-from os.path import dirname, join, exists, abspath
-from kivy.clock import Clock
-from kivy.properties import ObjectProperty, NumericProperty, \
-    DictProperty, ListProperty, StringProperty, \
-    BooleanProperty, OptionProperty, AliasProperty
-from kivy.lang import Builder
-from kivy.utils import get_hex_from_color, get_color_from_hex
-from kivy.uix.widget import Widget
-from kivy.uix.scrollview import ScrollView
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.label import Label
-from kivy.uix.image import AsyncImage, Image
-from kivy.uix.videoplayer import VideoPlayer
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.animation import Animation
-from kivy.logger import Logger
+from os.path import abspath, dirname, exists, join
+
+from docutils import frontend, nodes, utils
 from docutils.parsers import rst
-from docutils.parsers.rst import roles
-from docutils import nodes, frontend, utils
-from docutils.parsers.rst import Directive, directives
+from docutils.parsers.rst import Directive, directives, roles
 from docutils.parsers.rst.roles import set_classes
 
+from kivy.animation import Animation
+from kivy.clock import Clock
+from kivy.lang import Builder
+from kivy.logger import Logger
+from kivy.properties import (AliasProperty, BooleanProperty, DictProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, StringProperty)
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.image import AsyncImage, Image
+from kivy.uix.label import Label
+from kivy.uix.scrollview import ScrollView
+from kivy.uix.videoplayer import VideoPlayer
+from kivy.uix.widget import Widget
+from kivy.utils import get_color_from_hex, get_hex_from_color
 
 #
 # Handle some additional roles
@@ -610,7 +610,7 @@ class RstDocument(ScrollView):
             document.walkabout(visitor)
 
             self.title = visitor.title or 'No title'
-        except:
+        except Exception:
             Logger.exception('Rst: error while loading text')
 
     def on_ref_press(self, node, ref):
@@ -971,7 +971,7 @@ class _Visitor(nodes.NodeVisitor):
             # .. [x] footnote
             text = ''
             foot = RstFootnote()
-            ids = node.attributes['ids']
+            node.attributes['ids']
             self.current.add_widget(foot)
             self.push(foot)
 
@@ -1000,7 +1000,7 @@ class _Visitor(nodes.NodeVisitor):
 
             # we can have a footnote without any link or ref
             # .. [1] Empty footnote
-            link = self.root.refs_assoc.get(name, '')
+            self.root.refs_assoc.get(name, '')
 
             # handle no refs
             ref = self.root.refs_assoc.get('backref' + name, '')
@@ -1483,6 +1483,7 @@ class _Visitor(nodes.NodeVisitor):
 
 
 if __name__ == '__main__':
-    from kivy.base import runTouchApp
     import sys
+
+    from kivy.base import runTouchApp
     runTouchApp(RstDocument(source=sys.argv[1]))

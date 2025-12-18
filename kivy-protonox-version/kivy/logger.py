@@ -165,13 +165,12 @@ LogRecords::
 
 import logging
 import os
+import pathlib
 import sys
 from functools import partial
-import pathlib
 
 import kivy
 from kivy.utils import platform
-
 
 __all__ = (
     "add_kivy_handlers",
@@ -250,6 +249,7 @@ class FileHandler(logging.Handler):
 
     def _configure(self, *largs, **kwargs):
         from time import strftime
+
         from kivy.config import Config
         log_dir = Config.get('kivy', 'log_dir')
         log_name = Config.get('kivy', 'log_name')

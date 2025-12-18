@@ -28,7 +28,8 @@ See `redis-py <https://github.com/andymccurdy/redis-py>`_.
 __all__ = ('RedisStore', )
 
 import os
-from json import loads, dumps
+from json import dumps, loads
+
 from kivy.properties import StringProperty
 from kivy.storage import AbstractStore
 

@@ -163,8 +163,8 @@ class TestAnimation:
         assert a.animated_properties == {'x': 100, }
 
     def test_animated_instruction(self, sleep):
-        from kivy.graphics import Scale
         from kivy.animation import Animation
+        from kivy.graphics import Scale
         a = Animation(x=100, d=1)
         instruction = Scale(3, 3, 3)
         a.start(instruction)
@@ -176,6 +176,7 @@ class TestAnimation:
 
     def test_weakref(self, sleep):
         import gc
+
         from kivy.animation import Animation
         from kivy.uix.widget import Widget
         w = Widget()

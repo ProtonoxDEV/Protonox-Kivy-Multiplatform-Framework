@@ -12,7 +12,6 @@ __all__ = ('start', 'stop')
 
 from kivy.lang import Builder
 
-
 KV_CODE = '''
 <Widget>:
     canvas.after:

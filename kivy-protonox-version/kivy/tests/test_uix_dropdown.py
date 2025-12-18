@@ -1,4 +1,4 @@
-from kivy.tests import async_run, UnitKivyApp
+from kivy.tests import UnitKivyApp, async_run
 
 
 def dropdown_app():

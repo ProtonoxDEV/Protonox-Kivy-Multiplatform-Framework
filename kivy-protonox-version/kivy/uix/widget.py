@@ -236,26 +236,23 @@ at the parent's right at each layout update.
 
 __all__ = ('Widget', 'WidgetException')
 
-from kivy.event import EventDispatcher
-from kivy.eventmanager import (
-    MODE_DONT_DISPATCH,
-    MODE_FILTERED_DISPATCH,
-    MODE_DEFAULT_DISPATCH
-)
-from kivy.factory import Factory
-from kivy.properties import (
-    NumericProperty, StringProperty, AliasProperty, ReferenceListProperty,
-    ObjectProperty, ListProperty, DictProperty, BooleanProperty)
-from kivy.graphics import (
-    Canvas, Translate, Fbo, ClearColor, ClearBuffers, Scale)
-from kivy.graphics.transformation import Matrix
-from kivy.base import EventLoop
-from kivy.lang import Builder
-from kivy.context import get_current_context
-from kivy.weakproxy import WeakProxy
 from functools import partial
 from itertools import islice
 
+from kivy.base import EventLoop
+from kivy.context import get_current_context
+from kivy.event import EventDispatcher
+from kivy.eventmanager import (MODE_DEFAULT_DISPATCH, MODE_DONT_DISPATCH,
+                               MODE_FILTERED_DISPATCH)
+from kivy.factory import Factory
+from kivy.graphics import (Canvas, ClearBuffers, ClearColor, Fbo, Scale,
+                           Translate)
+from kivy.graphics.transformation import Matrix
+from kivy.lang import Builder
+from kivy.properties import (AliasProperty, DictProperty, ListProperty,
+                             NumericProperty, ObjectProperty,
+                             ReferenceListProperty)
+from kivy.weakproxy import WeakProxy
 
 # References to all the widget destructors (partial method with widget uid as
 # key).
@@ -273,7 +270,6 @@ def _widget_destructor(uid, r):
 class WidgetException(Exception):
     '''Fired when the widget gets an exception.
     '''
-    pass
 
 
 class WidgetMetaclass(type):

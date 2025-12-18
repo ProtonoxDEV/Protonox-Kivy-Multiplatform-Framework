@@ -85,27 +85,25 @@ __all__ = ('FileChooserListView', 'FileChooserIconView',
            'FileChooserProgressBase', 'FileSystemAbstract',
            'FileSystemLocal')
 
-from weakref import ref
+import collections.abc
+from fnmatch import fnmatch
+from os import listdir
+from os.path import (abspath, altsep, basename, dirname, expanduser, getsize,
+                     isdir, isfile, join, normpath, realpath, sep, splitdrive)
 from time import time
+from weakref import ref
 
+from kivy.clock import Clock
 from kivy.core.text import DEFAULT_FONT
 from kivy.factory import Factory
-from kivy.clock import Clock
 from kivy.lang import Builder
 from kivy.logger import Logger
-from kivy.utils import platform as core_platform
+from kivy.properties import (AliasProperty, BooleanProperty, ListProperty,
+                             NumericProperty, ObjectProperty, StringProperty)
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.uix.screenmanager import ScreenManager, Screen
-from kivy.properties import (
-    StringProperty, ListProperty, BooleanProperty, ObjectProperty,
-    NumericProperty, AliasProperty)
-import collections.abc
-from os import listdir
-from os.path import (
-    basename, join, sep, normpath, expanduser, altsep,
-    splitdrive, realpath, getsize, isdir, abspath, isfile, dirname)
-from fnmatch import fnmatch
+from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.utils import platform as core_platform
 
 platform = core_platform
 filesize_units = ('B', 'KB', 'MB', 'GB', 'TB')
@@ -118,8 +116,8 @@ if platform == 'win':
     # Note: For some reason this doesn't work after a os.chdir(), no matter to
     #       what directory you change from where. Windows weirdness.
     try:
-        from win32file import FILE_ATTRIBUTE_HIDDEN, GetFileAttributesExW, \
-                              error
+        from win32file import (FILE_ATTRIBUTE_HIDDEN, GetFileAttributesExW,
+                               error)
         _have_win32file = True
     except ImportError:
         Logger.error('filechooser: win32file module is missing')
@@ -141,22 +139,18 @@ class FileSystemAbstract(object):
     def listdir(self, fn):
         '''Return the list of files in the directory `fn`
         '''
-        pass
 
     def getsize(self, fn):
         '''Return the size in bytes of a file
         '''
-        pass
 
     def is_hidden(self, fn):
         '''Return True if the file is hidden
         '''
-        pass
 
     def is_dir(self, fn):
         '''Return True if the argument passed to this method is a directory
         '''
-        pass
 
 
 class FileSystemLocal(FileSystemAbstract):
@@ -1071,10 +1065,11 @@ class FileChooser(FileChooserController):
 
 
 if __name__ == '__main__':
-    from kivy.app import App
-    from pprint import pprint
-    import textwrap
     import sys
+    import textwrap
+    from pprint import pprint
+
+    from kivy.app import App
 
     root = Builder.load_string(textwrap.dedent('''\
     BoxLayout:

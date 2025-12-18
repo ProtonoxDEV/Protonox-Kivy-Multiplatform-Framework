@@ -51,7 +51,7 @@ Kv Example::
 __all__ = ('Spinner', 'SpinnerOption')
 
 from kivy.factory import Factory
-from kivy.properties import ListProperty, ObjectProperty, BooleanProperty
+from kivy.properties import BooleanProperty, ListProperty, ObjectProperty
 from kivy.uix.button import Button
 from kivy.uix.dropdown import DropDown
 
@@ -61,7 +61,6 @@ class SpinnerOption(Button):
     this is just a :class:`~kivy.uix.button.Button` with a size_hint_y of None
     and a height of :meth:`48dp <kivy.metrics.dp>`.
     '''
-    pass
 
 
 class Spinner(Button):

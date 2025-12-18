@@ -66,6 +66,7 @@ from time import sleep
 from urllib.parse import urlparse, urlunparse
 
 import requests
+
 from kivy.clock import Clock
 from kivy.config import Config
 from kivy.logger import Logger
@@ -74,7 +75,6 @@ from kivy.weakmethod import WeakMethod
 
 try:
     import ssl
-
     from http.client import HTTPSConnection
 except ImportError:
     # depending the platform, if openssl support wasn't compiled before python,

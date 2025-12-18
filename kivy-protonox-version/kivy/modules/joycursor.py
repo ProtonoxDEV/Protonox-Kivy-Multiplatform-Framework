@@ -68,14 +68,10 @@ deactivate the module programmatically::
 __all__ = ('start', 'stop', 'create_joycursor')
 
 from kivy.clock import Clock
-from kivy.logger import Logger
-from kivy.uix.widget import Widget
 from kivy.graphics import Color, Line
-from kivy.properties import (
-    ObjectProperty,
-    NumericProperty,
-    BooleanProperty
-)
+from kivy.logger import Logger
+from kivy.properties import BooleanProperty, NumericProperty, ObjectProperty
+from kivy.uix.widget import Widget
 
 
 class JoyCursor(Widget):

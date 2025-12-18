@@ -1,6 +1,7 @@
 """This module houses test for the kivy config module."""
+from os.path import dirname, join
+
 from kivy.config import ConfigParser
-from os.path import join, dirname
 
 SAMPLE_CONFIG = join(dirname(__file__), 'data', 'test.ini')
 

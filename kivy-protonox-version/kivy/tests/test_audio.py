@@ -3,9 +3,11 @@ Audio tests
 ===========
 '''
 
-import unittest
 import os
+import unittest
+
 import pytest
+
 if os.environ.get('KIVY_TEST_AUDIO') == '0':
     pytestmark = pytest.mark.skip("Audio is not available")
 

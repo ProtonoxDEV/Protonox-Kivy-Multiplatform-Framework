@@ -7,10 +7,11 @@ App Store, Amazon store.
 '''
 
 import sys
-from PIL import Image
-from os.path import exists, join, realpath, basename, dirname
-from os import makedirs
 from argparse import ArgumentParser
+from os import makedirs
+from os.path import basename, dirname, exists, join, realpath
+
+from PIL import Image
 
 
 class Converter(object):
@@ -73,7 +74,7 @@ class Converter(object):
             args.dir = dirname(args.icon)
 
         # read the source image, and do some quality checks
-        base_fn = basename(args.icon).rsplit('.', 1)[0]
+        basename(args.icon).rsplit('.', 1)[0]
         source = Image.open(args.icon)
         self.ensure_quality(source, args.force)
 

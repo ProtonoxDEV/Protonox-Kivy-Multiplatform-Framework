@@ -4,14 +4,9 @@ Bubble unit tests
 author: Anthony Zimmermann (Anthony.Zimmermann@protonmail.com)
 '''
 
-import pytest
-from kivy.tests.common import GraphicUnitTest
-
 from kivy.base import EventLoop
-
-from kivy.uix.bubble import Bubble
-from kivy.uix.bubble import BubbleContent
-from kivy.uix.bubble import BubbleButton
+from kivy.tests.common import GraphicUnitTest
+from kivy.uix.bubble import Bubble, BubbleButton, BubbleContent
 
 
 class _TestBubbleButton(BubbleButton):

@@ -10,12 +10,13 @@ in the examples/ directory to create rst files in the generation_dir
 
 import os
 import re
-from os.path import sep
+import textwrap
+from os.path import abspath, dirname
 from os.path import join as slash  # just like that name better
-from os.path import dirname, abspath
+from os.path import sep
+
 import kivy
 from kivy.logger import Logger
-import textwrap
 
 # from here to the kivy top
 base_dir = dirname(dirname(abspath(kivy.__file__)))

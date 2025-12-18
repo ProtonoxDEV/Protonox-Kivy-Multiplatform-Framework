@@ -104,9 +104,9 @@ popup from closing by explicitly returning True from your callback::
 __all__ = ('Popup', 'PopupException')
 
 from kivy.core.text import DEFAULT_FONT
+from kivy.properties import (ColorProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, StringProperty)
 from kivy.uix.modalview import ModalView
-from kivy.properties import (StringProperty, ObjectProperty, OptionProperty,
-                             NumericProperty, ColorProperty)
 
 
 class PopupException(Exception):
@@ -238,10 +238,10 @@ class Popup(ModalView):
 
 if __name__ == '__main__':
     from kivy.base import runTouchApp
-    from kivy.uix.button import Button
-    from kivy.uix.label import Label
-    from kivy.uix.gridlayout import GridLayout
     from kivy.core.window import Window
+    from kivy.uix.button import Button
+    from kivy.uix.gridlayout import GridLayout
+    from kivy.uix.label import Label
 
     # add popup
     content = GridLayout(cols=1)

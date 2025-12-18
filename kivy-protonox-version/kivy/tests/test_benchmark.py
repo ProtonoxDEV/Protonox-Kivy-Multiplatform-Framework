@@ -1,22 +1,21 @@
-import pytest
-from string import ascii_letters
-from random import randint
 import gc
-
 import sys
+from random import randint
+from string import ascii_letters
+
+import pytest
 
 
 @pytest.fixture
 def kivy_benchmark(benchmark, kivy_clock):
-    from kivy.core.window import Window
-    from kivy.cache import Cache
-    from kivy.utils import platform
     import kivy
-    from kivy.core.gl import glGetString, GL_VENDOR, GL_RENDERER, GL_VERSION
-    from kivy.context import Context
+    from kivy.cache import Cache
     from kivy.clock import ClockBase
-    from kivy.factory import FactoryBase, Factory
-    from kivy.lang.builder import BuilderBase, Builder
+    from kivy.context import Context
+    from kivy.core.gl import GL_RENDERER, GL_VENDOR, GL_VERSION, glGetString
+    from kivy.factory import Factory, FactoryBase
+    from kivy.lang.builder import Builder, BuilderBase
+    from kivy.utils import platform
 
     context = Context(init=False)
     context['Clock'] = ClockBase()
@@ -60,6 +59,7 @@ def test_event_dispatcher_creation(kivy_benchmark):
 
 def test_widget_creation(kivy_benchmark):
     from kivy.uix.widget import Widget
+
     # create one just so we don't incur loading cost
     w = Widget()
     kivy_benchmark(Widget)
@@ -124,10 +124,10 @@ def test_complex_kv_widget(kivy_benchmark, test_component):
 
 
 def get_event_class(name, args, kwargs):
-    from kivy.event import EventDispatcher
     import kivy.properties
-    from kivy.properties import BooleanProperty, ReferenceListProperty, \
-        AliasProperty
+    from kivy.event import EventDispatcher
+    from kivy.properties import (AliasProperty, BooleanProperty,
+                                 ReferenceListProperty)
 
     if name == 'AliasProperty':
         class Event(EventDispatcher):
@@ -250,8 +250,8 @@ def test_widget_dispatch_touch(kivy_benchmark, n):
 @pytest.mark.parametrize('tick', ['tick', 'no_tick'])
 def test_random_label_create(kivy_benchmark, n, name, tick):
     from kivy.clock import Clock
-    from kivy.uix.label import Label
     from kivy.uix.button import Button
+    from kivy.uix.label import Label
     label = Label(text='*&^%')
     button = Button(text='*&^%')
     cls = Label if name == 'label' else Button

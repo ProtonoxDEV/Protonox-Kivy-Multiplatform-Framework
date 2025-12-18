@@ -16,16 +16,19 @@ __all__ = (
     'GraphicUnitTest', 'UnitTestTouch', 'UTMotionEvent', 'async_run',
     'requires_graphics', 'ensure_web_server')
 
-import unittest
 import logging
-import pytest
-import sys
-from functools import partial
 import os
+import sys
 import threading
+import unittest
+from functools import partial
 from typing import Callable, Optional
+
+import pytest
+
 from kivy.graphics.cgl import cgl_get_backend_name
 from kivy.input.motionevent import MotionEvent
+
 log = logging.getLogger('unittest')
 
 
@@ -125,7 +128,7 @@ def ensure_web_server(root=None):
             http_server.server_activate()
             http_server_ready.set()
             http_server.serve_forever()
-        except:
+        except Exception:
             import traceback
             traceback.print_exc()
         finally:
@@ -176,7 +179,7 @@ class GraphicUnitTest(_base):
         '''Extend the run of unittest, to check if results directory have been
         found. If no results directory exists, the test will be ignored.
         '''
-        from os.path import join, dirname, exists
+        from os.path import dirname, exists, join
         results_dir = join(dirname(__file__), 'results')
         if make_screenshots and not exists(results_dir):
             log.warning('No result directory found, cancel test.')
@@ -242,11 +245,12 @@ class GraphicUnitTest(_base):
         If no screenshot is available in the results directory, a new one will
         be created.
         '''
-        from kivy.base import EventLoop
+        from os import close, unlink
+        from os.path import exists, join
+        from shutil import copy, move
         from tempfile import mkstemp
-        from os.path import join, exists
-        from os import unlink, close
-        from shutil import move, copy
+
+        from kivy.base import EventLoop
 
         # don't save screenshot until we have enough frames.
         # log.debug('framecount %d' % self.framecount)
@@ -327,8 +331,8 @@ class GraphicUnitTest(_base):
                     match = True
 
             # generate html
-            from os.path import join, dirname, exists, basename
             from os import mkdir
+            from os.path import basename, dirname, exists, join
             build_dir = join(dirname(__file__), 'build')
             if not exists(build_dir):
                 mkdir(build_dir)
@@ -355,7 +359,7 @@ class GraphicUnitTest(_base):
             try:
                 if reffn != tmpfn:
                     unlink(tmpfn)
-            except:
+            except Exception:
                 pass
             EventLoop.stop()
 
@@ -378,7 +382,8 @@ class GraphicUnitTest(_base):
         if 'UNITTEST_INTERACTIVE' not in environ:
             return True
 
-        from tkinter import Tk, Label, LEFT, RIGHT, BOTTOM, Button
+        from tkinter import BOTTOM, LEFT, RIGHT, Button, Label, Tk
+
         from PIL import Image, ImageTk
 
         self.retval = False
@@ -409,7 +414,8 @@ class GraphicUnitTest(_base):
         if 'UNITTEST_INTERACTIVE' not in environ:
             return False
 
-        from tkinter import Tk, Label, LEFT, RIGHT, BOTTOM, Button
+        from tkinter import BOTTOM, LEFT, RIGHT, Button, Label, Tk
+
         from PIL import Image, ImageTk
 
         self.retval = False
@@ -556,8 +562,6 @@ def async_run(func=None, app_cls_func=None):
                            '"pytest-asyncio" is not installed')(func)
         elif kivy_eventloop == 'trio':
             try:
-                import trio
-                from pytest_trio import trio_fixture
                 func._force_trio_fixture = True
                 return func
             except ImportError:

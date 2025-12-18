@@ -3,7 +3,7 @@ Clock tests
 ===========
 '''
 import gc
-import weakref
+
 import pytest
 
 

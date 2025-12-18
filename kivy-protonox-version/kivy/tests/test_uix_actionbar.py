@@ -1,9 +1,9 @@
-from kivy.tests.common import GraphicUnitTest, UTMotionEvent
-
-from kivy.lang import Builder
-from kivy.base import EventLoop
-from kivy.weakproxy import WeakProxy
 from time import sleep
+
+from kivy.base import EventLoop
+from kivy.lang import Builder
+from kivy.tests.common import GraphicUnitTest, UTMotionEvent
+from kivy.weakproxy import WeakProxy
 
 DropDown = None
 
@@ -72,10 +72,9 @@ class ActionBarTestCase(GraphicUnitTest):
 
     def setUp(self):
         global DropDown
-        from kivy.uix.dropdown import DropDown
-
         # kill KV lang logging (too long test)
         import kivy.lang.builder as builder
+        from kivy.uix.dropdown import DropDown
 
         if not hasattr(self, '_trace'):
             self._trace = builder.trace

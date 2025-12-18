@@ -10,9 +10,10 @@ __all__ = ('JsonStore', )
 
 
 import errno
-from os.path import exists, abspath, dirname
+from json import dump, loads
+from os.path import abspath, dirname, exists
+
 from kivy.storage import AbstractStore
-from json import loads, dump
 
 
 class JsonStore(AbstractStore):

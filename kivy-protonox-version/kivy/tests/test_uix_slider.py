@@ -1,8 +1,7 @@
+from kivy.base import EventLoop
 from kivy.tests.common import GraphicUnitTest, UTMotionEvent
-
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.slider import Slider
-from kivy.base import EventLoop
 
 
 class _TestSliderHandle(Slider):

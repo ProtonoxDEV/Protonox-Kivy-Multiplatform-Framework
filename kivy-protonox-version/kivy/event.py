@@ -6,6 +6,7 @@
 __all__ = ('EventDispatcher', 'ObjectWithUid', 'Observable')
 
 import kivy._event
+
 __doc__ = kivy._event.__doc__
 EventDispatcher = kivy._event.EventDispatcher
 ObjectWithUid = kivy._event.ObjectWithUid

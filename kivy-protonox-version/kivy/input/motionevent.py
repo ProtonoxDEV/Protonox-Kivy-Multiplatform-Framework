@@ -125,8 +125,8 @@ If you want to select only the fiducials::
 __all__ = ('MotionEvent', )
 
 import weakref
-from inspect import isroutine
 from copy import copy
+from inspect import isroutine
 from time import time
 
 from kivy.eventmanager import MODE_DEFAULT_DISPATCH

@@ -23,17 +23,17 @@ file changes.
 
 '''
 
+from os.path import basename, dirname, join
 from sys import argv
-from kivy.lang import Builder
-from kivy.app import App
-from kivy.core.window import Window
-from kivy.clock import Clock, mainthread
-from kivy.uix.label import Label
 
-from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
-from os.path import dirname, basename, join
+from watchdog.observers import Observer
 
+from kivy.app import App
+from kivy.clock import Clock, mainthread
+from kivy.core.window import Window
+from kivy.lang import Builder
+from kivy.uix.label import Label
 
 if len(argv) != 2:
     print('usage: %s filename.kv' % argv[0])

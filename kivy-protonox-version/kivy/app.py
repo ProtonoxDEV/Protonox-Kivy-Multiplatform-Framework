@@ -412,18 +412,18 @@ __all__ = ('App', 'runTouchApp', 'async_runTouchApp', 'stopTouchApp')
 
 import os
 from inspect import getfile
-from os.path import dirname, join, exists, sep, expanduser, isfile
+from os.path import dirname, exists, expanduser, isfile, join, sep
+
+from kivy.base import async_runTouchApp, runTouchApp, stopTouchApp
 from kivy.config import ConfigParser
-from kivy.base import runTouchApp, async_runTouchApp, stopTouchApp
-from kivy.factory import Factory
-from kivy.logger import Logger
 from kivy.event import EventDispatcher
+from kivy.factory import Factory
 from kivy.lang import Builder
-from kivy.resources import resource_find
-from kivy.utils import platform
-from kivy.uix.widget import Widget
+from kivy.logger import Logger
 from kivy.properties import ObjectProperty, StringProperty
-from kivy.setupconfig import USE_SDL3
+from kivy.resources import resource_find
+from kivy.uix.widget import Widget
+from kivy.utils import platform
 
 
 class App(EventDispatcher):
@@ -815,7 +815,7 @@ class App(EventDispatcher):
         if exists(filename):
             try:
                 config.read(filename)
-            except:
+            except Exception:
                 Logger.error('App: Corrupted config file, ignored.')
                 config.name = ''
                 try:
@@ -826,7 +826,6 @@ class App(EventDispatcher):
                     config = ConfigParser(name='app')
                 self.config = config
                 self.build_config(config)
-                pass
         else:
             Logger.debug('App: First configuration, create <{0}>'.format(
                 filename))
@@ -1015,7 +1014,6 @@ Context.html#getFilesDir()>`_ is returned.
         initialization (after build() has been called) but before the
         application has started running.
         '''
-        pass
 
     def on_ready(self):
         '''Event handler for the `on_ready` event which is fired once
@@ -1030,14 +1028,12 @@ Context.html#getFilesDir()>`_ is returned.
 
         This event will not fire again during the application's lifetime.
         '''
-        pass
 
     def on_stop(self):
         '''Event handler for the `on_stop` event which is fired when the
         application has finished running (i.e. the window is about to be
         closed).
         '''
-        pass
 
     def on_pause(self):
         '''Event handler called when Pause mode is requested. You should
@@ -1068,7 +1064,6 @@ Context.html#getFilesDir()>`_ is returned.
             This is where you can reconstruct some of your OpenGL state
             e.g. FBO content.
         '''
-        pass
 
     @staticmethod
     def get_running_app():
@@ -1085,7 +1080,6 @@ Context.html#getFilesDir()>`_ is returned.
         .. versionchanged:: 1.10.1
            Added corresponding ``on_config_change`` event.
         '''
-        pass
 
     def open_settings(self, *largs):
         '''Open the application settings panel. It will be created the very

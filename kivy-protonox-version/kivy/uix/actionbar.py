@@ -39,21 +39,21 @@ __all__ = ('ActionBarException', 'ActionItem', 'ActionButton',
            'ActionView', 'ContextualActionView', 'ActionPrevious',
            'ActionBar')
 
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.dropdown import DropDown
-from kivy.uix.widget import Widget
-from kivy.uix.button import Button
-from kivy.uix.togglebutton import ToggleButton
-from kivy.uix.checkbox import CheckBox
-from kivy.uix.spinner import Spinner
-from kivy.uix.label import Label
-from kivy.config import Config
-from kivy.properties import ObjectProperty, NumericProperty, BooleanProperty, \
-    StringProperty, ListProperty, OptionProperty, AliasProperty, ColorProperty
-from kivy.metrics import sp
-from kivy.lang import Builder
 from functools import partial
 
+from kivy.config import Config
+from kivy.lang import Builder
+from kivy.metrics import sp
+from kivy.properties import (AliasProperty, BooleanProperty, ColorProperty,
+                             ListProperty, NumericProperty, ObjectProperty,
+                             OptionProperty, StringProperty)
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
+from kivy.uix.checkbox import CheckBox
+from kivy.uix.dropdown import DropDown
+from kivy.uix.label import Label
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.widget import Widget
 
 window_icon = ''
 if Config:
@@ -64,7 +64,6 @@ class ActionBarException(Exception):
     '''
     ActionBarException class
     '''
-    pass
 
 
 class ActionItem(object):
@@ -298,14 +297,12 @@ class ActionLabel(ActionItem, Label):
     '''
     ActionLabel class, see module documentation for more information.
     '''
-    pass
 
 
 class ActionCheck(ActionItem, CheckBox):
     '''
     ActionCheck class, see module documentation for more information.
     '''
-    pass
 
 
 class ActionSeparator(ActionItem, Widget):
@@ -786,7 +783,6 @@ class ContextualActionView(ActionView):
     ContextualActionView class, see the module documentation for more
     information.
     '''
-    pass
 
 
 class ActionBar(BoxLayout):
@@ -886,8 +882,8 @@ class ActionBar(BoxLayout):
 
 if __name__ == "__main__":
     from kivy.base import runTouchApp
-    from kivy.uix.floatlayout import FloatLayout
     from kivy.factory import Factory
+    from kivy.uix.floatlayout import FloatLayout
 
     # XXX clean the first registration done from '__main__' here.
     # otherwise kivy.uix.actionbar.ActionPrevious != __main__.ActionPrevious

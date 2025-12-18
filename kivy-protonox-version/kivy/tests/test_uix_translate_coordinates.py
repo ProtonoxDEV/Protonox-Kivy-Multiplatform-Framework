@@ -1,5 +1,6 @@
-import pytest
 import functools
+
+import pytest
 
 non_relative_type_widget_cls_names = ('Widget', )
 relative_type_widget_cls_names = (
@@ -46,6 +47,7 @@ def test_to_local_and_to_parent__not_relative(widget_cls_name, kivy_clock):
 def test_to_window_and_to_widget(
         root_widget_cls_name, target_widget_cls_name, kivy_clock):
     from textwrap import dedent
+
     from kivy.lang import Builder
     root = Builder.load_string(dedent('''
         {}:

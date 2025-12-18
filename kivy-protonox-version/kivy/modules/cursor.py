@@ -33,11 +33,12 @@ this::
 
 __all__ = ('start', 'stop')
 
+from functools import partial
+from os.path import join
+
+from kivy import kivy_data_dir
 from kivy.core.image import Image
 from kivy.graphics import Color, Rectangle
-from kivy import kivy_data_dir
-from os.path import join
-from functools import partial
 
 
 def _mouse_move(texture, size, offset, win, pos, *args):

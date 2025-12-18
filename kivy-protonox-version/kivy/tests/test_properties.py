@@ -3,9 +3,11 @@ Test properties attached to a widget
 '''
 
 import unittest
-import pytest
-from kivy.event import EventDispatcher
 from functools import partial
+
+import pytest
+
+from kivy.event import EventDispatcher
 
 
 class _TestProperty(EventDispatcher):
@@ -401,8 +403,8 @@ def test_bounded_numeric_property_error_handler(self, set_name):
 
 @pytest.mark.parametrize('set_name', [True, False])
 def test_numeric_string_with_units_check(self, set_name):
-    from kivy.properties import NumericProperty
     from kivy.metrics import Metrics
+    from kivy.properties import NumericProperty
 
     a = NumericProperty()
     if set_name:
@@ -449,11 +451,11 @@ def test_numeric_string_without_units(self, set_name):
 
 
 def test_property_rebind(self):
+    from kivy.clock import Clock
+    from kivy.lang import Builder
+    from kivy.properties import AliasProperty, DictProperty, ObjectProperty
     from kivy.uix.label import Label
     from kivy.uix.togglebutton import ToggleButton
-    from kivy.lang import Builder
-    from kivy.properties import ObjectProperty, DictProperty, AliasProperty
-    from kivy.clock import Clock
 
     class ObjWidget(Label):
         button = ObjectProperty(None, rebind=True, allownone=True)
@@ -748,7 +750,7 @@ def test_alias_property_cache_true(self, watch_before_use):
 
 @pytest.mark.parametrize('watch_before_use', [True, False])
 def test_alias_property_with_bind(self, watch_before_use):
-    from kivy.properties import NumericProperty, AliasProperty
+    from kivy.properties import AliasProperty, NumericProperty
 
     class CustomAlias(EventDispatcher):
 
@@ -847,7 +849,7 @@ def test_alias_property_with_force_dispatch_true(self, watch_before_use):
 
 @pytest.mark.parametrize('watch_before_use', [True, False])
 def test_alias_property_cache_true_with_bind(self, watch_before_use):
-    from kivy.properties import NumericProperty, AliasProperty
+    from kivy.properties import AliasProperty, NumericProperty
 
     class CustomAlias(EventDispatcher):
 
@@ -1179,7 +1181,7 @@ def test_property_rename_duplicate():
 
 def test_override_prop_inheritance():
     from kivy.event import EventDispatcher
-    from kivy.properties import ObjectProperty, AliasProperty
+    from kivy.properties import AliasProperty, ObjectProperty
     counter = 0
 
     class Parent(EventDispatcher):
