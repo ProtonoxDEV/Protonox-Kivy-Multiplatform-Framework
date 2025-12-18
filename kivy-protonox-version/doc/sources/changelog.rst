@@ -3,6 +3,21 @@
 Changelog
 =========
 
+Protonox 3.0.0.dev2
+===================
+
+Highlights
+----------
+
+- Add built-in legacy ``state`` alias on ``ToggleButtonBehavior`` to keep KivyMD 1.x bindings working (fixes ``KeyError: 'state'`` when loading selection controls).
+- Introduce ``kivy.protonox_ext.window_geometry`` helper to persist/restore window size/position safely across Linux/Windows/macOS without ``NoneType`` crashes.
+- Keep ``kivy.protonox_ext.android_insets`` helper available for modern Android insets/cutouts handling (status/navigation/IME) with safe no-op on non-Android.
+
+Packaging
+---------
+
+- Bump Protonox fork version to ``3.0.0.dev2`` for distribution.
+
 2.3.0
 =====
 

@@ -9,6 +9,33 @@ embedded platforms.
 
 **Fork notice (ProtonoxDEV)**: este repositorio es un fork mantenido por ProtonoxDEV. La distribución publicada en PyPI/TestPyPI se llama `protonox-kivy` y funciona como reemplazo directo del paquete `kivy`, pero no es la distribución oficial de Kivy. Se mantienen los avisos de licencia MIT del proyecto original.
 
+### Modern Android readiness (15 → 16)
+
+- Edge-to-edge deja de ser opcional: Android 16 espera barras de sistema transparentes y gestos en bordes; ignorar insets rompe la UI. Safe areas y padding dinámico deben ser parte del layout.
+- Insets ahora son dinámicos: notch/hole, barra de gestos y teclado cambian con orientación, modo gestos, split-screen y foldables; el layout debe reaccionar en vivo.
+- Ratios extremos (20:9, 22:9, foldables) exponen size_hint y px fijos pobres; assets raster bajos se notan.
+- Gestos del sistema mandan: controles pegados a bordes compiten con back gesture; gestos custom deben respetar márgenes.
+- IME/reflow: el teclado no siempre redimensiona; ScrollView + foco correcto es obligatorio para no tapar contenido.
+- No cambió la GPU (OpenGL ES sigue 3.2 máx): el problema es la capa UI, no el render.
+
+En este fork se prepara la librería para estas exigencias: se añade compatibilidad con widgets legacy de KivyMD (alias `state` en `ToggleButtonBehavior`) para evitar `KeyError` en apps existentes y se documentan los requerimientos de UI mobile-first para Android 16.
+
+#### Helper para insets / notch (Android)
+- Archivo: `kivy/protonox_ext/android_insets.py`
+- Funciones clave:
+  - `get_current_insets()` devuelve `top/bottom/left/right/ime_bottom` (0 en plataformas no Android).
+  - `add_insets_listener(callback)` notifica cambios de insets (rotación, gestos, teclado, split-screen).
+- Uso sugerido en tu App:
+  ```python
+  from kivy.protonox_ext import android_insets
+
+  if android_insets.is_android():
+      insets = android_insets.get_current_insets()
+      # aplica padding dinámico a tu root layout con estos valores
+      android_insets.add_insets_listener(lambda data: update_padding(data))
+  ```
+  Donde `update_padding` ajusta `padding`/`safe_*` en tus layouts para evitar solapes con notch, barras y teclado.
+
 ### Instalación vía PyPI
 
 - PyPI: `pip install protonox-kivy==3.0.0.dev1` (se distribuye como sdist, compila una wheel local al instalar).

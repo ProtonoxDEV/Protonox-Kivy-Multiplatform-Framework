@@ -37,6 +37,11 @@ from os.path import dirname, join, basename, exists, expanduser
 import pkgutil
 import re
 import importlib
+# Run small compatibility shims (safe, best-effort)
+try:
+    from . import _compat_state  # adds legacy 'state' alias when needed
+except Exception: 
+    pass
 from kivy.logger import Logger, LOG_LEVELS
 from kivy.utils import platform
 from kivy._version import __version__, RELEASE as _KIVY_RELEASE, \
