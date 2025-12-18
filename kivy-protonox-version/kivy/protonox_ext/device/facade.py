@@ -187,7 +187,7 @@ def _android_notifications():
             builder.setContentTitle(title)
             builder.setContentText(body)
             builder.setSmallIcon(app.getApplicationInfo().icon)
-            NotificationManagerCompat.from(app).notify(1, builder.build())
+            getattr(NotificationManagerCompat, 'from')(app).notify(1, builder.build())
         except Exception:
             print(f"[NOTIFY] {title}: {body}")
     return NotificationsAPI(notify=notify)

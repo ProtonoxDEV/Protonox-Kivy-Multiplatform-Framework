@@ -86,9 +86,9 @@ def _resolve_adb_candidates(adb_path: str = "adb") -> List[str]:
 
     if _is_wsl():
         common = [
-            "C\\\Windows\\System32\\adb.exe",
-            "C\\\Program Files\\Android\\Android Studio\\platform-tools\\adb.exe",
-            "C\\\Android\\platform-tools\\adb.exe",
+            r"C:\Windows\System32\adb.exe",
+            r"C:\Program Files\Android\Android Studio\platform-tools\adb.exe",
+            r"C:\Android\platform-tools\adb.exe",
         ]
         candidates.extend([_normalize_windows_path_for_wsl(p) for p in common])
 
