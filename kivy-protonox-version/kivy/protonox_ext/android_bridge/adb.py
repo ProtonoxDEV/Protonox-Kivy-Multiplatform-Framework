@@ -73,7 +73,8 @@ def _normalize_windows_path_for_wsl(path: str) -> str:
     # Convert paths like C:\Android\platform-tools\adb.exe to /mnt/c/Android/platform-tools/adb.exe
     if ":\\" in path:
         drive, rest = path.split(":\\", 1)
-        return f"/mnt/{drive.lower()}/{rest.replace('\\\\', '/').replace('\\', '/')}"
+        rest = rest.replace('\\\\', '/').replace('\\', '/')
+        return f"/mnt/{drive.lower()}/{rest}"
     return path
 
 
