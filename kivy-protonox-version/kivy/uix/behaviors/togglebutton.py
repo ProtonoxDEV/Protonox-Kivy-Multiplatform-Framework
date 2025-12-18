@@ -388,6 +388,20 @@ class ToggleButtonBehavior(ButtonBehavior):
     .. versionadded:: 3.0.0
     """
 
+    def _get_state(self):
+        return "down" if self._active else "normal"
+
+    def _set_state(self, value):
+        # Accept legacy 'down'/'normal' or boolean-like inputs
+        self.active = value in (True, 1, "down")
+
+    state = AliasProperty(_get_state, _set_state, bind=["_active"], cache=True)
+    """Legacy ``state`` alias for compatibility with older consumers.
+
+    Maps to :attr:`active` while preserving the historical 'normal'/'down'
+    API expected by some KivyMD widgets and third-party code.
+    """
+
     toggle_on = OptionProperty("release", options=["press", "release"])
     """Specifies which :class:`ButtonBehavior` event triggers the toggle state
     change.
