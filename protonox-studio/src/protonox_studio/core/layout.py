@@ -4,6 +4,7 @@ These helpers do not change existing Kivy layouts. They provide lightweight
 breakpoint/orientation utilities that can be imported in KV or Python code
 to tweak size_hints or spacing without introducing new base classes.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

@@ -46,10 +46,18 @@ def check_env_files(base: Path) -> List[WebCheck]:
     env = base / ".env"
     env_example = base / ".env.example"
     return [
-        WebCheck("env", env.exists(), str(env), fix="cp .env.example .env" if (
-            not env.exists() and env_example.exists()) else None),
-        WebCheck("env-example", env_example.exists(), str(env_example),
-                 fix="create .env.example" if not env_example.exists() else None),
+        WebCheck(
+            "env",
+            env.exists(),
+            str(env),
+            fix="cp .env.example .env" if (not env.exists() and env_example.exists()) else None,
+        ),
+        WebCheck(
+            "env-example",
+            env_example.exists(),
+            str(env_example),
+            fix="create .env.example" if not env_example.exists() else None,
+        ),
     ]
 
 
@@ -58,7 +66,9 @@ def check_port_free(port: int) -> WebCheck:
         sock.settimeout(0.5)
         result = sock.connect_ex(("127.0.0.1", port))
     ok = result != 0
-    return WebCheck("port", ok, f"port {port} free" if ok else f"port {port} busy", fix="use --port or PROTONOX_WEB_PORT")
+    return WebCheck(
+        "port", ok, f"port {port} free" if ok else f"port {port} busy", fix="use --port or PROTONOX_WEB_PORT"
+    )
 
 
 def check_build_script(base: Path) -> WebCheck:
@@ -69,7 +79,9 @@ def check_build_script(base: Path) -> WebCheck:
         data = json.loads(pkg.read_text(encoding="utf-8"))
         scripts = data.get("scripts", {})
         ok = "build" in scripts
-        return WebCheck("build-script", ok, "build script present" if ok else "missing", fix="add 'build' script to package.json")
+        return WebCheck(
+            "build-script", ok, "build script present" if ok else "missing", fix="add 'build' script to package.json"
+        )
     except Exception:
         return WebCheck("build-script", False, "invalid package.json", fix="fix package.json")
 

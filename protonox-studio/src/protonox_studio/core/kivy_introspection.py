@@ -4,6 +4,7 @@ These helpers avoid mutating user projects and keep the mapping between
 `.kv` definitions and Python classes explicit. The goal is to feed the
 intermediate UI model, not to render widgets.
 """
+
 from __future__ import annotations
 
 import re

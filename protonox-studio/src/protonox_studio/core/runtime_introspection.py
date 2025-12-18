@@ -4,6 +4,7 @@ The inspector is deliberately read-only and defensive. It surfaces enough
 context (widget tree, KV rules, scheduled callbacks) to guide Codex and
 humans during diagnostics without mutating the running app.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -16,8 +17,7 @@ from kivy.uix.widget import Widget
 
 
 class _StatefulApp(Protocol):
-    def extract_state(self):
-        ...
+    def extract_state(self): ...
 
 
 @dataclass
@@ -110,11 +110,7 @@ class RuntimeInspector:
 
 
 def _serialize_widget(widget: Widget) -> WidgetSnapshot:
-    children = [
-        _serialize_widget(child)
-        for child in getattr(widget, "children", [])
-        if isinstance(child, Widget)
-    ]
+    children = [_serialize_widget(child) for child in getattr(widget, "children", []) if isinstance(child, Widget)]
     identifier = getattr(widget, "id", None) or getattr(widget, "name", None) or widget.__class__.__name__
     try:
         x, y = getattr(widget, "x", 0.0), getattr(widget, "y", 0.0)

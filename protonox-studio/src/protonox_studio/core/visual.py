@@ -1,4 +1,5 @@
 """PNG ingestion helpers for Protonox Studio."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -206,7 +207,7 @@ def render_model_to_png(model: UIModel, target: Path) -> Dict[str, object]:
         fill = None
         if color and isinstance(color, str) and color.startswith("#") and len(color) in {7, 9}:
             try:
-                rgba = tuple(int(color[i: i + 2], 16) for i in (1, 3, 5)) + (80,)
+                rgba = tuple(int(color[i : i + 2], 16) for i in (1, 3, 5)) + (80,)
                 fill = rgba
             except Exception:
                 fill = None

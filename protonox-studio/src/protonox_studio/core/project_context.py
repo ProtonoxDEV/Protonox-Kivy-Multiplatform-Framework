@@ -5,6 +5,7 @@ Protonox Studio adopters. It keeps the entrypoint, project type and
 state directories together so both local and container runs behave the
 same way.
 """
+
 from __future__ import annotations
 
 import json
@@ -15,6 +16,7 @@ from typing import Dict, List, Optional
 from urllib.request import urlopen
 
 from .screen_map import ScreenMap, load_screen_map
+
 PROJECT_TYPES = {"web", "kivy"}
 
 
@@ -92,8 +94,9 @@ class ProjectContext:
 
         default_entry = _default_entrypoint(root, resolved_type)
         web_url: Optional[str] = None
-        entry_path = Path(entrypoint).resolve() if entrypoint and not str(
-            entrypoint).startswith("http") else default_entry
+        entry_path = (
+            Path(entrypoint).resolve() if entrypoint and not str(entrypoint).startswith("http") else default_entry
+        )
 
         if resolved_type == "web":
             if entrypoint and str(entrypoint).startswith("http"):
@@ -155,7 +158,11 @@ class ProjectContext:
         }
 
     def ensure_state_tree(self) -> None:
-        for folder in (self.state_dir / "visual-errors", self.state_dir / "dev-reports", self.state_dir / "protonox-exports"):
+        for folder in (
+            self.state_dir / "visual-errors",
+            self.state_dir / "dev-reports",
+            self.state_dir / "protonox-exports",
+        ):
             folder.mkdir(parents=True, exist_ok=True)
 
     def build_ui_model(self):

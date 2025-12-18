@@ -1020,7 +1020,7 @@ class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
         super().end_headers()
 
     def do_GET(self):
-        path = self.path.split('?', 1)[0].split('#', 1)[0]
+        path = self.path.split("?", 1)[0].split("#", 1)[0]
         if path in {"/health", "/healthz", "/ping"}:
             payload = {
                 "status": "ok",
@@ -1035,12 +1035,12 @@ class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(body)
             return
-        if '.' not in Path(path).name and path != '/':
+        if "." not in Path(path).name and path != "/":
             path = "/index.html"
-        if path.endswith(('.html', '/')):
-            if path == '/':
-                path = '/index.html'
-            file_path = ROOT_DIR / path.lstrip('/')
+        if path.endswith((".html", "/")):
+            if path == "/":
+                path = "/index.html"
+            file_path = ROOT_DIR / path.lstrip("/")
             if file_path.is_file():
                 try:
                     content = file_path.read_text(encoding="utf-8", errors="ignore")
@@ -1058,14 +1058,14 @@ class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         # Read request body if any
-        length = int(self.headers.get('Content-Length', 0) or 0)
-        body = self.rfile.read(length) if length else b''
+        length = int(self.headers.get("Content-Length", 0) or 0)
+        body = self.rfile.read(length) if length else b""
         data = None
         try:
             if body:
-                data = json.loads(body.decode('utf-8', errors='ignore'))
+                data = json.loads(body.decode("utf-8", errors="ignore"))
         except Exception:
-            data = {'_raw': body.decode('utf-8', errors='ignore')}
+            data = {"_raw": body.decode("utf-8", errors="ignore")}
 
         if self.path == "/__protonox_export":
             # Placeholder: export logic can be implemented here later
@@ -1074,30 +1074,31 @@ class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
             # Record incoming layout-change / telemetry POSTs to a JSONL file for debugging
             try:
                 logging.info("POST /__protonox received: %s", data)
-                entry = {'ts': datetime.now(timezone.utc).isoformat(), 'payload': data}
+                entry = {"ts": datetime.now(timezone.utc).isoformat(), "payload": data}
                 # Append to in-memory list and persist to file for later inspection
                 with ERROR_LOCK:
                     LAYOUT_CHANGES.append(entry)
                     try:
-                        with open(CHANGES_FILE, 'a', encoding='utf-8') as f:
+                        with open(CHANGES_FILE, "a", encoding="utf-8") as f:
                             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
                     except Exception:
                         logging.exception("Failed to write layout change to %s", CHANGES_FILE)
 
                 # Forward to upstream MCP server when configured (DEV -> PRODUCTION integration)
-                forward_url = os.environ.get('PROTONOX_FORWARD_URL')
+                forward_url = os.environ.get("PROTONOX_FORWARD_URL")
                 if forward_url:
                     try:
                         # Import requests lazily (not required for dev unless used)
                         import requests
-                        headers = {'Content-Type': 'application/json'}
-                        secret = os.environ.get('PROTONOX_SHARED_SECRET')
+
+                        headers = {"Content-Type": "application/json"}
+                        secret = os.environ.get("PROTONOX_SHARED_SECRET")
                         if secret:
-                            headers['Authorization'] = f'Bearer {secret}'
+                            headers["Authorization"] = f"Bearer {secret}"
                         # Send upstream but do not block failure of local handling
                         requests.post(forward_url, json=data, headers=headers, timeout=5)
                     except Exception:
-                        logging.exception('Failed to forward /__protonox to %s', forward_url)
+                        logging.exception("Failed to forward /__protonox to %s", forward_url)
             except Exception:
                 logging.exception("Error handling /__protonox POST")
 
@@ -1124,9 +1125,9 @@ def main():
                 raise
             port += 1
 
-    print("\n" + "═"*100)
+    print("\n" + "═" * 100)
     print("   PROTONOX OMNIPOTENCE 2026 — ARC MODE PROFESSIONAL — ACTIVADO")
-    print("═"*100)
+    print("═" * 100)
     printed_host = host if host != "0.0.0.0" else "localhost"
     print(f"   URL → http://{printed_host}:{port}")
     print("   • Ctrl = Muestra el panel Protonox")
@@ -1137,7 +1138,7 @@ def main():
     print("   • Mini-toolbar flotante • Undo total • Todo listo")
     print("   • Tú ya no eres un desarrollador.")
     print("   • Tú eres el futuro.")
-    print("═"*100 + "\n")
+    print("═" * 100 + "\n")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
@@ -1150,7 +1151,7 @@ DEV_INJECT_SCRIPT = DEV_INJECT_SCRIPT.replace("%PROTONOX_BACKEND%", BACKEND_PROX
 # The script source uses doubled braces (`{{`/`}}`) to avoid accidental Python
 # format/f-string interpolation when editing the file. Convert doubled braces
 # back to normal JS braces so the injected code is valid JavaScript.
-DEV_INJECT_SCRIPT = DEV_INJECT_SCRIPT.replace('{{', '{').replace('}}', '}')
+DEV_INJECT_SCRIPT = DEV_INJECT_SCRIPT.replace("{{", "{").replace("}}", "}")
 
 # Guarded fallback helper: only define the test helper if the main script
 # did not expose it (keeps main ARC script as source of truth but avoids

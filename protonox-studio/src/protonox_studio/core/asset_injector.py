@@ -3,6 +3,7 @@
 Adds/updates a controlled block inside a KV file so Studio can append widgets
 without touching user-owned code. This is intentionally minimal and safe.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -24,8 +25,8 @@ class KVAssetInjector:
     def insert_video(self, kv_path: Path, source: str, poster: str, controls: bool = True) -> Tuple[int, Path]:
         snippet = [
             "ProtonoxVideo:",
-            f"    source: \"{source}\"",
-            f"    poster: \"{poster}\"",
+            f'    source: "{source}"',
+            f'    poster: "{poster}"',
             f"    controls: {str(bool(controls))}",
         ]
         return self._insert_block(kv_path, snippet)

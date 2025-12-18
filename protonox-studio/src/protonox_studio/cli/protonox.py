@@ -98,6 +98,7 @@ def _maybe_welcome(argv: list[str]) -> None:
     state["welcome_shown"] = True
     _save_state(state)
 
+
 # Note: the project uses a directory name with a hyphen (protonox-studio), which
 # prevents importing it as a normal Python package when executing this file as
 # a script. To keep `protonox dev` working when running this CLI directly, the
@@ -281,9 +282,7 @@ def run_render_kivy(context: ProjectContext) -> None:
 
 def _require_adb():
     if adb is None:
-        raise SystemExit(
-            "Android bridge no disponible: instala/activa kivy-protonox-version para usar comandos adb"
-        )
+        raise SystemExit("Android bridge no disponible: instala/activa kivy-protonox-version para usar comandos adb")
 
 
 def run_android_detect(adb_path: str = "adb") -> None:
@@ -320,8 +319,11 @@ def run_android_restart(package: str, activity: str | None, adb_path: str = "adb
         except adb.ADBError:
             pass
     adb.run_app(package=package, activity=activity, adb_path=resolved)
-    print(json.dumps({"status": "restarted", "package": package,
-          "activity": activity or ".MainActivity"}, ensure_ascii=False))
+    print(
+        json.dumps(
+            {"status": "restarted", "package": package, "activity": activity or ".MainActivity"}, ensure_ascii=False
+        )
+    )
 
 
 def run_android_reinstall(
@@ -438,8 +440,9 @@ def main(argv=None):
         help="Comando a ejecutar",
     )
     parser.add_argument("--path", default=".", help="Ruta del proyecto")
-    parser.add_argument("--project-type", choices=["web", "kivy"],
-                        help="Tipo de proyecto declarado (obligatorio para IA)")
+    parser.add_argument(
+        "--project-type", choices=["web", "kivy"], help="Tipo de proyecto declarado (obligatorio para IA)"
+    )
     parser.add_argument("--entrypoint", help="Punto de entrada (index.html o main.py)")
     parser.add_argument("--map", help="Archivo JSON/YAML que mapea rutas web ↔ pantallas Kivy")
     parser.add_argument("--png", help="Ruta a una captura PNG para comparar con el modelo intermedio")

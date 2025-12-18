@@ -1,4 +1,5 @@
 """Development-only duplicate scheduling guard for Kivy Clock."""
+
 from __future__ import annotations
 
 from typing import Callable, Dict, Tuple

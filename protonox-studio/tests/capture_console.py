@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from playwright.sync_api import sync_playwright
-import sys, json, time
+import sys
+import json
+import time
 
 url = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:4173"
 out = {"console": [], "pageerrors": [], "requests": []}

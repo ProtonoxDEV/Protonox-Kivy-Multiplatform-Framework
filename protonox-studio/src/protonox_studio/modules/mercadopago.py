@@ -3,6 +3,7 @@
 Keeps a lightweight state file to gate premium actions (Figma sync/export).
 All secrets are expected as environment variables; nothing is stored in code.
 """
+
 from __future__ import annotations
 
 import json
@@ -15,10 +16,7 @@ from typing import Any, Dict, Optional, Tuple
 import requests
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
-STATE_PATH = Path(
-    os.environ.get("PROTONOX_SUBSCRIPTION_FILE")
-    or (ROOT_DIR.parent / ".protonox" / "subscription.json")
-)
+STATE_PATH = Path(os.environ.get("PROTONOX_SUBSCRIPTION_FILE") or (ROOT_DIR.parent / ".protonox" / "subscription.json"))
 STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
@@ -108,7 +106,11 @@ def _plan_amount(plan: str) -> Tuple[float, str]:
 
 
 def _is_free_mode() -> bool:
-    return os.environ.get("PROTONOX_FREE_MODE") in {"1", "true", "True"} or os.environ.get("MP_FREE_MODE") in {"1", "true", "True"}
+    return os.environ.get("PROTONOX_FREE_MODE") in {"1", "true", "True"} or os.environ.get("MP_FREE_MODE") in {
+        "1",
+        "true",
+        "True",
+    }
 
 
 def subscription_status() -> SubscriptionStatus:
@@ -189,7 +191,9 @@ def mark_inactive(reason: str) -> SubscriptionStatus:
     return status
 
 
-def create_preference(plan: str = "monthly", email: Optional[str] = None, amount: Optional[float] = None) -> Dict[str, Any]:
+def create_preference(
+    plan: str = "monthly", email: Optional[str] = None, amount: Optional[float] = None
+) -> Dict[str, Any]:
     access_token, public_key, success_url, failure_url, pending_url, notification_url = _config()
     auto_return = "approved"
 
@@ -278,8 +282,9 @@ def create_preference(plan: str = "monthly", email: Optional[str] = None, amount
     init_point = data.get("init_point") or data.get("sandbox_init_point")
     preference_id = data.get("id")
     amount_charged = payload["items"][0]["unit_price"]
-    mark_checkout(preference_id=preference_id, init_point=init_point,
-                  plan=plan, amount=amount_charged, currency=currency)
+    mark_checkout(
+        preference_id=preference_id, init_point=init_point, plan=plan, amount=amount_charged, currency=currency
+    )
     return {
         "preference_id": preference_id,
         "init_point": init_point,

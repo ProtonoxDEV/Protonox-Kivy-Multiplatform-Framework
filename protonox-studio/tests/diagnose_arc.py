@@ -1,5 +1,6 @@
 from playwright.sync_api import sync_playwright
-import sys, json
+import sys
+import json
 
 URL = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:4173"
 
@@ -69,4 +70,3 @@ with sync_playwright() as p:
     print('Saved screenshot to', path)
 
     browser.close()
-

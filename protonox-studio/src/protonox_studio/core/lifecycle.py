@@ -5,6 +5,7 @@ mount/unmount/pause/resume callbacks without changing Kivy semantics.
 Lifecycle broadcast helpers are intentionally defensive and no-ops when
 widgets don't opt in.
 """
+
 from __future__ import annotations
 
 from typing import Iterable

@@ -3,6 +3,7 @@
 The overlay is intentionally lightweight and self-contained so it can be used
 from a crash handler without depending on project-specific UI layers.
 """
+
 from __future__ import annotations
 
 from typing import Callable, Optional
@@ -61,8 +62,9 @@ class ErrorOverlay(FloatLayout):
         actions = BoxLayout(orientation="horizontal", size_hint=(1, None), height=48, spacing=10)
         actions.add_widget(Label(text="", size_hint=(1, 1)))
         if on_rebuild is not None:
-            actions.add_widget(Button(text="Rebuild", size_hint=(None, 1),
-                               width=120, on_release=lambda *_: on_rebuild()))
+            actions.add_widget(
+                Button(text="Rebuild", size_hint=(None, 1), width=120, on_release=lambda *_: on_rebuild())
+            )
         root.add_widget(header)
         root.add_widget(summary)
         root.add_widget(scroll)

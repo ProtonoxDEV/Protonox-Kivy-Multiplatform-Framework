@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
-from typing import Dict, List, Set
+from typing import List, Set
 
 
 @dataclass

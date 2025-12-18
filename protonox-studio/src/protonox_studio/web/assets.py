@@ -62,62 +62,68 @@ def _generate_webp(src: Path, dest: Path) -> Optional[Path]:
 
 
 def _transcode_mp4(src: Path, dest: Path) -> Optional[Path]:
-    ok = _run_ffmpeg([
-        "-y",
-        "-i",
-        str(src),
-        "-c:v",
-        "libx264",
-        "-preset",
-        "veryfast",
-        "-crf",
-        "23",
-        "-movflags",
-        "+faststart",
-        "-c:a",
-        "aac",
-        "-b:a",
-        "128k",
-        str(dest),
-    ])
+    ok = _run_ffmpeg(
+        [
+            "-y",
+            "-i",
+            str(src),
+            "-c:v",
+            "libx264",
+            "-preset",
+            "veryfast",
+            "-crf",
+            "23",
+            "-movflags",
+            "+faststart",
+            "-c:a",
+            "aac",
+            "-b:a",
+            "128k",
+            str(dest),
+        ]
+    )
     return dest if ok else None
 
 
 def _transcode_hls(src: Path, dest_dir: Path) -> Optional[Path]:
     dest_dir.mkdir(parents=True, exist_ok=True)
     playlist = dest_dir / "index.m3u8"
-    ok = _run_ffmpeg([
-        "-y",
-        "-i",
-        str(src),
-        "-preset",
-        "veryfast",
-        "-g",
-        "48",
-        "-sc_threshold",
-        "0",
-        "-hls_time",
-        str(HLS_SEGMENT_SECONDS),
-        "-hls_playlist_type",
-        "vod",
-        "-hls_segment_filename",
-        str(dest_dir / "segment%03d.ts"),
-        str(playlist),
-    ])
+    ok = _run_ffmpeg(
+        [
+            "-y",
+            "-i",
+            str(src),
+            "-preset",
+            "veryfast",
+            "-g",
+            "48",
+            "-sc_threshold",
+            "0",
+            "-hls_time",
+            str(HLS_SEGMENT_SECONDS),
+            "-hls_playlist_type",
+            "vod",
+            "-hls_segment_filename",
+            str(dest_dir / "segment%03d.ts"),
+            str(playlist),
+        ]
+    )
     return playlist if ok else None
 
 
 def _extract_poster(src: Path, dest: Path) -> Optional[Path]:
-    ok = _run_ffmpeg([
-        "-y",
-        "-i",
-        str(src),
-        "-ss",
-        "00:00:00.000",
-        "-vframes",
-        "1",
-        str(dest),
-    ])
+    ok = _run_ffmpeg(
+        [
+            "-y",
+            "-i",
+            str(src),
+            "-ss",
+            "00:00:00.000",
+            "-vframes",
+            "1",
+            str(dest),
+        ]
+    )
     return dest if ok else None
 
 

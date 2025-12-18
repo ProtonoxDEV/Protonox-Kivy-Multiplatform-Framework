@@ -1,4 +1,5 @@
 """Protonox Studio lightweight dev server with Figma OAuth + token sync."""
+
 from __future__ import annotations
 
 import json
@@ -182,16 +183,13 @@ class ProtonoxStudioServer(SimpleHTTPRequestHandler):
                         if not values_by_mode:
                             continue
                         value = next(iter(values_by_mode.values()))
-                        name = (
-                            var.get("name", "unnamed")
-                            .lower()
-                            .replace("/", "-")
-                            .replace(" ", "-")
-                        )
+                        name = var.get("name", "unnamed").lower().replace("/", "-").replace(" ", "-")
                         resolved_type = var.get("resolvedType", "").lower()
 
                         if isinstance(value, dict) and {"r", "g", "b"}.issubset(value.keys()):
-                            tokens["color"][name] = f"rgb({int(value['r']*255)}, {int(value['g']*255)}, {int(value['b']*255)})"
+                            tokens["color"][
+                                name
+                            ] = f"rgb({int(value['r']*255)}, {int(value['g']*255)}, {int(value['b']*255)})"
                         elif isinstance(value, (int, float)):
                             bucket = "radius" if "radius" in name or "corner" in name else "spacing"
                             tokens[bucket][name] = value
@@ -268,12 +266,12 @@ class ProtonoxStudioServer(SimpleHTTPRequestHandler):
 
 def main():
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s", datefmt="%H:%M:%S")
-    port = int(os.environ.get('PORT', '4173'))
+    port = int(os.environ.get("PORT", "4173"))
 
     # If FastAPI is installed and the env var USE_FASTAPI=1 is set, expose a
     # lightweight ASGI app that mirrors the same health + figma endpoints.
     # This makes it easier to run under `uvicorn` during development.
-    use_fastapi = os.environ.get('USE_FASTAPI') in {'1', 'true', 'True'}
+    use_fastapi = os.environ.get("USE_FASTAPI") in {"1", "true", "True"}
     try:
         if use_fastapi:
             from fastapi import FastAPI, Response, Request
@@ -281,72 +279,81 @@ def main():
 
             app = FastAPI()
 
-            @app.get('/__health')
+            @app.get("/__health")
             def health():
                 return {"status": "ok"}
 
-            @app.get('/figma-auth')
+            @app.get("/figma-auth")
             def figma_auth():
                 state = secrets.token_urlsafe(24)
                 figma_write_state(state)
                 return {"redirect": get_auth_url(state)}
 
-            @app.get('/figma-callback')
+            @app.get("/figma-callback")
             def figma_callback(request: Request):
                 q = dict(request.query_params)
-                code = q.get('code')
-                state = q.get('state')
+                code = q.get("code")
+                state = q.get("state")
                 if code:
                     exchange_code(code, state=state)
-                    return Response(content="<script>alert('Figma conectado! Volvé a Protonox Studio');window.close();</script>", media_type='text/html')
+                    return Response(
+                        content="<script>alert('Figma conectado! Volvé a Protonox Studio');window.close();</script>",
+                        media_type="text/html",
+                    )
                 return {"error": "missing code"}
 
-            @app.post('/__dev_tools')
+            @app.post("/__dev_tools")
             async def dev_tools(req: Request):
                 payload = await req.json()
-                t = payload.get('type')
+                t = payload.get("type")
                 # Reuse existing logic by calling same helpers; keep behavior minimal
-                if t == 'figma-status':
+                if t == "figma-status":
                     return {"status": "ok", **figma_status()}
 
-                if t == 'figma-sync-tokens':
-                    files = get_user_files().get('files', [])
+                if t == "figma-sync-tokens":
+                    files = get_user_files().get("files", [])
                     if not files:
-                        return Response(status_code=500, content=json.dumps({"error": "No hay archivos disponibles en Figma."}), media_type='application/json')
-                    file_key = files[0]['key']
+                        return Response(
+                            status_code=500,
+                            content=json.dumps({"error": "No hay archivos disponibles en Figma."}),
+                            media_type="application/json",
+                        )
+                    file_key = files[0]["key"]
                     data = get_file_variables(file_key)
                     # ... (same token extraction as the SimpleHTTPRequestHandler path)
                     tokens = {"color": {}, "radius": {}, "spacing": {}, "typography": {}}
-                    meta = data.get('meta', {})
-                    variables = meta.get('variables', {})
+                    meta = data.get("meta", {})
+                    variables = meta.get("variables", {})
                     for var_id, var in variables.items():
-                        values_by_mode = var.get('valuesByMode') or {}
+                        values_by_mode = var.get("valuesByMode") or {}
                         if not values_by_mode:
                             continue
                         value = next(iter(values_by_mode.values()))
-                        name = (var.get('name', 'unnamed').lower().replace('/', '-').replace(' ', '-'))
-                        resolved_type = var.get('resolvedType', '').lower()
+                        name = var.get("name", "unnamed").lower().replace("/", "-").replace(" ", "-")
+                        resolved_type = var.get("resolvedType", "").lower()
                         if isinstance(value, dict) and {"r", "g", "b"}.issubset(value.keys()):
-                            tokens['color'][name] = f"rgb({int(value['r']*255)}, {int(value['g']*255)}, {int(value['b']*255)})"
+                            tokens["color"][
+                                name
+                            ] = f"rgb({int(value['r']*255)}, {int(value['g']*255)}, {int(value['b']*255)})"
                         elif isinstance(value, (int, float)):
-                            bucket = 'radius' if 'radius' in name or 'corner' in name else 'spacing'
+                            bucket = "radius" if "radius" in name or "corner" in name else "spacing"
                             tokens[bucket][name] = value
-                        elif isinstance(value, str) or resolved_type == 'string':
-                            tokens['typography'][name] = value
+                        elif isinstance(value, str) or resolved_type == "string":
+                            tokens["typography"][name] = value
                         else:
-                            tokens.setdefault('misc', {})[name] = value
+                            tokens.setdefault("misc", {})[name] = value
 
-                    tokens_dir = ROOT_DIR.parent / 'tokens'
+                    tokens_dir = ROOT_DIR.parent / "tokens"
                     tokens_dir.mkdir(exist_ok=True)
-                    output_file = tokens_dir / 'figma-tokens.json'
+                    output_file = tokens_dir / "figma-tokens.json"
                     output_file.write_text(json.dumps(tokens, indent=2))
                     return {"status": "ok", "file": str(output_file)}
 
             logging.info("Starting FastAPI dev app at http://127.0.0.1:%s", port)
-            uvicorn.run(app, host='127.0.0.1', port=port)
+            uvicorn.run(app, host="127.0.0.1", port=port)
             return
     except Exception:
-        logging.debug('FastAPI/uvicorn not available or failed to start; falling back to SimpleHTTPServer')
+        logging.debug("FastAPI/uvicorn not available or failed to start; falling back to SimpleHTTPServer")
 
     server = ThreadingHTTPServer(("127.0.0.1", port), ProtonoxStudioServer)
     logging.info("Protonox Studio dev server running at http://localhost:%s", port)

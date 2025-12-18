@@ -1,4 +1,5 @@
 """Non-invasive diagnostics (BluntMine)."""
+
 from __future__ import annotations
 
 import platform

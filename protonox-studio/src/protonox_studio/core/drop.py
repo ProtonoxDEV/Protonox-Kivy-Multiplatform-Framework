@@ -4,6 +4,7 @@ Provides a minimal desktop drop handler and a fallback picker hook. Backend
 support varies by OS/window provider; this keeps the API small so callers can
 plug their own UI.
 """
+
 from __future__ import annotations
 
 from pathlib import Path

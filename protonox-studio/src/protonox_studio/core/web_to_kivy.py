@@ -4,6 +4,7 @@ This module keeps the conversion non-invasive: it reads HTML (and optional
 JSON/PNG hints), produces a UIModel, and emits clean KV/Python scaffolds that
 live outside the user's codebase.
 """
+
 from __future__ import annotations
 
 import copy
@@ -123,10 +124,10 @@ class _HtmlTreeBuilder(HTMLParser):
 
 
 def _extract_number(content: str, key: str) -> Optional[int]:
-    for token in content.split(','):
+    for token in content.split(","):
         if key in token:
             try:
-                return int(token.split('=')[1])
+                return int(token.split("=")[1])
             except (IndexError, ValueError):
                 return None
     return None
@@ -134,12 +135,12 @@ def _extract_number(content: str, key: str) -> Optional[int]:
 
 def _parse_style_tokens(style: str) -> Dict[str, str]:
     tokens: Dict[str, str] = {}
-    for chunk in style.split(';'):
+    for chunk in style.split(";"):
         if not chunk.strip():
             continue
-        if ':' not in chunk:
+        if ":" not in chunk:
             continue
-        key, value = chunk.split(':', 1)
+        key, value = chunk.split(":", 1)
         tokens[key.strip().lower()] = value.strip().lower()
     return tokens
 
@@ -167,7 +168,8 @@ def _assign_bounds(node: ComponentNode, viewport: Viewport, y_offset: float = 0.
         text_factor = max(1, len(" ".join(child.meta.get("text_samples", []))) // 20)
 
         child_width = _parse_px(style.get("width")) or (
-            viewport.width * 0.9 if child.children else viewport.width * 0.8)
+            viewport.width * 0.9 if child.children else viewport.width * 0.8
+        )
         child_height = _parse_px(style.get("height")) or max(48.0, 64.0 * text_factor)
 
         x_hint = _parse_px(style.get("left"))
@@ -214,9 +216,7 @@ def html_to_ui_model(entrypoint: Path, screen_map: Optional[ScreenMap] = None) -
         for route_cfg in screen_map.routes:
             vp_hint = route_cfg.viewport or {}
             vp = Viewport(width=vp_hint.get("width", viewport.width), height=vp_hint.get("height", viewport.height))
-            screens.append(
-                ScreenModel(name=route_cfg.screen, viewport=vp, root=copy.deepcopy(parser.root))
-            )
+            screens.append(ScreenModel(name=route_cfg.screen, viewport=vp, root=copy.deepcopy(parser.root)))
     else:
         screens.append(ScreenModel(name=parser.root.identifier, viewport=viewport, root=parser.root))
 
@@ -230,7 +230,9 @@ def html_to_ui_model(entrypoint: Path, screen_map: Optional[ScreenMap] = None) -
     )
 
 
-def bindings_from_views(views: Iterable[WebViewDeclaration], screen_map: Optional[ScreenMap] = None) -> List[ScreenBinding]:
+def bindings_from_views(
+    views: Iterable[WebViewDeclaration], screen_map: Optional[ScreenMap] = None
+) -> List[ScreenBinding]:
     bindings: List[ScreenBinding] = []
     for view in views:
         mapped: Optional[ScreenRoute] = None
@@ -293,8 +295,9 @@ def _kv_for_component(node: ComponentNode, viewport: Viewport, indent: int = 8) 
 
     if node.children:
         style = node.meta.get("style", {}) if isinstance(node.meta, dict) else {}
-        orientation = style.get("flex-direction") or ("horizontal" if node.bounds and node.bounds.width >
-                                                      node.bounds.height * 1.2 else "vertical")
+        orientation = style.get("flex-direction") or (
+            "horizontal" if node.bounds and node.bounds.width > node.bounds.height * 1.2 else "vertical"
+        )
         if widget == "BoxLayout":
             lines.append(f"{pad_in}orientation: '{orientation}'")
             gap = style.get("gap") or style.get("column-gap") or style.get("row-gap")
@@ -321,8 +324,12 @@ def plan_web_to_kivy(model: UIModel, bindings: Optional[List[ScreenBinding]] = N
         if bindings:
             binding = next((b for b in bindings if b.screen_name == screen.name or b.web_view == screen.name), None)
         if binding is None:
-            binding = ScreenBinding(web_view=screen.name, screen_name=screen.name,
-                                    kv_filename=f"{screen.name}.kv", controller_name=f"{screen.name}_screen.py")
+            binding = ScreenBinding(
+                web_view=screen.name,
+                screen_name=screen.name,
+                kv_filename=f"{screen.name}.kv",
+                controller_name=f"{screen.name}_screen.py",
+            )
 
         kv_lines = [f"<{_screen_class_name(binding.screen_name)}@Screen>:"]
         kv_lines.append("    name: '%s'" % binding.screen_name)
@@ -331,7 +338,8 @@ def plan_web_to_kivy(model: UIModel, bindings: Optional[List[ScreenBinding]] = N
 
         controller_name = binding.controller_name or f"{binding.screen_name}_screen.py"
         controllers[controller_name] = _controller_stub(
-            binding.screen_name, kv_filename=binding.kv_filename or f"{binding.screen_name}.kv")
+            binding.screen_name, kv_filename=binding.kv_filename or f"{binding.screen_name}.kv"
+        )
 
     return KivyExportPlan(kv_files=kv_files, controllers=controllers, bindings=bindings or [], warnings=warnings)
 

@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import sys
-URL = sys.argv[1] if len(sys.argv)>1 else 'http://localhost:4173'
+URL = sys.argv[1] if len(sys.argv) > 1 else 'http://localhost:4173'
 print('Running ARC move test v2 against', URL)
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=False)
@@ -22,14 +22,16 @@ with sync_playwright() as p:
     }
     ''')
     if not ok:
-        print('No suitable element found to drag.'); browser.close(); sys.exit(2)
+        print('No suitable element found to drag.')
+        browser.close()
+        sys.exit(2)
     el = page.locator('[data-px-test="1"]')
     box = el.bounding_box()
-    print('box=',box)
+    print('box=', box)
     cx = box['x'] + box['width']/2
     cy = box['y'] + box['height']/2
     page.keyboard.down('Alt')
-    page.mouse.move(cx,cy)
+    page.mouse.move(cx, cy)
     page.mouse.down()
     page.mouse.move(cx+200, cy, steps=16)
     page.mouse.up()
@@ -38,4 +40,4 @@ with sync_playwright() as p:
     undo_count = page.locator('text=Undo').count()
     print('Undo buttons found:', undo_count)
     browser.close()
-    sys.exit(0 if undo_count>0 else 4)
+    sys.exit(0 if undo_count > 0 else 4)

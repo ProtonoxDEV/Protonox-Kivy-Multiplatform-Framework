@@ -1,6 +1,6 @@
 from playwright.sync_api import sync_playwright
 import sys
-URL = sys.argv[1] if len(sys.argv)>1 else 'http://localhost:4173'
+URL = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:4173"
 print('Debug with console logs against', URL)
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=False)
@@ -27,7 +27,7 @@ with sync_playwright() as p:
     print('marked ok=', ok)
     el = page.locator('[data-px-test="1"]')
     box = el.bounding_box()
-    print('box=',box)
+    print('box=', box)
     cx = box['x'] + box['width']/2
     cy = box['y'] + box['height']/2
     tx = cx + 220
@@ -35,7 +35,7 @@ with sync_playwright() as p:
     page.evaluate('(opts)=>{let t=document.getElementById("__px_test_drop"); if(!t){t=document.createElement("div");t.id="__px_test_drop";document.body.appendChild(t);} t.classList.add("arc-drop"); t.style.position="fixed"; t.style.left=opts.x+"px"; t.style.top=opts.y+"px"; t.style.width="220px"; t.style.height="220px"; t.style.zIndex="99999998"; t.style.background="rgba(255,0,0,0.05)"}', {"x": tx, "y": ty})
     page.wait_for_timeout(200)
     page.keyboard.down('Alt')
-    page.mouse.move(cx,cy)
+    page.mouse.move(cx, cy)
     page.mouse.down()
     page.mouse.move(tx+20, ty+20, steps=16)
     page.mouse.up()

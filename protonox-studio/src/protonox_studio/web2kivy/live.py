@@ -94,7 +94,9 @@ class _DebouncedHandler(FileSystemEventHandler):
         self._timer.start()
 
 
-def live_loop(context: ProjectContext, watch_dir: Path | None = None, out_dir: Path | None = None, quiet_ms: int = 500) -> None:
+def live_loop(
+    context: ProjectContext, watch_dir: Path | None = None, out_dir: Path | None = None, quiet_ms: int = 500
+) -> None:
     watch_dir = watch_dir or context.entrypoint.parent
     export_dir = out_dir or (context.state_dir / "protonox-exports")
     export_dir.mkdir(parents=True, exist_ok=True)
@@ -143,8 +145,11 @@ def _bindings_from_args(context: ProjectContext, ui_model, screen_args: List[str
             declarations.append(WebViewDeclaration(name=name, source=context.entrypoint, url=None, route=route))
     else:
         default_route = ui_model.routes[0] if getattr(ui_model, "routes", []) else None
-        declarations.append(WebViewDeclaration(name=context.entrypoint.stem or "web_screen",
-                            source=context.entrypoint, url=None, route=default_route))
+        declarations.append(
+            WebViewDeclaration(
+                name=context.entrypoint.stem or "web_screen", source=context.entrypoint, url=None, route=default_route
+            )
+        )
     return declarations
 
 

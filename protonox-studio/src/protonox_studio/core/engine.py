@@ -94,7 +94,8 @@ class ProtonoxEngine:
         blocks.append(f"Armonía visual: {score}/100")
         if scale:
             blocks.append(
-                f"Tipografía: escala detectada {scale.get('scale', 'custom')} (confianza {scale.get('confidence', 0):.2f})")
+                f"Tipografía: escala detectada {scale.get('scale', 'custom')} (confianza {scale.get('confidence', 0):.2f})"
+            )
         if spacing:
             blocks.append(f"Espaciado: grid {spacing.get('grid')}px → {spacing.get('recommendation')}")
         if audit.get("contrast"):

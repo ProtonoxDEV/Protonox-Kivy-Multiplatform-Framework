@@ -11,7 +11,7 @@ from __future__ import annotations
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Callable, Dict, Iterable, List, Mapping, Tuple
+from typing import Callable, Dict, Iterable, List, Mapping
 
 
 ReloadCallback = Callable[[str, Iterable[Path]], None]

@@ -1,5 +1,6 @@
 from playwright.sync_api import sync_playwright
-import sys, time, json
+import sys
+import json
 
 URL = sys.argv[1] if len(sys.argv) > 1 else "http://localhost:4173"
 
@@ -10,6 +11,7 @@ with sync_playwright() as p:
     page = browser.new_page()
 
     requests = []
+
     def on_request(req):
         try:
             if req.url.endswith('/__protonox'):
@@ -99,7 +101,8 @@ with sync_playwright() as p:
             print('err', e)
 
     # Try forcing reparent via helper
-    forced = page.evaluate('''() => (window.__protonox_test_reparent ? window.__protonox_test_reparent('[data-px-test="1"]', '#__px_test_drop') : false)''')
+    forced = page.evaluate(
+        '''() => (window.__protonox_test_reparent ? window.__protonox_test_reparent('[data-px-test="1"]', '#__px_test_drop') : false)''')
     print('forced helper returned', forced)
 
     # Save screenshot for later

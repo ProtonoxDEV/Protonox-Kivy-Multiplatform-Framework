@@ -224,7 +224,12 @@ class HotReloadEngine:
                 state = app.extract_state()
             except Exception:
                 state = None
-        return ReloadSnapshot(state=state, modules=dict(sys.modules), factory_classes=self._copy_factory(), builder_rules=self._copy_builder_rules())
+        return ReloadSnapshot(
+            state=state,
+            modules=dict(sys.modules),
+            factory_classes=self._copy_factory(),
+            builder_rules=self._copy_builder_rules(),
+        )
 
     def _restore_snapshot(self, snapshot: ReloadSnapshot) -> None:
         sys.modules.clear()
@@ -359,7 +364,8 @@ class HotReloadAppBase(MDApp):
     KV_DIRS = ListProperty()
     AUTORELOADER_PATHS = ListProperty([(".", {"recursive": True})])
     AUTORELOADER_IGNORE_PATTERNS = ListProperty(
-        ["*.pyc", "*__pycache__*", ".protonox/**", "protobots/protonox_export/**"])
+        ["*.pyc", "*__pycache__*", ".protonox/**", "protobots/protonox_export/**"]
+    )
     CLASSES = DictProperty()
     IDLE_DETECTION = BooleanProperty(False)
     IDLE_TIMEOUT = NumericProperty(60)
@@ -372,9 +378,7 @@ class HotReloadAppBase(MDApp):
         self.reload_engine = HotReloadEngine()
         self.hotreload_log = prefixed_logger("hotreload")
         self.file_hashes: Dict[str, str] = {}
-        self.file_to_screen = {
-            str(Path(path).resolve()): name for path, name in (file_to_screen or {}).items()
-        }
+        self.file_to_screen = {str(Path(path).resolve()): name for path, name in (file_to_screen or {}).items()}
         self._exception_handler_added = False
         self.state: Optional[ReloadState] = None
         self.approot = None
@@ -715,8 +719,13 @@ class HotReloadAppBase(MDApp):
         if socket_endpoint:
             Logger.info(f"{self.appname}: export bridge ON via socket {socket_endpoint}")
             self._export_stop.clear()
-            bridge = SocketReloadBridge(socket_endpoint, lambda _p: self._dispatch_change(
-                self.export_dir / "app_manifest.json" if self.export_dir else Path("")), manifest_path=(self.export_dir / "app_manifest.json") if self.export_dir else None)
+            bridge = SocketReloadBridge(
+                socket_endpoint,
+                lambda _p: self._dispatch_change(
+                    self.export_dir / "app_manifest.json" if self.export_dir else Path("")
+                ),
+                manifest_path=(self.export_dir / "app_manifest.json") if self.export_dir else None,
+            )
             bridge.start()
             self._export_thread = bridge  # type: ignore
             return
@@ -729,9 +738,7 @@ class HotReloadAppBase(MDApp):
             Logger.info(f"{self.appname}: export bridge OFF (manifest missing at {manifest})")
             return
 
-        Logger.info(
-            f"{self.appname}: export bridge ON ({self.export_dir}), watching manifest/.reload"
-        )
+        Logger.info(f"{self.appname}: export bridge ON ({self.export_dir}), watching manifest/.reload")
 
         def loop():
             last_hash = ""
@@ -794,9 +801,7 @@ class HotReloadAppBase(MDApp):
             Logger.error(f"{self.appname}: Reload error → {decision.error}")
             self.set_error(decision.error)
 
-        Logger.info(
-            f"{self.appname}: Fallback to rebuild (level={decision.level}, reason={decision.reason})"
-        )
+        Logger.info(f"{self.appname}: Fallback to rebuild (level={decision.level}, reason={decision.reason})")
         Clock.unschedule(self.rebuild)
         Clock.schedule_once(self.rebuild, 0.1)
 

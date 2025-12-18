@@ -3,6 +3,7 @@
 The goal is to keep ARC/IA work against this intermediate structure
 instead of mutating HTML or KV files directly.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -38,14 +39,16 @@ class ComponentNode:
         return {
             "identifier": self.identifier,
             "role": self.role,
-            "bounds": {
-                "x": self.bounds.x,
-                "y": self.bounds.y,
-                "width": self.bounds.width,
-                "height": self.bounds.height,
-            }
-            if self.bounds
-            else None,
+            "bounds": (
+                {
+                    "x": self.bounds.x,
+                    "y": self.bounds.y,
+                    "width": self.bounds.width,
+                    "height": self.bounds.height,
+                }
+                if self.bounds
+                else None
+            ),
             "children": [child.to_dict() for child in self.children],
             "source": self.source,
             "meta": self.meta,
@@ -168,10 +171,28 @@ class UIModel:
 
 def from_web_snapshot(snapshot: List[dict], origin: str = "web") -> UIModel:
     elements = snapshot or [
-        {"id": "hero", "x": 24, "y": 36, "width": 960, "height": 480, "padding": [
-            32, 32, 40, 32], "margin": [0, 0, 48, 0], "color": "#0d1117", "text_samples": [48, 30, 20]},
-        {"id": "cta", "x": 64, "y": 560, "width": 320, "height": 96, "padding": [
-            16, 24, 16, 24], "margin": [0, 0, 24, 0], "color": "#58a6ff", "text_samples": [18, 16]},
+        {
+            "id": "hero",
+            "x": 24,
+            "y": 36,
+            "width": 960,
+            "height": 480,
+            "padding": [32, 32, 40, 32],
+            "margin": [0, 0, 48, 0],
+            "color": "#0d1117",
+            "text_samples": [48, 30, 20],
+        },
+        {
+            "id": "cta",
+            "x": 64,
+            "y": 560,
+            "width": 320,
+            "height": 96,
+            "padding": [16, 24, 16, 24],
+            "margin": [0, 0, 24, 0],
+            "color": "#58a6ff",
+            "text_samples": [18, 16],
+        },
     ]
     nodes: List[ComponentNode] = []
     for element in elements:

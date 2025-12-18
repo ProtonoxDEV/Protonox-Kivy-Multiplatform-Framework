@@ -25,7 +25,7 @@ def _rgb(color: str) -> Tuple[float, float, float]:
     color = color.lstrip("#")
     if len(color) == 3:
         color = "".join([c * 2 for c in color])
-    r, g, b = (int(color[i: i + 2], 16) for i in (0, 2, 4))
+    r, g, b = (int(color[i : i + 2], 16) for i in (0, 2, 4))
     return r / 255, g / 255, b / 255
 
 
@@ -34,6 +34,7 @@ def _luminance(color: str) -> float:
 
     def adj(c: float) -> float:
         return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
     r, g, b = adj(r), adj(g), adj(b)
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
 
@@ -48,7 +49,7 @@ def contrast_guardian(colors: List[str]) -> Dict[str, object]:
     colors = [_normalize_color(c) for c in colors if c]
     violations = []
     for i, base in enumerate(colors):
-        for other in colors[i + 1:]:
+        for other in colors[i + 1 :]:
             ratio = _contrast_ratio(base, other)
             if ratio < 4.5:
                 violations.append({"pair": (base, other), "ratio": ratio})

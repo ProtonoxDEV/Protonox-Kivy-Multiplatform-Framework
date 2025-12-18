@@ -1,4 +1,5 @@
 """Unicode-safe TextInput helpers (opt-in)."""
+
 from __future__ import annotations
 
 import unicodedata
