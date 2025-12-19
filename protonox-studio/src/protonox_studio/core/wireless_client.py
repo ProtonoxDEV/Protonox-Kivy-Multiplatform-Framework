@@ -27,12 +27,12 @@ class WirelessDebugClient:
     """Client for connecting to wireless debug servers."""
     
     def __init__(self):
-        self.websocket: Optional[websockets.WebSocketServerProtocol] = None
+        self.websocket = None
         self.connected = False
         self.url = ""
         self._thread: Optional[threading.Thread] = None
-        self._loop: Optional[asyncio.AbstractEventLoop] = None
-        self._task: Optional[asyncio.Task] = None
+        self._loop: "Optional[asyncio.AbstractEventLoop]" = None
+        self._task: "Optional[asyncio.Task]" = None
         self._callbacks: Dict[str, list] = {}
         
     def on(self, event_type: str, callback: Callable[[Dict[str, Any]], None]) -> None:

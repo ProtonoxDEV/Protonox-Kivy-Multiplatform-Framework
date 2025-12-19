@@ -300,7 +300,7 @@ def start_server(host: str = "0.0.0.0", port: int = 8765) -> str:
     global _server_thread, _enabled
     
     if not HAS_DEPS:
-        Logger.error("[WIRELESS_DEBUG] Missing dependencies. Install: pip install websockets qrcode[pil]")
+        Logger.error("[WIRELESS_DEBUG] Missing dependencies. Install: pip install 'kivy-protonox-version[wireless]'")
         return ""
     
     if _enabled:

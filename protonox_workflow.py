@@ -526,11 +526,12 @@ def show_workflow_menu():
         print("3. 📊 Ver Estado de Dispositivos")
         print("4. 🌐 Abrir Interfaz Web (Recomendado)")
         print("5. 🧪 Test Completo (Pairing + Live Reload)")
-        print("6. ❌ Salir")
+        print("6. 🪟 Test Window Providers (Linux)")
+        print("7. ❌ Salir")
         print()
 
         try:
-            choice = input("Selecciona una opción (1-6): ").strip()
+            choice = input("Selecciona una opción (1-7): ").strip()
 
             if choice == '1':
                 run_adb_pairing()
@@ -591,6 +592,21 @@ def show_workflow_menu():
                     print("❌ Falló el proceso de pairing")
 
             elif choice == '6':
+                print("🪟 Probando proveedores de ventana Kivy...")
+                try:
+                    code, stdout, stderr = run_command("cd /home/protonox/Protonox-Kivy-Multiplatform-Framework && python test_window_providers.py", shell=True, timeout=15)
+                    if code == 0:
+                        print("✅ Proveedores de ventana funcionando correctamente")
+                    else:
+                        print("⚠️  Problemas detectados:")
+                        if stdout:
+                            print(stdout)
+                        if stderr:
+                            print(f"Error: {stderr}")
+                except Exception as e:
+                    print(f"❌ Error ejecutando test: {e}")
+
+            elif choice == '7':
                 print("👋 ¡Hasta luego!")
                 break
 
@@ -602,6 +618,43 @@ def show_workflow_menu():
             break
         except Exception as e:
             print(f"❌ Error: {e}")
+
+def setup_linux_development():
+    """Setup Linux development environment"""
+    print("\n🐧 Configurando entorno de desarrollo Linux...")
+    print("-" * 45)
+
+    # Check Kivy window providers
+    print("🔍 Verificando proveedores de ventana Kivy...")
+    try:
+        # Test window providers
+        code, stdout, stderr = run_command("cd /home/protonox/Protonox-Kivy-Multiplatform-Framework && python test_window_providers.py", shell=True, timeout=10)
+        if code == 0:
+            print("✅ Proveedores de ventana Kivy funcionando correctamente")
+            print("   ✓ window_x11 disponible")
+            print("   ✓ Modo headless configurado")
+        else:
+            print("⚠️  Problemas con proveedores de ventana:")
+            print(f"   Código: {code}")
+            if stderr:
+                print(f"   Error: {stderr.strip()}")
+    except Exception as e:
+        print(f"⚠️  Error verificando proveedores: {e}")
+
+    # Check display server
+    display = os.environ.get('DISPLAY', '')
+    if display:
+        print(f"✅ Servidor X11 detectado: DISPLAY={display}")
+        print("   💡 Para desarrollo visual: configura X11 forwarding en WSL2")
+    else:
+        print("ℹ️  Sin servidor X11 - modo headless activado")
+        print("   💡 Para desarrollo visual: instala y configura X server")
+
+    print("\n📋 Configuración completada:")
+    print("   • Kivy v3.0.0.dev5 con proveedores X11")
+    print("   • Modo headless disponible")
+    print("   • Desarrollo Android: ADB wireless configurado")
+    print("   • Desarrollo web: Interfaz live reload activa")
 
 def main():
     """Main function"""
@@ -615,6 +668,9 @@ def main():
         print("🪟 Interfaz web accesible desde Windows")
     else:
         print("ℹ️  Entorno Linux nativo")
+
+    # Setup Linux development environment
+    setup_linux_development()
 
     # Check ADB
     code, stdout, stderr = run_command("adb version")

@@ -85,6 +85,74 @@ For Android devices, files are automatically pushed via ADB before reloading.
 
 See `examples/wireless_debug_example.py` for a complete example.
 
+## Desarrollo en Termux (Android)
+
+Este framework está optimizado para desarrollo móvil directo en Android usando Termux. Ambas librerías (`protonox-kivy` y `protonox-studio`) son compatibles y permiten testing en vivo sin PC.
+
+### Instalación en Termux
+```bash
+# Instalar Python si no está
+pkg install python
+
+# Instalar librerías compatibles
+pip install protonox-kivy==3.0.0.dev4 protonox-studio==0.1.3
+```
+
+### Conexión Rápida por QR y WiFi
+
+1. **En tu PC:**
+   - Inicia el servidor de setup ADB:
+     ```bash
+     cd Protonox-Kivy-Multiplatform-Framework
+     python3 adb_setup_server.py
+     ```
+     Genera un QR que abre una página web para conectar ADB automáticamente.
+
+2. **En Termux (teléfono):**
+   - Escanea el QR con la cámara de Android → Abre navegador con preview de la app y botón "Connect ADB".
+   - Haz clic en "Connect ADB" → PC ejecuta `adb connect` y conecta inalámbricamente.
+   - Verifica: `adb devices` (debe mostrar el dispositivo).
+
+3. **Prueba la App en Termux:**
+   - Copia app al teléfono:
+     ```bash
+     adb push test_app.py /sdcard/
+     ```
+   - Ejecuta con debug inalámbrico:
+     ```bash
+     PROTONOX_WIRELESS_DEBUG=1 python /sdcard/test_app.py
+     ```
+     Muestra QR para WebSocket y abre app Kivy con ScissorPush/ScissorPop.
+
+4. **Live Reload desde PC:**
+   - En PC, inicia servidor:
+     ```bash
+     cd protonox-studio
+     source venv_protonox_studio_debug/bin/activate
+     python -m protonox_studio.core.live_reload --host 0.0.0.0 --port 8080
+     ```
+   - App en Termux se conecta automáticamente para recarga en vivo.
+
+### Comandos Básicos en Termux
+- **Desarrollo:** `protonox dev` (servidor web para overlays).
+- **Auditoría:** `protonox audit <file>` (analiza diseño).
+- **Export:** `protonox export <file>` (tokens y componentes).
+- **Conectar:** `protonox wireless-connect --adb-wireless-ip-port <ip:puerto>`
+- **Desconectar:** `protonox wireless-disconnect`
+- **Estado:** `protonox wireless-status`
+
+### Preview y Debugging
+- El QR abre un preview web simple de la app (detecta errores iniciales).
+- Usa `PROTONOX_WIRELESS_DEBUG=1` para logs en vivo y snapshots UI.
+- Live reload permite editar en PC y ver cambios en teléfono al instante.
+
+### Troubleshooting
+- Dependencias faltantes: `pip install protonox-studio[web]==0.1.3` (requiere Rust).
+- Builds en Android: Asegura `clang` y `make` en Termux.
+- Conexión: Verifica misma red WiFi.
+
+¡Desarrolla apps Kivy directamente en tu teléfono!
+
 ## What this project is NOT
 
 ✖ A rewrite of Kivy  \

@@ -1,0 +1,2 @@
+[console_scripts]
+protonox = protonox_studio.cli.protonox:main

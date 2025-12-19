@@ -1,0 +1,2 @@
+protonox_kivy_core
+protonox_studio

@@ -2600,3 +2600,8 @@ if USE_SDL3:
 if platform == 'linux':
     window_impl += [('x11', 'window_x11', 'WindowX11')]
 Window: WindowBase = core_select_lib('window', window_impl, True)
+
+# Fix circular import for WindowSDL
+if USE_SDL3:
+    from kivy.core.window.window_sdl3 import WindowSDL
+    WindowSDL.__bases__ = (WindowBase,)

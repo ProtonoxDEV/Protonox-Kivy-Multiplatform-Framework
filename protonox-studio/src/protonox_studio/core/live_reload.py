@@ -47,8 +47,12 @@ from protonox_studio.devtools.logger import prefixed_logger
 from protonox_studio.devtools.clock_guard import ClockGuard
 from protonox_studio.flags import is_enabled
 from protonox_studio.ui.textinput_unicode import patch_textinput_unicode
-from kivy.protonox_ext.runtime.watch.socket_bridge import SocketReloadBridge
-from kivy.protonox_ext.device.facade import bootstrap_device
+try:
+    from kivy.protonox_ext.runtime.watch.socket_bridge import SocketReloadBridge  # type: ignore
+    from kivy.protonox_ext.device.facade import bootstrap_device  # type: ignore
+except ImportError:
+    SocketReloadBridge = None
+    bootstrap_device = None
 
 
 # ----------------------------- State preservation -----------------------------
@@ -597,12 +601,12 @@ class HotReloadAppBase(MDApp):
     # Idle detection (optional)
     # ------------------------------------------------------------------
     def install_idle(self, timeout: int = 60):
-        monotonic_spec = importlib.util.find_spec("monotonic")
-        if monotonic_spec is None:
+        try:
+            import time
+            monotonic = time.monotonic
+        except AttributeError:
             Logger.exception(f"{self.appname}: Cannot use idle detector, monotonic is missing")
             return
-
-        from monotonic import monotonic
 
         self.idle_timer = None
         self.idle_timeout = timeout
@@ -716,7 +720,7 @@ class HotReloadAppBase(MDApp):
     # ------------------------------------------------------------------
     def _start_export_bridge(self):
         socket_endpoint = os.getenv("PROTONOX_EXPORT_SOCKET")
-        if socket_endpoint:
+        if socket_endpoint and SocketReloadBridge:
             Logger.info(f"{self.appname}: export bridge ON via socket {socket_endpoint}")
             self._export_stop.clear()
             bridge = SocketReloadBridge(

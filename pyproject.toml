@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "protonox-kivy-framework"
 version = "0.1.0"
 description = "Normalized Protonox Kivy toolchain, templates, and build utilities"
-authors = [ { name = "Protonox" } ]
+authors = [ { name = "Juan David Morales - Protonox" } ]
 readme = "README.md"
 requires-python = ">=3.11"
 keywords = ["kivy", "android", "buildozer", "python-for-android", "pyjnius"]

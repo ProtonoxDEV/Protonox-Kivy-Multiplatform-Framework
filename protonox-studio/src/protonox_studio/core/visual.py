@@ -30,7 +30,7 @@ def ingest_png(path: Path) -> PngCapture:
     if not path.exists():
         raise FileNotFoundError(f"PNG no encontrado: {path}")
     if Image is None:
-        raise RuntimeError("Pillow es obligatorio para leer PNG en este entorno")
+        raise RuntimeError("Pillow no disponible. Instala con: pip install 'protonox-studio[image]'")
     with Image.open(path) as img:
         width, height = img.size
     return PngCapture(path=path.resolve(), width=width, height=height)
@@ -131,7 +131,7 @@ def diff_pngs(
     """
 
     if Image is None or ImageChops is None:
-        raise RuntimeError("Pillow es obligatorio para comparar PNGs en este entorno")
+        raise RuntimeError("Pillow no disponible. Instala con: pip install 'protonox-studio[image]'")
 
     element_diffs: list[dict] = []
     overlay_image: Optional[str] = None
@@ -186,7 +186,7 @@ def render_model_to_png(model: UIModel, target: Path) -> Dict[str, object]:
     """
 
     if Image is None or ImageDraw is None:
-        raise RuntimeError("Pillow es obligatorio para renderizar el modelo a PNG")
+        raise RuntimeError("Pillow no disponible. Instala con: pip install 'protonox-studio[image]'")
 
     if not model.screens:
         raise ValueError("El modelo UI no contiene pantallas renderizables")

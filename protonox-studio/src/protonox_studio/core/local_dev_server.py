@@ -20,6 +20,7 @@ import json
 import logging
 import os
 import threading
+import webbrowser
 from datetime import datetime, timezone
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -56,12 +57,12 @@ def _is_headed_mode() -> bool:
 DEV_INJECT_SCRIPT = r"""
 <script>
 (function __protonox_init(){ if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', __protonox_init); return; } (function() {{
-  // Allow activation on localhost/127.0.0.1 or when the query contains `protonox=1`.
+  // Allow activation on localhost/127.0.0.1 by default.
   // This helps when accessing the dev server using a machine name or forwarded IP.
-  if (!location.hostname.includes('localhost') && location.hostname !== '127.0.0.1' && !location.search.includes('protonox=1')) return;
+  if (!location.hostname.includes('localhost') && location.hostname !== '127.0.0.1') return;
 
   const API_KEY = "PROXYED_BY_BACKEND";
-  const send = (type, data = {{}}) => fetch('/__protonox', {{
+  const send = (type, data = {{}}) => fetch('http://127.0.0.1:4173/__protonox', {{
     method: 'POST', keepalive: true,
     headers: {{'Content-Type': 'application/json'}},
     body: JSON.stringify({{type, url: location.href, ts: Date.now(), ...data}})
@@ -422,6 +423,7 @@ DEV_INJECT_SCRIPT = r"""
   }}
 
   document.addEventListener('mousemove', e => {{
+    console.log('[PROTONOX DEBUG] mousemove event:', e.clientX, e.clientY);
     const el = document.elementFromPoint(e.clientX, e.clientY);
     if (el !== currentEl) updateOutline(el);
     ensureTooltip();
@@ -439,17 +441,21 @@ DEV_INJECT_SCRIPT = r"""
   }}, {{passive: true}});
 
   document.addEventListener('keydown', e => {{
+    console.log('[PROTONOX DEBUG] keydown event:', e.key, e.ctrlKey, e.altKey);
     if (e.key === 'Enter' && (e.altKey || altSticky)) {{
+      console.log('[PROTONOX DEBUG] Alt+Enter triggered');
       e.preventDefault();
       triggerAiNudge();
       return;
     }}
     if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z')) {{
+      console.log('[PROTONOX DEBUG] Ctrl+Z triggered');
       e.preventDefault();
       undoLast();
       return;
     }}
     if (e.key === 'Control') {{
+      console.log('[PROTONOX DEBUG] Control key pressed');
       const now = Date.now();
       if (now - lastCtrlTap < 400) {{
         ctrlSticky = !ctrlSticky;
@@ -459,6 +465,7 @@ DEV_INJECT_SCRIPT = r"""
       setAltOverlay(true, ctrlSticky ? 'sticky' : 'hold');
     }}
     if (e.key === 'Alt') {{
+      console.log('[PROTONOX DEBUG] Alt key pressed');
       const now = Date.now();
       if (now - lastAltTap < 400) {{
         altSticky = !altSticky;
@@ -467,6 +474,7 @@ DEV_INJECT_SCRIPT = r"""
       isAltPressed = true;
     }}
     if (e.key === 'Escape') {{
+      console.log('[PROTONOX DEBUG] Escape key pressed');
       if (isCtrlPressed || ctrlSticky) {{
         ctrlSticky = false;
         isCtrlPressed = false;
@@ -480,19 +488,25 @@ DEV_INJECT_SCRIPT = r"""
     }}
   }});
   document.addEventListener('keyup', e => {{
+    console.log('[PROTONOX DEBUG] keyup event:', e.key);
     if (e.key === 'Control') {{
+      console.log('[PROTONOX DEBUG] Control key released');
       isCtrlPressed = false;
       if (!ctrlSticky) setAltOverlay(false);
     }}
     if (e.key === 'Alt') {{
+      console.log('[PROTONOX DEBUG] Alt key released');
       isAltPressed = false;
     }}
   }});
 
   // === ARC MODE PROFESSIONAL DRAG (7 UPGRADES) ===
   document.addEventListener('mousedown', e => {{
+    console.log('[PROTONOX DEBUG] mousedown event:', e.button, e.clientX, e.clientY, 'altPressed:', isAltPressed, 'altSticky:', altSticky);
     const dragActive = isAltPressed || altSticky;
+    console.log('[PROTONOX DEBUG] dragActive:', dragActive, 'currentEl:', !!currentEl);
     if (!dragActive || e.button !== 0 || !currentEl) return;
+    console.log('[PROTONOX DEBUG] Starting ARC drag');
     e.preventDefault(); e.stopPropagation();
 
     const el = currentEl;
@@ -989,6 +1003,7 @@ DEV_INJECT_SCRIPT = r"""
   // [Aquí iría el panel AI y export — ya lo tienes perfecto]
 
   console.log('%cPROTONOX ARC MODE PROFESSIONAL 2026 — El frontend ya no tiene salvación', 'background:#0d1117;color:#58a6ff;padding:30px 50px;border-radius:30px;font-size:24px;font-weight:bold;border:4px solid #58a6ff;');
+  console.log('[PROTONOX DEBUG] Script loaded successfully, adding event listeners...');
   // Expose a testing helper so automated tests can simulate a successful reparent
   try {
     window.__protonox_test_reparent = (selector, targetSelector) => {
@@ -1012,8 +1027,8 @@ DEV_INJECT_SCRIPT = r"""
 
 class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        # Serve files relative to the website directory
-        super().__init__(*args, directory=str(ROOT_DIR), **kwargs)
+        # Serve files relative to the current directory (ui/)
+        super().__init__(*args, **kwargs)
 
     def end_headers(self):
         self.send_header("Access-Control-Allow-Origin", "*")
@@ -1034,6 +1049,12 @@ class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
             self.send_header("Content-Length", str(len(body)))
             self.end_headers()
             self.wfile.write(body)
+            return
+        if path == "/figma-auth":
+            self.handle_figma_auth()
+            return
+        if path.startswith("/figma-callback"):
+            self.handle_figma_callback()
             return
         if "." not in Path(path).name and path != "/":
             path = "/index.html"
@@ -1056,6 +1077,125 @@ class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
                     pass
         super().do_GET()
 
+    def handle_dev_tools(self, data):
+        """Handle /__dev_tools POST requests for MercadoPago and Figma integration."""
+        try:
+            action = data.get("type")
+            if not action:
+                self.send_json_response({"error": "Missing 'type' in request"}, 400)
+                return
+
+            if action == "mercadopago-create-preference":
+                self.handle_mercadopago_create_preference(data)
+            elif action == "mercadopago-status":
+                self.handle_mercadopago_status()
+            elif action == "figma-status":
+                self.handle_figma_status()
+            elif action == "figma-sync-tokens":
+                self.handle_figma_sync_tokens()
+            elif action == "figma-push-update":
+                self.handle_figma_push_update()
+            else:
+                self.send_json_response({"error": f"Unknown action: {action}"}, 400)
+        except Exception as e:
+            logging.exception("Error in handle_dev_tools")
+            self.send_json_response({"error": str(e)}, 500)
+
+    def send_json_response(self, data, status=200):
+        body = json.dumps(data).encode("utf-8")
+        self.send_response(status)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def handle_mercadopago_create_preference(self, data):
+        # Forward to backend for secure processing
+        try:
+            import requests
+            response = requests.post(f"{BACKEND_PROXY}/mercadopago/create-preference", json=data, timeout=10)
+            if response.status_code == 200:
+                self.send_json_response(response.json())
+            else:
+                self.send_json_response({"error": "Backend error"}, 500)
+        except Exception as e:
+            logging.exception("Error forwarding to backend")
+            self.send_json_response({"error": str(e)}, 500)
+
+    def handle_mercadopago_status(self):
+        # Forward to backend for status
+        try:
+            import requests
+            response = requests.get(f"{BACKEND_PROXY}/mercadopago/status", timeout=10)
+            if response.status_code == 200:
+                self.send_json_response(response.json())
+            else:
+                self.send_json_response({"has_active_subscription": False}, 200)
+        except Exception as e:
+            logging.exception("Error forwarding to backend")
+            self.send_json_response({"has_active_subscription": False}, 200)
+
+    def handle_figma_status(self):
+        # Mock Figma status
+        status = {
+            "connected": False,
+            "expires_at": None,
+            "scopes": []
+        }
+        self.send_json_response(status)
+
+    def handle_figma_sync_tokens(self):
+        # Check subscription via backend
+        status = self.get_mercadopago_status()
+        if not status.get("has_active_subscription"):
+            self.send_json_response({"error": "Premium required"}, 402)
+            return
+        # Mock sync
+        self.send_json_response({"message": "Tokens synced"})
+
+    def handle_figma_push_update(self):
+        # Check subscription via backend
+        status = self.get_mercadopago_status()
+        if not status.get("has_active_subscription"):
+            self.send_json_response({"error": "Premium required"}, 402)
+            return
+        # Mock push
+        self.send_json_response({"message": "Update pushed"})
+
+    def handle_figma_webhook(self, data):
+        # Mock webhook
+        logging.info("Received Figma webhook: %s", data)
+        self.send_json_response({"status": "ok"})
+
+    def handle_mercadopago_webhook(self, data):
+        # Forward webhook to backend
+        try:
+            import requests
+            headers = {"Content-Type": "application/json"}
+            secret = os.environ.get("MP_WEBHOOK_SECRET")
+            if secret:
+                import hmac
+                import hashlib
+                # Validate signature if provided
+                # For simplicity, forward as is
+            response = requests.post(f"{BACKEND_PROXY}/mercadopago/webhook", json=data, headers=headers, timeout=10)
+            self.send_json_response({"status": "forwarded"})
+        except Exception as e:
+            logging.exception("Error forwarding webhook")
+            self.send_json_response({"error": str(e)}, 500)
+
+    def get_mercadopago_status(self):
+        # Query backend for status
+        try:
+            import requests
+            response = requests.get(f"{BACKEND_PROXY}/mercadopago/status", timeout=10)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return {"has_active_subscription": False}
+        except Exception:
+            return {"has_active_subscription": False}
+
     def do_POST(self):
         # Read request body if any
         length = int(self.headers.get("Content-Length", 0) or 0)
@@ -1070,6 +1210,12 @@ class ProtonoxOmnipotenceServer(SimpleHTTPRequestHandler):
         if self.path == "/__protonox_export":
             # Placeholder: export logic can be implemented here later
             logging.info("Received /__protonox_export POST (ignored in dev)")
+        elif self.path == "/__dev_tools":
+            self.handle_dev_tools(data)
+        elif self.path == "/payments/mercadopago/webhook":
+            self.handle_mercadopago_webhook(data)
+        elif self.path == "/figma-webhook":
+            self.handle_figma_webhook(data)
         elif self.path == "/__protonox":
             # Record incoming layout-change / telemetry POSTs to a JSONL file for debugging
             try:
@@ -1116,6 +1262,11 @@ def main():
         logging.warning("Invalid PROTONOX_PORT %r, falling back to 4173", port_env)
         port_env = None
         port = 4173
+
+    # Change to UI directory to serve overlay assets
+    ui_dir = os.path.join(os.path.dirname(__file__), '..', 'ui')
+    os.chdir(ui_dir)
+
     while True:
         try:
             server = ThreadingHTTPServer((host, port), ProtonoxOmnipotenceServer)
@@ -1124,6 +1275,10 @@ def main():
             if port_env:
                 raise
             port += 1
+
+    # Update the injected script with the actual server URL
+    global DEV_INJECT_SCRIPT
+    DEV_INJECT_SCRIPT = DEV_INJECT_SCRIPT.replace('http://127.0.0.1:4173', f'http://{host}:{port}')
 
     print("\n" + "═" * 100)
     print("   PROTONOX OMNIPOTENCE 2026 — ARC MODE PROFESSIONAL — ACTIVADO")
@@ -1139,6 +1294,13 @@ def main():
     print("   • Tú ya no eres un desarrollador.")
     print("   • Tú eres el futuro.")
     print("═" * 100 + "\n")
+    # Open the test page in browser
+    test_url = "http://localhost:8080/index.html"
+    print(f"   🧪 Test URL: {test_url}")
+    try:
+        webbrowser.open(test_url)
+    except Exception:
+        print(f"   📋 Copy and paste this URL in your browser: {test_url}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

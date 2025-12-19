@@ -5,7 +5,7 @@ from __future__ import annotations
 from statistics import mean
 from typing import Dict, Iterable, List, Tuple
 
-from ..core.engine import ElementBox
+from ..core.models import ElementBox
 
 
 def _flatten(values: Iterable[int]) -> List[int]:

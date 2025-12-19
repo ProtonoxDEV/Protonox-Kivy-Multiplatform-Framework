@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Dict, Iterable, List, Tuple
 
-from ..core.engine import ElementBox
+from ..core.models import ElementBox
 
 
 def _normalize_color(color: str) -> str:

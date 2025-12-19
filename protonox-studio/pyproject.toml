@@ -4,18 +4,15 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "protonox-studio"
-version = "0.1.1"
+version = "0.1.5"
 description = "Protonox Studio – motor de diseño inteligente con auditorías y ARC Mode"
 readme = "README.md"
 authors = [
-    { name = "Protonox", email = "protonox@outlook.es" }
+    { name = "Juan David Morales - Protonox", email = "protonox@outlook.es" }
 ]
 license = "LicenseRef-Proprietary"
 requires-python = ">=3.10"
 dependencies = [
-    "fastapi>=0.95.0",
-    "uvicorn[standard]>=0.22.0",
-    "pillow>=10.0.0",
     "watchdog>=4.0.0",
     "pyyaml>=6.0",
     "requests>=2.31.0",
@@ -25,6 +22,15 @@ keywords = ["design", "audit", "figma", "ux", "protonox"]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
+]
+
+[project.optional-dependencies]
+web = [
+    "fastapi>=0.95.0",
+    "uvicorn>=0.22.0",
+]
+image = [
+    "pillow>=10.0.0",
 ]
 
 [project.scripts]

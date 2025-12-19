@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-from ..core.engine import ElementBox, Viewport
+from ..core.models import ElementBox, Viewport
 
 GOLDEN_RATIO = 1.618
 

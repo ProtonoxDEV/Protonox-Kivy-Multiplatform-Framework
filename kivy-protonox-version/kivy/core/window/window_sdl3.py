@@ -22,7 +22,7 @@ from kivy.logger import Logger
 from kivy.base import EventLoop
 from kivy.clock import Clock
 from kivy.config import Config
-from kivy.core.window import WindowBase
+# from kivy.core.window import WindowBase
 try:
     from kivy.core.window._window_sdl3 import _WindowSDL3Storage
 except ImportError:
@@ -147,7 +147,7 @@ class SDL3MotionEventProvider(MotionEventProvider):
                 dispatch_fn('update', me)
 
 
-class WindowSDL(WindowBase):
+class WindowSDL(object):
 
     _do_resize_ev = None
 
@@ -881,3 +881,8 @@ class WindowSDL(WindowBase):
 
     def get_system_theme(self):
         return self._win.get_system_theme()
+
+
+from kivy.core.window import WindowBase
+
+WindowSDL.__bases__ = (WindowBase,)

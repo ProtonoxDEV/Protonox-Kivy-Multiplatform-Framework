@@ -235,6 +235,16 @@ use_embed_signature = environ.get('USE_EMBEDSIGNATURE', '0') == '1'
 use_embed_signature = use_embed_signature or bool(
     platform not in ('ios', 'android'))
 
+# Auto-detect X11 support on Linux
+if platform == 'linux' and not c_options['use_x11']:
+    try:
+        result = getoutput('pkg-config --exists x11')
+        if not result:  # pkg-config returns empty string on success
+            print('X11 found via pkg-config, enabling X11 support')
+            c_options['use_x11'] = True
+    except:
+        pass
+
 # -----------------------------------------------------------------------------
 # We want to be able to install kivy as a wheel without a dependency
 # on cython, but we also want to use cython where possible as a setup

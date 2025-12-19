@@ -84,6 +84,37 @@ A [PDF version](https://media.readthedocs.org/pdf/kivy/latest/kivy.pdf) is also 
 
 Kivy ships with many examples which can be found in the `examples` folder.
 
+### Desarrollo en Termux (Android)
+
+`protonox-kivy` es compatible con Termux para desarrollo móvil directo. Incluye ScissorPush/ScissorPop y wireless debug.
+
+#### Instalación en Termux
+```bash
+pkg install python clang make
+pip install protonox-kivy==3.0.0.dev4
+```
+
+#### Uso Básico
+```python
+from kivy.graphics import ScissorPush, ScissorPop  # Funciona en Termux
+from kivymd.app import MDApp
+
+class MyApp(MDApp):
+    def build(self):
+        # Tu app aquí
+        pass
+
+if __name__ == '__main__':
+    MyApp().run()
+```
+
+#### Wireless Debug
+```bash
+PROTONOX_WIRELESS_DEBUG=1 python app.py  # Muestra QR para conectar Studio
+```
+
+Para más detalles, ver el README principal del repositorio.
+
 Support
 -------
 

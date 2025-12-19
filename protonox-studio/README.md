@@ -47,7 +47,7 @@ protonox-studio/
 | Design Token Sync            | Genera tokens a partir de colores repetidos            | Tokens sin esfuerzo                            |
 
 ### Instalación y comandos
-- PyPI: `pip install protonox-studio==0.1.1` (expone el comando `protonox`).
+- PyPI: `pip install protonox-studio==0.1.5` (expone el comando `protonox`).
 - Local editable: `pip install -e ./protonox-studio` (usa tu intérprete/venv). Requiere `pip>=23`.
 - `protonox audit` devuelve un reporte JSON y un resumen legible sobre el UI-IR (HTML→modelo intermedio o Kivy introspection).
 - `protonox export` genera KV + scaffolds Python en `.protonox/protonox-exports` sin tocar tu código.
@@ -76,9 +76,16 @@ protonox-studio/
 ### Figma (OAuth, embedding, webhooks)
 - Variables requeridas: `FIGMA_CLIENT_ID`, `FIGMA_CLIENT_SECRET`; opcionales `FIGMA_REDIRECT_URI` (default `http://localhost:4173/figma-callback`) y `FIGMA_SCOPES` (separadas por espacio o coma; por defecto incluyen contenido, comentarios, dev resources, librerías, proyectos, webhooks y perfil).
 - Auth: `GET /figma-auth` redirige a Figma con `state` aleatorio; `GET /figma-callback?code=...&state=...` guarda token en `.protonox/figma/figma_token.json`.
-- Estado: `POST /__dev_tools` con `{ "type": "figma-status" }` devuelve conexión, expiración y scopes; `figma-sync-tokens` y `figma-push-update` se mantienen premium (402 si no hay pago).
+- Estado: `POST /__dev_tools` con `{ "type": "figma-status" }` devuelve conexión, expiración y scopes; `figma-sync-tokens` y `figma-push-update` requieren suscripción activa.
 - Embedding: `POST /__dev_tools` con `{ "type": "figma-embed-config" }` devuelve `client_id` y `redirect_uri` para kits de incrustación (`?client-id=<id>`).
 - Webhooks: `POST /figma-webhook` almacena eventos en `.protonox/figma/webhooks.jsonl` (sin validar firma por ahora); puedes registrar webhooks desde Figma apuntando a esa URL pública o tunelizada.
+
+### MercadoPago (integración segura)
+- Variables requeridas: `MP_PUBLIC_KEY`, `MP_ACCESS_TOKEN`; opcionales `MP_SUCCESS_URL`, `MP_FAILURE_URL`, `MP_PENDING_URL`, `MP_NOTIFICATION_URL`, `MP_WEBHOOK_SECRET`.
+- Crear checkout: `POST /__dev_tools` con `{ "type": "mercadopago-create-preference", "plan": "monthly", "email": "test@example.com" }` valida con backend y devuelve `init_point` / `sandbox_init_point`.
+- Estado y gating: `POST /__dev_tools` con `{ "type": "mercadopago-status" }` consulta backend para suscripción activa; acciones premium (`figma-sync-tokens`, `figma-push-update`) responden 402 si no hay pago.
+- Webhook: `POST /payments/mercadopago/webhook` valida firma y actualiza estado en backend.
+- Seguridad: Todas las operaciones se validan contra `PROTONOX_BACKEND_URL` para evitar manipulación local.
 
 #### Declaración explícita del proyecto (requisito)
 - Protonox Studio no asume tu proyecto: siempre se declara `--project-type web|kivy` y `--entrypoint` (por ejemplo `index.html` o `main.py`).
@@ -134,7 +141,7 @@ Este documento guía el rollout completo. Cualquier agente puede retomarlo leyen
 
 ### Visión
 - Protonox Studio es el overlay de diseño inteligente que funciona encima de cualquier sitio ya publicado o en desarrollo.
-- El objetivo es habilitar auditorías automatizadas, correcciones asistidas por IA (ARC Mode) y sincronización con Figma, cobrando por ello mediante MercadoPago.
+- El objetivo es habilitar auditorías automatizadas, correcciones asistidas por IA (ARC Mode) y sincronización con Figma, monetizando a través de MercadoPago con validación segura en backend.
 
 ### Marco de trabajo (seguimiento)
 1. **Demo pública sobre el landing actual (`website/index.html`)**
@@ -147,16 +154,15 @@ Este documento guía el rollout completo. Cualquier agente puede retomarlo leyen
 	- [ ] Guardar tokens sincronizados en `tokens/` y confirmar push de nodos (usar `data-figma-id`).
 	- [ ] Añadir sección en panel UI con estado conectado/desconectado.
 3. **Monetización vía MercadoPago**
-	- [ ] Configurar planes/checkout con `backend/api/mercadopago.py`.
-	- [ ] Crear webhook que marque usuarios como “activos” en la base de datos.
-	- [ ] Gatear desde el dev server las acciones premium (`export`, `figma-sync`, reportes completos) según suscripción.
-	- [ ] Agregar pricing y CTA en `website/index.html` enlazando a checkout.
+	- [ ] Configurar backend API para MercadoPago con validación segura.
+	- [ ] Implementar gating en dev server que consulta backend para suscripción.
+	- [ ] Agregar UI de pricing en el overlay inyectado.
 4. **Entrega continua y reportes**
 	- [x] Completar script `cli/daily_protonox.sh` para que instale deps, ejecute `audit` y `export`, y deje logs por ejecución.
 	- [ ] Activar cron o systemd timer.
 	- [ ] Almacenar reportes en `dev-reports/` y tokens en `protonox-exports/`.
 5. **Preparación de lanzamiento**
-	- [ ] Escribir runbook con pasos de soporte (activar/desactivar usuarios, regenerar tokens Figma, reconciliar pagos).
+	- [ ] Escribir runbook con pasos de soporte (activar/desactivar usuarios, regenerar tokens Figma, reconciliar pagos vía backend).
 	- [ ] Configurar monitoreo básico (logs del dev server, webhook errors) y fallback.
 	- [ ] Redactar tutorial onboarding (texto + demo.mp4) y ubicarlo en overlay de bienvenida.
 6. **Distribución pip/CLI**
@@ -166,12 +172,12 @@ Este documento guía el rollout completo. Cualquier agente puede retomarlo leyen
 
 ### Indicadores de éxito
 - Demo reproducible sin intervención manual (server + overlay + panel).
-- Sincronización Figma y export ZIP funcionando tras pago confirmado.
+- Sincronización Figma funcionando tras pago confirmado.
 - Reportes diarios generados + enviados.
-- Página pública promocionando planes con checkout activo.
+- Monetización segura con MercadoPago integrada.
 
 ### Proximas acciones sugeridas
-- Prioridad Alta: implementar `/__dev_tools` con MercadoPago + Figma.
+- Prioridad Alta: implementar `/__dev_tools` con MercadoPago + Figma con validación backend.
 - Prioridad Media: completar script diario y runbook.
 - Prioridad Baja: pulir tutorial multimedia y material de marketing.
 
@@ -211,5 +217,73 @@ Protonox Studio maintains **extreme code quality** standards, ensuring reliabili
 - 44 files updated for quality improvements.
 
 This ensures Protonox Studio is production-ready with high standards.
+
+## Uso en Termux (Android)
+
+Protonox Studio está optimizado para desarrollo móvil con Termux. Instala las versiones compatibles y conecta rápidamente vía QR y WiFi.
+
+### Instalación en Termux
+```bash
+# Instalar Python y pip si no están
+pkg install python
+
+# Instalar librerías compatibles (sin dependencias pesadas)
+pip install protonox-kivy==3.0.0.dev4 protonox-studio==0.1.3
+```
+
+### Conexión Rápida al Celular por QR y WiFi
+
+1. **En tu PC (Linux/Mac/Windows):**
+   - Inicia el servidor de setup ADB:
+     ```bash
+     cd Protonox-Kivy-Multiplatform-Framework
+     python3 adb_setup_server.py
+     ```
+     Esto genera un QR que abre una página web para conectar ADB automáticamente.
+
+2. **En tu teléfono (Termux):**
+   - Escanea el QR con la cámara de Android → Se abre el navegador con la página de conexión.
+   - Haz clic en "Connect ADB" → El PC ejecuta `adb connect` y conecta inalámbricamente.
+   - Verifica: `adb devices` (debería mostrar el dispositivo conectado).
+
+3. **Prueba la App en Termux:**
+   - Copia `test_app.py` al teléfono:
+     ```bash
+     adb push test_app.py /sdcard/
+     ```
+   - Ejecuta con debug inalámbrico:
+     ```bash
+     PROTONOX_WIRELESS_DEBUG=1 python /sdcard/test_app.py
+     ```
+     - Muestra un QR para WebSocket (si hay websockets instalado).
+     - Abre la app Kivy con ScissorPush/ScissorPop funcionando.
+
+4. **Live Reload desde PC:**
+   - En PC, inicia el servidor:
+     ```bash
+     cd protonox-studio
+     source venv_protonox_studio_debug/bin/activate
+     python -m protonox_studio.core.live_reload --host 0.0.0.0 --port 8080
+     ```
+   - La app en Termux se conecta automáticamente y permite recarga en vivo.
+
+### Comandos Básicos de Uso
+- **Desarrollo local:** `protonox dev` (inicia servidor web para overlays).
+- **Auditoría:** `protonox audit <file>` (analiza diseño y genera reportes).
+- **Export:** `protonox export <file>` (exporta tokens y componentes).
+- **Conectar wireless:** `protonox wireless-connect --adb-wireless-ip-port 192.168.1.100:5555`
+- **Desconectar:** `protonox wireless-disconnect`
+- **Estado:** `protonox wireless-status`
+
+### Preview en Termux
+El QR generado abre una vista previa web simple de la app (sin Kivy render, pero con estructura). Úsalo para detectar errores iniciales antes de ejecutar la app completa.
+
+### Troubleshooting
+- Si faltan dependencias: `pip install protonox-studio[web]==0.1.4` (requiere Rust para FastAPI).
+- Para funciones de imagen (comparación PNG, renderizado): `pip install protonox-studio[image]==0.1.5` (requiere compilación de Pillow).
+- Para builds en Android: Asegúrate de tener `clang` y `make` en Termux.
+- Errores de conexión: Verifica que el teléfono y PC estén en la misma red WiFi.
+
+¡Listo para desarrollo móvil sin complicaciones!
 
 

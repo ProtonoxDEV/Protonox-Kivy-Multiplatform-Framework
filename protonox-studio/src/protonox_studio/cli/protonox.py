@@ -43,7 +43,7 @@ if str(PACKAGE_ROOT) not in sys.path:
 # Android helpers live in the Protonox Kivy fork; import lazily so non-Android
 # users are not penalized.
 try:  # pragma: no cover - optional dependency
-    from kivy.protonox_ext.android_bridge import adb
+    from kivy.protonox_ext.android_bridge import adb  # type: ignore
 except Exception:  # pragma: no cover - optional dependency missing
     adb = None
 

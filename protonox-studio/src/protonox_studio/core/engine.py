@@ -7,32 +7,10 @@ CLI, and future live overlays without blocking on network calls.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List
 
 from ..intelligence import beauty_scorer, grid_engine, spacing_analyzer, token_detector
-
-
-@dataclass
-class ElementBox:
-    """Normalized element box information coming from the page snapshot."""
-
-    id: str
-    x: float
-    y: float
-    width: float
-    height: float
-    padding: List[int] = field(default_factory=list)
-    margin: List[int] = field(default_factory=list)
-    color: Optional[str] = None
-    text_samples: List[str] = field(default_factory=list)
-
-
-@dataclass
-class Viewport:
-    width: int
-    height: int
-    safe_area: Dict[str, int] | None = None  # {top,right,bottom,left}
+from .models import ElementBox, Viewport
 
 
 class ProtonoxEngine:

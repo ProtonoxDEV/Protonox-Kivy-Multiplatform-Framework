@@ -1,6 +1,7 @@
 """Core engine and server components for Protonox Studio."""
 
-from .engine import ElementBox, ProtonoxEngine, Viewport, bootstrap_engine
+from .engine import ProtonoxEngine, bootstrap_engine
+from .models import ElementBox, Viewport
 from .asset_injector import KVAssetInjector
 from .drop import install_desktop_drop, import_via_picker
 from .place_mode import PlaceSelection, select_target
