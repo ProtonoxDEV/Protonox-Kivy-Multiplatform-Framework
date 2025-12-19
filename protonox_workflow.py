@@ -53,6 +53,124 @@ def is_wsl():
     except:
         return False
 
+def get_adb_command():
+    """Get ADB command - use Windows ADB in WSL"""
+    if is_wsl():
+        # Common Windows ADB paths
+        windows_paths = [
+            "/mnt/c/Program Files (x86)/Android/android-sdk/platform-tools/adb.exe",
+            "/mnt/c/Program Files/Android/sdk/platform-tools/adb.exe",
+            "/mnt/c/Users/*/AppData/Local/Android/Sdk/platform-tools/adb.exe",
+            "/mnt/c/Android/platform-tools/adb.exe"
+        ]
+        
+        for path in windows_paths:
+            if '*' in path:
+                # Handle wildcard for user directory
+                import glob
+                matches = glob.glob(path)
+                if matches:
+                    return f'"{matches[0]}"'
+            elif os.path.exists(path):
+                return f'"{path}"'
+        
+        print("⚠️  ADB de Windows no encontrado, usando ADB de WSL")
+        print("💡 Instala Android SDK en Windows para mejor compatibilidad")
+    
+    return "adb"
+
+def get_platform_info():
+    """Get detailed platform information"""
+    import platform
+    system = platform.system().lower()
+
+    if system == 'linux':
+        if is_wsl():
+            return 'wsl'
+        else:
+            return 'linux'
+    elif system == 'windows':
+        return 'windows'
+    elif system == 'darwin':
+        return 'macos'
+    else:
+        return 'unknown'
+
+def get_recommended_window_provider():
+    """Get recommended window provider based on platform"""
+    platform = get_platform_info()
+
+    if platform == 'linux':
+        # Linux nativo - preferir X11
+        return 'x11'
+    elif platform == 'wsl':
+        # WSL - usar SDL2 que funciona mejor en WSL
+        return 'sdl2'
+    elif platform == 'windows':
+        # Windows - usar el provider más avanzado disponible
+        return 'sdl2'  # SDL2 puede usar DirectX internamente
+    elif platform == 'macos':
+        return 'sdl2'
+    else:
+        return 'sdl2'
+
+def run_local_app(app_path=None, window_provider=None):
+    """Run Kivy app locally with appropriate window provider"""
+    if app_path is None:
+        app_path = "test_app.py"  # Default test app
+
+    if window_provider is None:
+        window_provider = get_recommended_window_provider()
+
+    platform = get_platform_info()
+
+    # Set environment variables for Kivy
+    env = os.environ.copy()
+    env['KIVY_WINDOW'] = window_provider
+
+    # Additional platform-specific settings
+    if platform == 'windows':
+        # For Windows, try to use DirectX if available
+        env['KIVY_GL_BACKEND'] = 'angle_sdl2'  # This can use DirectX
+    elif platform in ['linux', 'wsl']:
+        # Check if display is available and accessible
+        display_available = 'DISPLAY' in env and env['DISPLAY']
+
+        if display_available:
+            # Test if we can actually connect to the display
+            try:
+                import subprocess
+                result = subprocess.run(['xset', '-q'], capture_output=True, timeout=2)
+                display_accessible = result.returncode == 0
+            except:
+                display_accessible = False
+
+            if not display_accessible:
+                print("⚠️  DISPLAY configurado pero no accesible. Usando modo headless.")
+                env['KIVY_WINDOW'] = 'mock'
+                print("🖥️  Using mock window provider for headless testing")
+        else:
+            if platform == 'linux':
+                print("⚠️  No DISPLAY variable set. Make sure X11 is running.")
+                return False, "No DISPLAY variable set for Linux"
+            elif platform == 'wsl':
+                print("⚠️  No DISPLAY variable set in WSL. Using headless mode.")
+                env['KIVY_WINDOW'] = 'mock'
+                print("🖥️  Using mock window provider for headless testing")
+
+    print(f"🚀 Ejecutando app local: {app_path}")
+    print(f"🖥️  Window provider: {env['KIVY_WINDOW']}")
+    print(f"💻 Platform: {platform}")
+
+    try:
+        cmd = [sys.executable, app_path]
+        result = subprocess.run(cmd, env=env, timeout=300)  # 5 minute timeout
+        return result.returncode == 0, "App executed successfully" if result.returncode == 0 else f"App exited with code {result.returncode}"
+    except subprocess.TimeoutExpired:
+        return False, "App execution timed out"
+    except Exception as e:
+        return False, f"Error running app: {str(e)}"
+
 def generate_pairing_code():
     """Generate 6-digit pairing code"""
     return str(random.randint(100000, 999999))
@@ -121,7 +239,21 @@ class WorkflowWebServer(http.server.SimpleHTTPRequestHandler):
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             self.serve_devices()
+        elif self.path == '/api/platform':
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.serve_platform()
         elif self.path.startswith('/api/method/'):
+            self.handle_method_change()
+        else:
+            self.send_response(404)
+            self.end_headers()
+            self.wfile.write(b'Not Found')
+
+    def do_POST(self):
+        """Handle POST requests"""
+        if self.path.startswith('/api/method/'):
             self.handle_method_change()
         else:
             self.send_response(404)
@@ -232,6 +364,7 @@ class WorkflowWebServer(http.server.SimpleHTTPRequestHandler):
 
     <div class="tabs">
         <button class="tab active" onclick="showMethod('pairing')">🔧 ADB Pairing</button>
+        <button class="tab" onclick="showMethod('localapp')">🏠 App Local</button>
         <button class="tab" onclick="showMethod('livereload')">🔄 Live Reload</button>
         <button class="tab" onclick="showMethod('status')">📊 Estado</button>
     </div>
@@ -285,6 +418,31 @@ class WorkflowWebServer(http.server.SimpleHTTPRequestHandler):
                 adb connect {ip}:5555
             </div>
             <button class="button" onclick="runManualADB()">🚀 Ejecutar Comandos</button>
+        </div>
+    </div>
+
+    <!-- Local App Section -->
+    <div id="localapp" class="method">
+        <h2>🏠 Ejecutar App Local</h2>
+        <div class="container">
+            <p>Ejecuta tu aplicación Kivy localmente con la configuración óptima para tu plataforma.</p>
+
+            <div class="code">
+                <strong>Plataforma detectada:</strong> <span id="detectedPlatform">Cargando...</span><br>
+                <strong>Window provider recomendado:</strong> <span id="recommendedProvider">Cargando...</span>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <label for="appPath">Ruta de la app (opcional):</label><br>
+                <input type="text" id="appPath" placeholder="test_app.py" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 4px;">
+            </div>
+
+            <button class="button" onclick="runLocalApp()">🚀 Ejecutar App Local</button>
+            <button class="button secondary" onclick="detectPlatform()">🔍 Detectar Plataforma</button>
+
+            <div id="localAppStatus" class="status warning" style="display:none;">
+                🔄 Preparando ejecución...
+            </div>
         </div>
     </div>
 
@@ -366,6 +524,50 @@ class WorkflowWebServer(http.server.SimpleHTTPRequestHandler):
                 }});
         }}
 
+        function detectPlatform() {{
+            fetch('/api/platform')
+                .then(response => response.json())
+                .then(data => {{
+                    document.getElementById('detectedPlatform').textContent = data.platform;
+                    document.getElementById('recommendedProvider').textContent = data.provider;
+                }})
+                .catch(error => {{
+                    document.getElementById('detectedPlatform').textContent = 'Error al detectar';
+                    document.getElementById('recommendedProvider').textContent = 'Error al detectar';
+                }});
+        }}
+
+        function runLocalApp() {{
+            const statusDiv = document.getElementById('localAppStatus');
+            const appPath = document.getElementById('appPath').value || 'test_app.py';
+
+            statusDiv.style.display = 'block';
+            statusDiv.textContent = '🚀 Ejecutando app local...';
+            statusDiv.className = 'status warning';
+
+            fetch('/api/method/localapp', {{
+                method: 'POST',
+                headers: {{
+                    'Content-Type': 'application/json',
+                }},
+                body: JSON.stringify({{ app_path: appPath }})
+            }})
+                .then(response => response.json())
+                .then(data => {{
+                    if (data.success) {{
+                        statusDiv.textContent = '✅ App ejecutada exitosamente';
+                        statusDiv.className = 'status success';
+                    }} else {{
+                        statusDiv.textContent = `❌ Error: ${{data.error}}`;
+                        statusDiv.className = 'status error';
+                    }}
+                }})
+                .catch(error => {{
+                    statusDiv.textContent = '❌ Error de conexión';
+                    statusDiv.className = 'status error';
+                }});
+        }}
+
         function refreshStatus() {{
             const statusDiv = document.getElementById('systemStatus');
             statusDiv.textContent = '🔄 Cargando estado del sistema...';
@@ -432,9 +634,30 @@ class WorkflowWebServer(http.server.SimpleHTTPRequestHandler):
         }
         self.wfile.write(json.dumps(response).encode('utf-8'))
 
+    def serve_platform(self):
+        """Serve platform information"""
+        platform_info = {
+            'platform': get_platform_info(),
+            'provider': get_recommended_window_provider(),
+            'wsl': is_wsl(),
+            'timestamp': datetime.now().isoformat()
+        }
+        self.wfile.write(json.dumps(platform_info).encode('utf-8'))
+
     def handle_method_change(self):
         """Handle method change requests"""
         method = self.path.replace('/api/method/', '')
+
+        # Read POST data if present
+        post_data = {}
+        if self.command == 'POST':
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length > 0:
+                post_body = self.rfile.read(content_length).decode('utf-8')
+                try:
+                    post_data = json.loads(post_body)
+                except:
+                    post_data = {}
 
         response = {'success': False, 'method': method}
 
@@ -444,6 +667,19 @@ class WorkflowWebServer(http.server.SimpleHTTPRequestHandler):
                 subprocess.Popen([sys.executable, 'live_reload_launcher.py', 'server'])
                 response['success'] = True
                 response['message'] = 'Live reload server started'
+            except Exception as e:
+                response['error'] = str(e)
+
+        elif method == 'localapp':
+            # Run local app
+            try:
+                app_path = post_data.get('app_path', 'test_app.py')
+                success, message = run_local_app(app_path)
+                response['success'] = success
+                if success:
+                    response['message'] = message
+                else:
+                    response['error'] = message
             except Exception as e:
                 response['error'] = str(e)
 
@@ -474,7 +710,8 @@ def start_web_interface(port=8080):
 
 def check_adb_devices():
     """Check for connected ADB devices"""
-    code, stdout, stderr = run_command("adb devices")
+    adb_cmd = get_adb_command()
+    code, stdout, stderr = run_command(f"{adb_cmd} devices")
     if code != 0:
         return []
 
@@ -493,7 +730,8 @@ def check_adb_devices():
 
 def test_device_connection(device_id):
     """Test if device is responding"""
-    code, stdout, stderr = run_command(f"adb -s {device_id} shell echo 'test'")
+    adb_cmd = get_adb_command()
+    code, stdout, stderr = run_command(f"{adb_cmd} -s {device_id} shell echo 'test'")
     return code == 0 and 'test' in stdout
 
 def run_adb_pairing():
@@ -530,11 +768,24 @@ def show_workflow_menu():
         print("7. ❌ Salir")
         print()
 
+        # Check for connected devices and show status
+        devices = check_adb_devices()
+        working_devices = [d for d in devices if test_device_connection(d['id'])]
+        if working_devices:
+            print(f"📱 Estado: {len(working_devices)} dispositivo(s) conectado(s) - ¡Listo para paso 2!")
+        else:
+            print("📱 Estado: No hay dispositivos conectados")
+        print()
+
         try:
             choice = input("Selecciona una opción (1-7): ").strip()
 
             if choice == '1':
-                run_adb_pairing()
+                success = run_adb_pairing()
+                if success:
+                    print("\n✅ ¡Pairing completado!")
+                    print("💡 Ahora selecciona la opción 2 para iniciar Live Reload")
+                    input("Presiona Enter para continuar...")
 
             elif choice == '2':
                 # Check if devices are connected first
@@ -543,10 +794,13 @@ def show_workflow_menu():
 
                 if working_devices:
                     print(f"✅ {len(working_devices)} dispositivo(s) conectado(s)")
+                    print("🚀 Iniciando sistema de Live Reload...")
                     run_live_reload_launcher()
                 else:
                     print("❌ No hay dispositivos conectados")
                     print("💡 Ejecuta la opción 1 primero para conectar tu dispositivo")
+                    print("   O verifica que tu dispositivo esté conectado y funcionando")
+                    input("Presiona Enter para continuar...")
 
             elif choice == '3':
                 print("\n📊 ESTADO DE DISPOSITIVOS ADB")
