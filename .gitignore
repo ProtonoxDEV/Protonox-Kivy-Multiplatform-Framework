@@ -58,3 +58,38 @@ protonox-export/
 .kivy/
 .kivy_modernisation/
 android-*
+
+# Buildozer
+.buildozer/
+bin/
+*.spec.backup
+
+# Android builds
+android/
+ios/
+*.keystore
+*.jks
+
+# Logs and temporary files
+*.log
+*.tmp
+.cache/
+state.db
+
+# Development artifacts
+test_app/.buildozer/
+test_app/bin/
+test_app/dist/
+test_app/build/
+
+# Python virtual environments
+venv_protonox_studio/
+protonox-studio/venv_protonox_studio_debug/
+
+# Node modules (if any)
+node_modules/
+
+# OS specific
+*.bak
+*.orig
+*.rej
