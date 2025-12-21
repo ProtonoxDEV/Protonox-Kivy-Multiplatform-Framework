@@ -190,6 +190,17 @@ if environ.get('KIVY_CROSS_PLATFORM'):
 # (ATM only SDL) dependencies. Otherwise, use the default locations.
 KIVY_DEPS_ROOT = os.environ.get('KIVY_DEPS_ROOT', None)
 
+# Fallback: if a `kivy-dependencies` directory exists inside the source tree,
+# use it as a local dependency root. This lets us ship prebuilt native libs
+# inside the repository (or CI artifacts) and have `setup.py` pick them up
+# automatically when building wheels. It does not change default behavior
+# unless that directory is present or the env var is provided.
+if not KIVY_DEPS_ROOT:
+    local_kivy_deps = join(dirname(__file__), 'kivy-dependencies')
+    if exists(local_kivy_deps):
+        KIVY_DEPS_ROOT = local_kivy_deps
+        print('Using local kivy-dependencies at: {}'.format(KIVY_DEPS_ROOT))
+
 # if KIVY_DEPS_ROOT is None and platform is linux or darwin show a warning
 # message, because using a system provided SDL3 is not recommended.
 # (will be shown only in verbose mode)
@@ -210,7 +221,7 @@ c_options['use_rpi_vidcore_lite'] = platform == 'rpi'
 c_options['use_egl'] = False
 c_options['use_opengl_es2'] = None
 c_options['use_opengl_mock'] = environ.get('READTHEDOCS', None) == 'True'
-c_options['use_sdl3'] = None
+c_options['use_sdl3'] = False
 c_options['use_pangoft2'] = None
 c_options['use_ios'] = False
 c_options['use_android'] = False
@@ -327,6 +338,13 @@ class KivyBuildExt(build_ext, object):
         config_py += 'DEBUG = {0}\n'.format(debug)
         config_pxi += 'DEF PLATFORM = "{0}"\n'.format(platform)
         config_py += 'PLATFORM = "{0}"\n'.format(platform)
+        # Backwards compatibility: define USE_SDL2 for code expecting the
+        # legacy variable. If SDL3 is enabled, mark SDL2 as disabled.
+        try:
+            use_sdl3_val = int(bool(c_options.get('use_sdl3')))
+        except Exception:
+            use_sdl3_val = 0
+        config_py += 'USE_SDL2 = {0}\n'.format(0 if use_sdl3_val else 1)
         for fn, content in (
                 (config_h_fn, config_h), (config_pxi_fn, config_pxi),
                 (config_py_fn, config_py)):
@@ -481,17 +499,12 @@ if platform not in ('ios', 'android') and (c_options['use_gstreamer']
             c_options['use_gstreamer'] = True
 
 
-# detect SDL3, only on desktop and iOS, or android if explicitly enabled
-# works if we forced the options or in autodetection
+
+# detect SDL3 only when explicitly requested (env USE_SDL3=1) or when
+# platform-specific code set it (e.g., iOS above). Default is to keep SDL2.
 sdl3_flags = {}
 sdl3_source = None
-if platform == 'win32' and c_options['use_sdl3'] is None:
-    c_options['use_sdl3'] = True
-
-can_autodetect_sdl3 = (
-    platform not in ("android",) and c_options["use_sdl3"] is None
-)
-if c_options['use_sdl3'] or can_autodetect_sdl3:
+if c_options['use_sdl3']:
 
     sdl3_valid = False
     if c_options['use_osx_frameworks'] and platform == 'darwin':
