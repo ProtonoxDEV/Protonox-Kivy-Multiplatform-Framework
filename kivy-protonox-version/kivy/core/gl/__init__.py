@@ -10,7 +10,7 @@ core provider can select an OpenGL ES or a 'classic' desktop OpenGL library.
 import sys
 from os import environ
 
-MIN_REQUIRED_GL_VERSION = (2, 0)
+MIN_REQUIRED_GL_VERSION = (3, 2)
 
 
 def msgbox(message):
@@ -65,7 +65,7 @@ if 'KIVY_DOC' not in environ:
                                                renderer)
             else:
                 msg = (
-                    'GL: Minimum required OpenGL version (2.0) NOT found!\n\n'
+                    'GL: Minimum required OpenGL version (3.2) NOT found!\n\n'
                     'OpenGL version detected: {0}.{1}\n\n'
                     'Version: {2}\nVendor: {3}\nRenderer: {4}\n\n'
                     'Try upgrading your graphics drivers and/or your '

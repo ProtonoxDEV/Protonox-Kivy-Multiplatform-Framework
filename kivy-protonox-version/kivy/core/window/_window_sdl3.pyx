@@ -168,8 +168,8 @@ cdef class _WindowSDL3Storage:
         SDL_GL_SetAttribute(SDL_GL_RETAINED_BACKING, 0)
         SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1)
 
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2)
-        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3)
+        SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2)
 
         if self.gl_backend_name == "angle_sdl3":
             Logger.info("Window: Activate GLES2/ANGLE context")
