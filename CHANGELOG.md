@@ -5,7 +5,7 @@ This project follows a pragmatic versioning strategy based on
 Kivy upstream + Protonox compatibility patches.
 
 Version format:
-KivyVersion-protonox.PATCH
+MAJOR.MINOR.MICRO-protonox.devX
 
 ---
 
