@@ -66,6 +66,13 @@ Protonox Kivy now requires **OpenGL ES 3.2** as minimum version, bringing:
 p4a apk --private /path/to/app --package=org.example.app --name="My App" --version=1.0 --bootstrap=sdl3 --requirements=kivy,harfbuzz,freetype
 ```
 
+#### Modern Build System (Meson)
+Protonox includes updated python-for-android recipes with modern Meson build system support:
+- **Numpy 1.26.4**: Updated to use Meson-based compilation instead of deprecated setup.py
+- **Meson Integration**: Added meson and meson-python recipes for proper dependency resolution
+- **Cross-compilation**: Automatic generation of Meson cross-files for Android targets
+- **Build Reliability**: Fixed "meson not found" errors during Android compilation
+
 ### Desktop Usage
 SDL3 is enabled by default on desktop platforms. For SDL2 fallback:
 ```bash

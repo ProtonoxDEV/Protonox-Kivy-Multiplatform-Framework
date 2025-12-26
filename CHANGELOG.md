@@ -9,6 +9,25 @@ MAJOR.MINOR.MICRO-protonox.devX
 
 ---
 
+## [3.0.0.dev12] — Android Build System Modernization
+**Status:** DEV preview
+
+### Added
+- **Meson Build System Support**: Modernized numpy compilation for Android
+  - Added meson and meson-python recipes for python-for-android
+  - Updated numpy recipe to use modern meson-based build system
+  - Fixed "meson not found" errors during Android compilation
+  - Improved cross-compilation support with meson cross-files
+  - Updated numpy to version 1.26.4 for better compatibility
+
+### Fixed
+- **Android Build Issues**: Resolved numpy compilation failures
+  - Fixed meson dependency resolution in isolated build environments
+  - Added proper cross-compilation configuration for Android targets
+  - Ensured meson binaries are available in build PATH
+
+---
+
 ## [3.0.0.dev11] — OpenGL ES 3.2 Modernization
 **Status:** DEV preview
 
