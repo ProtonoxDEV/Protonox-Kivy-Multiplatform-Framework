@@ -20,6 +20,16 @@ class KivyCompatibilityTest(unittest.TestCase):
         self.project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         # Agregar el directorio del proyecto al path
         sys.path.insert(0, self.project_root)
+        
+        # Forzar import de kivy-protonox-version
+        kivy_protonox_path = os.path.join(self.project_root, 'kivy-protonox-version')
+        sys.path.insert(0, kivy_protonox_path)
+        
+        # Limpiar cualquier import previo de kivy
+        if 'kivy' in sys.modules:
+            del sys.modules['kivy']
+        if 'kivy._version' in sys.modules:
+            del sys.modules['kivy._version']
 
     def test_kivy_231_compatibility_message(self):
         """Verificar que se muestra mensaje de compatibilidad con Kivy 2.3.1"""

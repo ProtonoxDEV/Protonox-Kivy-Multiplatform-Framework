@@ -9,6 +9,46 @@ KivyVersion-protonox.PATCH
 
 ---
 
+## [3.0.0.dev8] — SDL3 Support & Android Modernization
+**Status:** DEV preview (opt-in)
+
+### Added
+- **SDL3 Backend Support**: Complete SDL3 window backend implementation
+  - SDL3 window provider (`kivy.core.window.window_sdl3`)
+  - SDL3 motion event handling
+  - SDL3 input provider integration
+- **Android SDL3 Bootstrap**: New bootstrap in python-for-android
+  - SDL3 bootstrap with HarfBuzz and FreeType dependencies
+  - SDL3_ttf with text shaping support for complex scripts
+  - SDL3_image, SDL3_mixer recipes
+  - Python shared library integration for Android
+- **HarfBuzz Integration**: Advanced text rendering
+  - Text shaping for non-Latin scripts
+  - Improved typography and font rendering
+  - Emoji and complex character support
+- **Build System Updates**:
+  - SDL3 recipes in python-for-android
+  - Bootstrap priority and build configuration
+  - Android.mk with proper library linking
+
+### Improved
+- Android build compatibility with modern SDL3
+- Text rendering quality and internationalization
+- Build reproducibility for Android packages
+
+### Fixed
+- SDL3 bootstrap missing dependencies (HarfBuzz, Python shared lib)
+- Android compilation issues with SDL3_ttf
+- Text rendering limitations for complex scripts
+
+### Notes
+- SDL3 enabled by default on desktop platforms
+- SDL2 remains available as fallback
+- Android builds require `--bootstrap=sdl3` flag
+- Backward compatible with existing Kivy applications
+
+---
+
 ## [2.3.1-protonox.1] — Live Development & DX
 **Status:** Stable (DEV-focused)
 

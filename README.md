@@ -38,6 +38,28 @@ Kivy is a powerful and flexible framework, but it lacks several features that mo
 
 This project addresses those gaps **without modifying Kivy’s public API** and **without touching Android SDK/NDK internals**.
 
+## SDL3 Support
+
+Protonox Kivy includes **complete SDL3 backend support** for modern platforms, with full Android compatibility.
+
+### Key Features
+- **SDL3 Window Backend**: Modern window management with improved performance
+- **Advanced Text Rendering**: HarfBuzz integration for complex scripts and typography
+- **Android SDL3 Bootstrap**: Complete python-for-android bootstrap with SDL3 dependencies
+- **Backward Compatibility**: SDL2 remains available as fallback
+
+### Android Builds with SDL3
+```bash
+# Build APK with SDL3 backend
+p4a apk --private /path/to/app --package=org.example.app --name="My App" --version=1.0 --bootstrap=sdl3 --requirements=kivy,harfbuzz,freetype
+```
+
+### Desktop Usage
+SDL3 is enabled by default on desktop platforms. For SDL2 fallback:
+```bash
+USE_SDL2=1 python your_app.py
+```
+
 ## Wireless Debugging
 
 Protonox enables **real-time wireless debugging** between Kivy apps running on devices and Protonox Studio on your development machine.

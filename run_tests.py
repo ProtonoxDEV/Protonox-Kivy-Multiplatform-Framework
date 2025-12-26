@@ -17,6 +17,10 @@ def setup_kivy_headless():
     os.environ['KIVY_NO_ARGS'] = '1'
     os.environ['KIVY_WINDOW'] = 'headless'
     os.environ['DISPLAY'] = ''  # Deshabilitar display
+    
+    # Agregar kivy-protonox-version al path
+    kivy_protonox_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'kivy-protonox-version')
+    sys.path.insert(0, kivy_protonox_path)
 
 def run_tests(test_path=None, verbose=True):
     """Ejecutar los tests."""
