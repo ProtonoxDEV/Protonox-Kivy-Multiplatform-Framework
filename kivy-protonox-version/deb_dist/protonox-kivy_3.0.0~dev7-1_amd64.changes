@@ -1,0 +1,29 @@
+Format: 1.8
+Date: Sat, 20 Dec 2025 21:50:02 -0500
+Source: protonox-kivy
+Binary: python3-protonox-kivy
+Built-For-Profiles: noudeb
+Architecture: amd64
+Version: 3.0.0~dev7-1
+Distribution: unstable
+Urgency: low
+Maintainer: None <None>
+Changed-By: None <None>
+Description:
+ python3-protonox-kivy - Protonox-maintained fork of Kivy intended as a drop-in compa
+Changes:
+ protonox-kivy (3.0.0~dev7-1) unstable; urgency=low
+ .
+   * source package automatically created by stdeb 0.11.0
+Checksums-Sha1:
+ 82af887c0b89f38695187920f18e03ce54fec199 7507 protonox-kivy_3.0.0~dev7-1_amd64.buildinfo
+ ae6ecc944fa37617ab06d07716c3123e650aa1a9 11791570 python3-protonox-kivy-dbgsym_3.0.0~dev7-1_amd64.ddeb
+ d386a06a535a40bcdfdcd869eba3b5cfe14d079c 3219294 python3-protonox-kivy_3.0.0~dev7-1_amd64.deb
+Checksums-Sha256:
+ fc112f74f8ec0b9536eb4323535ce213db6f35138d4177211f7c3622949ebea9 7507 protonox-kivy_3.0.0~dev7-1_amd64.buildinfo
+ 360b2a66e75f4efb7d47a174dd3b2007c85783375eb734e6983f28ab11f16c9e 11791570 python3-protonox-kivy-dbgsym_3.0.0~dev7-1_amd64.ddeb
+ 7a16d27a960ed52e660d285c428127ffb28722d13bce0f2147c72ca5cebda025 3219294 python3-protonox-kivy_3.0.0~dev7-1_amd64.deb
+Files:
+ 2ce74020fa6a6ce51aaf1c73845dced7 7507 python optional protonox-kivy_3.0.0~dev7-1_amd64.buildinfo
+ e15b9f7b3901eac49e988ff83751c2d6 11791570 debug optional python3-protonox-kivy-dbgsym_3.0.0~dev7-1_amd64.ddeb
+ 5c6ddc5784559d55f48e51dc77e0a14d 3219294 python optional python3-protonox-kivy_3.0.0~dev7-1_amd64.deb

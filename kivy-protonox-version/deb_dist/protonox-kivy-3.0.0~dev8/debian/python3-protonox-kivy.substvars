@@ -1,0 +1,1 @@
+python3:Depends=python3 (<< 3.13), python3 (>= 3.12~), python3-docutils, python3-filetype, python3-pygments, python3-requests, python3:any

@@ -29,7 +29,20 @@ except ImportError:
     from kivy.core import handle_win_lib_import_error
     handle_win_lib_import_error(
         'window', 'sdl3', 'kivy.core.window._window_sdl3')
-    raise
+    # Provide a clear stub so importing this module doesn't raise a
+    # ModuleNotFoundError with a cryptic traceback. Attempting to
+    # instantiate the storage will raise a RuntimeError with a
+    # helpful message pointing to system deps documentation.
+    class _WindowSDL3StorageStub:
+        def __init__(self, *args, **kwargs):
+            raise RuntimeError(
+                'SDL3 provider extension not available: compiled module '
+                "'kivy.core.window._window_sdl3' is missing.\n"
+                'Install SDL3/Pango native libs or use the `sdl3` extra. '
+                'See kivy-protonox-version/INSTALL_SYSTEM_DEPS.md for details.'
+            )
+
+    _WindowSDL3Storage = _WindowSDL3StorageStub
 from kivy.input.provider import MotionEventProvider
 from kivy.input.motionevent import MotionEvent
 from kivy.resources import resource_find
@@ -885,4 +898,13 @@ class WindowSDL(object):
 
 from kivy.core.window import WindowBase
 
-WindowSDL.__bases__ = (WindowBase,)
+# Prefer a direct base assignment, but some extension types may be
+# incompatible with changing `__bases__` at runtime. If that fails,
+# create a new class that inherits from `WindowBase` and preserves the
+# original `WindowSDL` attributes.
+try:
+    WindowSDL.__bases__ = (WindowBase,)
+except TypeError:
+    _attrs = {k: v for k, v in WindowSDL.__dict__.items()
+              if k not in ('__dict__', '__weakref__')}
+    WindowSDL = type('WindowSDL', (WindowBase,), _attrs)

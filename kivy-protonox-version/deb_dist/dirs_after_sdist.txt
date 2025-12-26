@@ -1,0 +1,21 @@
+--- DIR: deb_dist/protonox-kivy-3.0.0~dev7/
+total 156
+drwxr-xr-x 11 protonox protonox  4096 Dec 20 21:50 .
+drwxr-xr-x  3 protonox protonox  4096 Dec 20 23:31 ..
+drwxr-xr-x  2 protonox protonox  4096 Dec 20 21:50 .pc
+drwxr-xr-x  3 protonox protonox  4096 Dec 20 21:50 .pybuild
+-rw-r--r--  1 protonox protonox  1912 Dec 19 18:27 AUTHORS
+-rw-r--r--  1 protonox protonox  1094 Dec 19 18:27 LICENSE
+-rw-r--r--  1 protonox protonox   355 Dec 19 18:27 MANIFEST.in
+-rw-r--r--  1 protonox protonox 20985 Dec 20 21:50 PKG-INFO
+-rw-r--r--  1 protonox protonox 15882 Dec 19 18:27 README.md
+drwxr-xr-x  4 protonox protonox  4096 Dec 20 21:50 build
+drwxr-xr-x  5 protonox protonox  4096 Dec 20 21:52 debian
+drwxr-xr-x  3 protonox protonox  4096 Dec 20 21:50 doc
+drwxr-xr-x 29 protonox protonox  4096 Dec 20 21:50 examples
+drwxr-xr-x 21 protonox protonox  4096 Dec 20 21:50 kivy
+drwxr-xr-x  2 protonox protonox  4096 Dec 20 21:50 kivy_protonox
+drwxr-xr-x  2 protonox protonox  4096 Dec 20 21:51 protonox_kivy.egg-info
+-rw-r--r--  1 protonox protonox  1062 Dec 19 18:27 pyproject.toml
+-rw-r--r--  1 protonox protonox  1616 Dec 20 21:50 setup.cfg
+-rw-r--r--  1 protonox protonox 52190 Dec 20 21:07 setup.py

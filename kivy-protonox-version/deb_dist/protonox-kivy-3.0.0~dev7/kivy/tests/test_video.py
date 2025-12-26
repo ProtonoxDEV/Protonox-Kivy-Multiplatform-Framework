@@ -1,0 +1,26 @@
+
+import unittest
+
+
+class VideoTestCase(unittest.TestCase):
+
+    def test_video_unload(self):
+        # fix issue https://github.com/kivy/kivy/issues/2275
+        # AttributeError: 'NoneType' object has no attribute 'texture'
+        from os.path import abspath, join
+
+        from kivy import kivy_examples_dir
+        from kivy.base import runTouchApp, stopTouchApp
+        from kivy.clock import Clock
+        from kivy.uix.video import Video
+        source = abspath(join(kivy_examples_dir, "widgets", "cityCC0.mpg"))
+        video = Video(source=source, state='play')
+        Clock.schedule_once(lambda x: stopTouchApp(), 1)
+
+        def unload_video(video, position):
+            if position > 0.01:
+                video.unload()
+                Clock.schedule_once(lambda x: stopTouchApp(), 0.1)
+
+        video.bind(position=unload_video)
+        runTouchApp(video)

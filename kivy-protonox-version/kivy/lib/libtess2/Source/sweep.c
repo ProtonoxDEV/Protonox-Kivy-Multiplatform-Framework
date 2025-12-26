@@ -30,6 +30,7 @@
 */
 
 #include <assert.h>
+#include <float.h>
 #include <stddef.h>
 #include <setjmp.h>		/* longjmp */
 
@@ -400,7 +401,7 @@ static void AddRightEdges( TESStesselator *tess, ActiveRegion *regUp,
 static void SpliceMergeVertices( TESStesselator *tess, TESShalfEdge *e1,
 								TESShalfEdge *e2 )
 /*
-* Two vertices with identical coordinates are combined into one.
+* Two vertices with idential coordinates are combined into one.
 * e1->Org is kept, while e2->Org is discarded.
 */
 {
@@ -496,7 +497,11 @@ static int CheckForRightSplice( TESStesselator *tess, ActiveRegion *regUp )
 		if( EdgeSign( eUp->Dst, eLo->Org, eUp->Org ) < 0 ) return FALSE;
 
 		/* eLo->Org appears to be above eUp, so splice eLo->Org into eUp */
-		RegionAbove(regUp)->dirty = regUp->dirty = TRUE;
+		regUp->dirty = TRUE;
+		ActiveRegion* regionAbove = RegionAbove(regUp);
+		if (regionAbove != NULL) {
+			regionAbove->dirty = TRUE;
+		}
 		if (tessMeshSplitEdge( tess->mesh, eUp->Sym ) == NULL) longjmp(tess->env,1);
 		if ( !tessMeshSplice( tess->mesh, eLo->Oprev, eUp ) ) longjmp(tess->env,1);
 	}
@@ -534,7 +539,11 @@ static int CheckForLeftSplice( TESStesselator *tess, ActiveRegion *regUp )
 		if( EdgeSign( eUp->Dst, eLo->Dst, eUp->Org ) < 0 ) return FALSE;
 
 		/* eLo->Dst is above eUp, so splice eLo->Dst into eUp */
-		RegionAbove(regUp)->dirty = regUp->dirty = TRUE;
+		regUp->dirty = TRUE;
+		ActiveRegion* regionAbove = RegionAbove(regUp);
+		if (regionAbove != NULL) {
+			regionAbove->dirty = TRUE;
+		}
 		e = tessMeshSplitEdge( tess->mesh, eUp );
 		if (e == NULL) longjmp(tess->env,1);
 		if ( !tessMeshSplice( tess->mesh, eLo->Sym, e ) ) longjmp(tess->env,1);
@@ -597,11 +606,14 @@ static int CheckForIntersect( TESStesselator *tess, ActiveRegion *regUp )
 	DebugEvent( tess );
 
 	tesedgeIntersect( dstUp, orgUp, dstLo, orgLo, &isect );
-	/* The following properties are guaranteed: */
-	assert( MIN( orgUp->t, dstUp->t ) <= isect.t );
-	assert( isect.t <= MAX( orgLo->t, dstLo->t ));
-	assert( MIN( dstLo->s, dstUp->s ) <= isect.s );
-	assert( isect.s <= MAX( orgLo->s, orgUp->s ));
+	/*
+	 * The following properties are guaranteed (with a little wiggle-room to
+	 * account for loss of precision if the values are subnormal.)
+	 */
+	assert( MIN( orgUp->t, dstUp->t ) <= isect.t + FLT_MIN);
+	assert( isect.t <= MAX( orgLo->t, dstLo->t ) + FLT_MIN);
+	assert( MIN( dstLo->s, dstUp->s ) <= isect.s + FLT_MIN);
+	assert( isect.s <= MAX( orgLo->s, orgUp->s ) + FLT_MIN);
 
 	if( VertLeq( &isect, tess->event )) {
 		/* The intersection point lies slightly to the left of the sweep line,
@@ -891,7 +903,7 @@ static void ConnectRightVertex( TESStesselator *tess, ActiveRegion *regUp,
 static void ConnectLeftDegenerate( TESStesselator *tess,
 								  ActiveRegion *regUp, TESSvertex *vEvent )
 /*
-* The event vertex lies exactly on an already-processed edge or vertex.
+* The event vertex lies exacty on an already-processed edge or vertex.
 * Adding the new vertex involves splicing it into the already-processed
 * part of the mesh.
 */
@@ -1115,16 +1127,17 @@ static void InitEdgeDict( TESStesselator *tess )
 	TESSreal w, h;
 	TESSreal smin, smax, tmin, tmax;
 
-	tess->dict = dictNewDict( &tess->alloc, tess, (int (*)(void *, DictKey, DictKey)) EdgeLeq );
+	tess->dict = dictNewDict( &tess->alloc, tess, EdgeLeq );
 	if (tess->dict == NULL) longjmp(tess->env,1);
 
-	w = (tess->bmax[0] - tess->bmin[0]);
-	h = (tess->bmax[1] - tess->bmin[1]);
+	/* If the bbox is empty, ensure that sentinels are not coincident by slightly enlarging it. */
+	w = (tess->bmax[0] - tess->bmin[0]) + (TESSreal)0.01;
+	h = (tess->bmax[1] - tess->bmin[1]) + (TESSreal)0.01;
 
 	smin = tess->bmin[0] - w;
-	smax = tess->bmax[0] + w;
-	tmin = tess->bmin[1] - h;
-	tmax = tess->bmax[1] + h;
+    smax = tess->bmax[0] + w;
+    tmin = tess->bmin[1] - h;
+    tmax = tess->bmax[1] + h;
 
 	AddSentinel( tess, smin, smax, tmin );
 	AddSentinel( tess, smin, smax, tmax );

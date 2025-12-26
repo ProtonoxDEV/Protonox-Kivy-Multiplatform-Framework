@@ -1,5 +1,5 @@
 /*
-** SGI FREE SOFTWARE LICENSE B (Version 2.0, Sept. 18, 2008) 
+** SGI FREE SOFTWARE LICENSE B (Version 2.0, Sept. 18, 2008)
 ** Copyright (C) [dates of first publication] Silicon Graphics, Inc.
 ** All Rights Reserved.
 **
@@ -9,10 +9,10 @@
 ** to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 ** of the Software, and to permit persons to whom the Software is furnished to do so,
 ** subject to the following conditions:
-** 
+**
 ** The above copyright notice including the dates of first publication and either this
 ** permission notice or a reference to http://oss.sgi.com/projects/FreeB/ shall be
-** included in all copies or substantial portions of the Software. 
+** included in all copies or substantial portions of the Software.
 **
 ** THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 ** INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
@@ -20,7 +20,7 @@
 ** BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 ** TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
 ** OR OTHER DEALINGS IN THE SOFTWARE.
-** 
+**
 ** Except as contained in this notice, the name of Silicon Graphics, Inc. shall not
 ** be used in advertising or otherwise to promote the sale, use or other dealings in
 ** this Software without prior written authorization from Silicon Graphics, Inc.
@@ -48,7 +48,7 @@ enum TessWindingRule
 };
 
 // The contents of the tessGetElements() depends on element type being passed to tessTesselate().
-// Tessellation result element types:
+// Tesselation result element types:
 // TESS_POLYGONS
 //   Each element in the element array is polygon defined as 'polySize' number of vertex indices.
 //   If a polygon has than 'polySize' vertices, the remaining indices are stored as TESS_UNDEF.
@@ -67,7 +67,7 @@ enum TessWindingRule
 //
 // TESS_CONNECTED_POLYGONS
 //   Each element in the element array is polygon defined as 'polySize' number of vertex indices,
-//   followed by 'polySize' indices to neighbour polygons, that is each element is 'polySize' * 2 indices.
+//   followed by 'polySize' indices to neighour polygons, that is each element is 'polySize' * 2 indices.
 //   If a polygon has than 'polySize' vertices, the remaining indices are stored as TESS_UNDEF.
 //   If a polygon edge is a boundary, that is, not connected to another polygon, the neighbour index is TESS_UNDEF.
 //   Example, flood fill based on seed polygon:
@@ -106,12 +106,27 @@ enum TessWindingRule
 //         }
 //         glEnd();
 //     }
-//
+
 enum TessElementType
 {
 	TESS_POLYGONS,
 	TESS_CONNECTED_POLYGONS,
 	TESS_BOUNDARY_CONTOURS,
+};
+
+
+// TESS_CONSTRAINED_DELAUNAY_TRIANGULATION
+//   If enabled, the initial triagulation is improved with non-robust Constrained Delayney triangulation.
+//   Disable by default.
+//
+// TESS_REVERSE_CONTOURS
+//   If enabled, tessAddContour() will treat CW contours as CCW and vice versa
+//   Disabled by default.
+
+enum TessOption
+{
+	TESS_CONSTRAINED_DELAUNAY_TRIANGULATION,
+	TESS_REVERSE_CONTOURS
 };
 
 typedef float TESSreal;
@@ -123,22 +138,30 @@ typedef struct TESSalloc TESSalloc;
 
 #define TESS_NOTUSED(v) do { (void)(1 ? (void)0 : ( (void)(v) ) ); } while(0)
 
+// These two constants define the valid input coordinate range the library is
+// able to operate on. Tesselation will fail if any of the coordinates are not
+// within this range. Clients are responsible for dealing with inputs outside of
+// this range (e.g. clamping or filtering invalid points, scaling down the
+// coordinate space).
+#define TESS_MAX_VALID_INPUT_VALUE ((TESSreal) (1<<23))
+#define TESS_MIN_VALID_INPUT_VALUE (-TESS_MAX_VALID_INPUT_VALUE)
+
 // Custom memory allocator interface.
 // The internal memory allocator allocates mesh edges, vertices and faces
 // as well as dictionary nodes and active regions in buckets and uses simple
 // freelist to speed up the allocation. The bucket size should roughly match your
 // expected input data. For example if you process only hundreds of vertices,
-// a bucket size of 128 might be ok, whereas when processing thousands of vertices
-// bucket size of 1024 might be appropriate. The bucket size is a compromise between
+// a bucket size of 128 might be ok, where as when processing thousands of vertices
+// bucket size of 1024 might be approproate. The bucket size is a compromise between
 // how often to allocate memory from the system versus how much extra space the system
-// should allocate. Reasonable defaults are shown in comments below, they will be used if
+// should allocate. Reasonable defaults are show in commects below, they will be used if
 // the bucket sizes are zero.
-// 
+//
 // The use may left the memrealloc to be null. In that case, the tesselator will not try to
 // dynamically grow int's internal arrays. The tesselator only needs the reallocation when it
-// has found intersecting segments and needs to add new vertex. This deficiency can be cured by
+// has found intersecting segments and needs to add new vertex. This defency can be cured by
 // allocating some extra vertices beforehand. The 'extraVertices' variable allows to specify
-// number of expected extra vertices.  
+// number of expected extra vertices.
 struct TESSalloc
 {
 	void *(*memalloc)( void *userData, unsigned int size );
@@ -184,16 +207,23 @@ void tessDeleteTess( TESStesselator *tess );
 //   count - number of vertices in contour.
 void tessAddContour( TESStesselator *tess, int size, const void* pointer, int stride, int count );
 
+// tessSetOption() - Toggles optional tessellation parameters
+// Parameters:
+//  option - one of TessOption
+//  value - 1 if enabled, 0 if disabled.
+void tessSetOption( TESStesselator *tess, int option, int value );
+
 // tessTesselate() - tesselate contours.
 // Parameters:
 //   tess - pointer to tesselator object.
-//   windingRule - winding rules used for tessellation, must be one of TessWindingRule.
-//   elementType - defines the tessellation result element type, must be one of TessElementType.
+//   windingRule - winding rules used for tesselation, must be one of TessWindingRule.
+//   elementType - defines the tesselation result element type, must be one of TessElementType.
 //   polySize - defines maximum vertices per polygons if output is polygons.
-//   vertexSize - defines the number of coordinates in tessellation result vertex, must be 2 or 3.
+//   vertexSize - defines the number of coordinates in tesselation result vertex, must be 2 or 3.
 //   normal - defines the normal of the input contours, of null the normal is calculated automatically.
 // Returns:
-//   1 if succeed, 0 if failed.
+//   1 if succeed, 0 if failed (tessGetStatus can be used after to get a more
+//   specific failure status)
 int tessTesselate( TESStesselator *tess, int windingRule, int elementType, int polySize, int vertexSize, const TESSreal* normal );
 
 // tessGetVertexCount() - Returns number of vertices in the tesselated output.
@@ -207,12 +237,24 @@ const TESSreal* tessGetVertices( TESStesselator *tess );
 // Every point added using tessAddContour() will get a new index starting at 0.
 // New vertices generated at the intersections of segments are assigned value TESS_UNDEF.
 const TESSindex* tessGetVertexIndices( TESStesselator *tess );
-	
-// tessGetElementCount() - Returns number of elements in the tesselated output.
+
+// tessGetElementCount() - Returns number of elements in the the tesselated output.
 int tessGetElementCount( TESStesselator *tess );
 
 // tessGetElements() - Returns pointer to the first element.
 const TESSindex* tessGetElements( TESStesselator *tess );
+
+typedef enum TESSstatus {
+  TESS_STATUS_OK,
+  TESS_STATUS_OUT_OF_MEMORY,
+  TESS_STATUS_INVALID_INPUT
+} TESSstatus;
+
+// Return the success or failure status. If tessTesselate fails (or will fail,
+// e.g. after invalid data is passed to tessAddContour), this can indicate
+// more specifically why. It can also be checked after tessAddContour to
+// see whether to bail out early.
+TESSstatus tessGetStatus( TESStesselator *tess );
 
 #ifdef __cplusplus
 };

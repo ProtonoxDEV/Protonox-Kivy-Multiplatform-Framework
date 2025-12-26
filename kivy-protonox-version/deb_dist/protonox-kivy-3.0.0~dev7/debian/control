@@ -1,0 +1,33 @@
+Source: protonox-kivy
+Maintainer: None <None>
+Section: python
+Priority: optional
+Build-Depends: python3-setuptools, python3-all-dev, debhelper (>= 12)
+Standards-Version: 4.7.0
+Homepage: https://github.com/ProtonoxDEV/Protonox-Kivy-Multiplatform-Framework
+
+Package: python3-protonox-kivy
+Architecture: any
+Depends: ${misc:Depends}, ${python3:Depends}, ${shlibs:Depends}
+Description: Protonox-maintained fork of Kivy intended as a drop-in compa
+ Kivy
+ ====
+ .
+ <img align="right" height="256" src="https://raw.githubusercontent.com/kivy/kivy/master/kivy/data/logo/kivy-icon-256.png"/>
+ .
+ [Kivy](https://www.kivy.org) is an open-source [Python](https://python.org) framework
+ for developing GUI apps that work cross-platform, including desktop, mobile and
+ embedded platforms.
+ .
+ **Fork notice (ProtonoxDEV)**: este repositorio es un fork mantenido por ProtonoxDEV. La distribución publicada en PyPI/TestPyPI se llama `protonox-kivy` y funciona como reemplazo directo del paquete `kivy`, pero no es la distribución oficial de Kivy. Se mantienen los avisos de licencia MIT del proyecto original.
+ .
+ ### Modern Android readiness (15 → 16)
+ .
+ - Edge-to-edge deja de ser opcional: Android 16 espera barras de sistema transparentes y gestos en bordes; ignorar insets rompe la UI. Safe areas y padding dinámico deben ser parte del layout.
+ - Insets ahora son dinámicos: notch/hole, barra de gestos y teclado cambian con orientación, modo gestos, split-screen y foldables; el layout debe reaccionar en vivo.
+ - Ratios extremos (20:9, 22:9, foldables) exponen size_hint y px fijos pobres; assets raster bajos se notan.
+ - Gestos del sistema mandan: controles pegados a bordes compiten con back gesture; gestos custom deben respetar márgenes.
+ - IME/reflow: el teclado no siempre redimensiona; ScrollView + foco correcto es obligatorio para no tapar contenido.
+ - No cambió la GPU (OpenGL ES sigue 3.2 máx): el problema es la capa UI, no el render.
+ .
+

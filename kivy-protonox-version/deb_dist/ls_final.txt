@@ -1,0 +1,18 @@
+total 71676
+drwxr-xr-x  3 protonox protonox     4096 Dec 20 23:31 .
+drwxr-xr-x 19 protonox protonox     4096 Dec 20 23:27 ..
+-rw-r--r--  1 protonox protonox     1822 Dec 20 23:31 build-deb.log
+-rw-r--r--  1 protonox protonox     1190 Dec 20 23:31 dirs_after_sdist.txt
+-rw-r--r--  1 protonox protonox     1299 Dec 20 23:31 ls_after_sdist.txt
+-rw-r--r--  1 protonox protonox        0 Dec 20 23:31 ls_final.txt
+drwxr-xr-x 11 protonox protonox     4096 Dec 20 21:50 protonox-kivy-3.0.0~dev7
+-rw-r--r--  2 protonox protonox 29160113 Dec 20 21:28 protonox-kivy_3.0.0~dev6.orig.tar.gz
+-rw-r--r--  1 protonox protonox     1804 Dec 20 21:50 protonox-kivy_3.0.0~dev7-1.debian.tar.xz
+-rw-r--r--  1 protonox protonox      977 Dec 20 21:50 protonox-kivy_3.0.0~dev7-1.dsc
+-rw-r--r--  1 protonox protonox     7507 Dec 20 21:52 protonox-kivy_3.0.0~dev7-1_amd64.buildinfo
+-rw-r--r--  1 protonox protonox     1479 Dec 20 21:52 protonox-kivy_3.0.0~dev7-1_amd64.changes
+-rw-r--r--  1 protonox protonox     7067 Dec 20 21:50 protonox-kivy_3.0.0~dev7-1_source.buildinfo
+-rw-r--r--  1 protonox protonox     1549 Dec 20 21:50 protonox-kivy_3.0.0~dev7-1_source.changes
+-rw-r--r--  2 protonox protonox 29160230 Dec 20 21:50 protonox-kivy_3.0.0~dev7.orig.tar.gz
+-rw-r--r--  1 protonox protonox 11791570 Dec 20 21:51 python3-protonox-kivy-dbgsym_3.0.0~dev7-1_amd64.ddeb
+-rw-r--r--  1 protonox protonox  3219294 Dec 20 21:52 python3-protonox-kivy_3.0.0~dev7-1_amd64.deb

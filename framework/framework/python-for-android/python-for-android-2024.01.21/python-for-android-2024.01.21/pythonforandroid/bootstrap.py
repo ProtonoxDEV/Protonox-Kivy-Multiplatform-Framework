@@ -39,7 +39,7 @@ def copy_files(src_root, dest_root, override=True, symlink=False):
 
 
 default_recipe_priorities = [
-    "webview", "sdl2", "service_only"  # last is highest
+    "webview", "sdl2", "sdl3", "service_only"  # last is highest
 ]
 # ^^ NOTE: these are just the default priorities if no special rules
 # apply (which you can find in the code below), so basically if no
@@ -162,6 +162,21 @@ class Bootstrap:
 
             # Do actual copying:
             info('Copying in SDL2 .java files from: ' + str(src_dir))
+            if not os.path.exists(target_dir):
+                os.makedirs(target_dir)
+            copy_files(src_dir, target_dir, override=True)
+        elif self.name == "sdl3":
+            # Get the paths for copying SDL3's java source code:
+            sdl3_recipe = Recipe.get_recipe("sdl3", self.ctx)
+            sdl3_build_dir = sdl3_recipe.get_jni_dir()
+            src_dir = join(sdl3_build_dir, "SDL", "android-project",
+                           "app", "src", "main", "java",
+                           "org", "libsdl", "app")
+            target_dir = join(self.dist_dir, 'src', 'main', 'java', 'org',
+                              'libsdl', 'app')
+
+            # Do actual copying:
+            info('Copying in SDL3 .java files from: ' + str(src_dir))
             if not os.path.exists(target_dir):
                 os.makedirs(target_dir)
             copy_files(src_dir, target_dir, override=True)

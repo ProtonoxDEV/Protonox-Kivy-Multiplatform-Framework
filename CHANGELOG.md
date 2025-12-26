@@ -9,7 +9,23 @@ KivyVersion-protonox.PATCH
 
 ---
 
-## [3.0.0.dev8] — SDL3 Support & Android Modernization
+## [3.0.0.dev9] — Release Preparation & Documentation Updates
+**Status:** DEV preview
+
+### Added
+- Updated documentation for SDL3 support
+- Improved test compatibility for version detection
+- Release notes and changelog updates
+
+### Fixed
+- Test failures due to version import issues
+- Documentation inconsistencies
+
+### Notes
+- Preparing for stable release
+- All SDL3 features validated
+
+---
 **Status:** DEV preview (opt-in)
 
 ### Added

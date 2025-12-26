@@ -221,7 +221,7 @@ c_options['use_rpi_vidcore_lite'] = platform == 'rpi'
 c_options['use_egl'] = False
 c_options['use_opengl_es2'] = None
 c_options['use_opengl_mock'] = environ.get('READTHEDOCS', None) == 'True'
-c_options['use_sdl3'] = True
+c_options['use_sdl3'] = platform in ('linux', 'darwin')
 c_options['use_pangoft2'] = None
 c_options['use_ios'] = False
 c_options['use_android'] = False
