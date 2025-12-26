@@ -10,7 +10,7 @@ __version__ = '%d.%d.%d-protonox' % (MAJOR, MINOR, MICRO)
 if not RELEASE:
     # if it's a rcx release, it's not proceeded by a period. If it is a
     # devx release, it must start with a period
-    __version__ += '.dev9'
+    __version__ += '.dev10'
 
 
 _kivy_git_hash = ''
