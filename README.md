@@ -46,7 +46,19 @@ Protonox Kivy includes **complete SDL3 backend support** for modern platforms, w
 - **SDL3 Window Backend**: Modern window management with improved performance
 - **Advanced Text Rendering**: HarfBuzz integration for complex scripts and typography
 - **Android SDL3 Bootstrap**: Complete python-for-android bootstrap with SDL3 dependencies
+- **OpenGL ES 3.2 Support**: Modern graphics pipeline with Android Extension Pack features
 - **Backward Compatibility**: SDL2 remains available as fallback
+
+### OpenGL ES 3.2 Modernization
+
+Protonox Kivy now requires **OpenGL ES 3.2** as minimum version, bringing:
+
+- Enhanced graphics capabilities with tessellation and geometry shaders
+- Improved performance on modern Android devices
+- Better visual quality and effects
+- Compatibility with latest mobile GPUs
+
+**Note**: Requires devices with OpenGL ES 3.2 support (Android 5.0+ with compatible hardware).
 
 ### Android Builds with SDL3
 ```bash

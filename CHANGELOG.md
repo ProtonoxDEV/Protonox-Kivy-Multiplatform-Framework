@@ -9,24 +9,28 @@ MAJOR.MINOR.MICRO-protonox.devX
 
 ---
 
-## [3.0.0.dev9] — Release Preparation & Documentation Updates
+## [3.0.0.dev11] — OpenGL ES 3.2 Modernization
 **Status:** DEV preview
 
 ### Added
-- Updated documentation for SDL3 support
-- Improved test compatibility for version detection
-- Release notes and changelog updates
+- **OpenGL ES 3.2 Support**: Modernized graphics pipeline
+  - Updated minimum OpenGL version requirement to 3.2
+  - SDL3 context creation set to OpenGL ES 3.2
+  - Enhanced graphics capabilities with Android Extension Pack features
+  - Improved performance and visual quality on modern devices
 
-### Fixed
-- Test failures due to version import issues
-- Documentation inconsistencies
+### Improved
+- Graphics initialization and version detection
+- Compatibility with latest Android devices
 
 ### Notes
-- Preparing for stable release
-- All SDL3 features validated
+- Requires devices with OpenGL ES 3.2 support
+- Enhanced visual effects and rendering capabilities
 
 ---
-**Status:** DEV preview (opt-in)
+
+## [3.0.0.dev10] — SDL3 Integration & Android Builds
+**Status:** DEV preview
 
 ### Added
 - **SDL3 Backend Support**: Complete SDL3 window backend implementation
