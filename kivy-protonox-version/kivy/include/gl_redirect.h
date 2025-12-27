@@ -58,23 +58,23 @@
 
 #	if __USE_OPENGL_ES2
 #		if __APPLE__
-#			include "common_subset.h"
+#			#include "common_subset.h"
 #		else
-#			include <GLES2/gl2.h>
-#			include <GLES2/gl2ext.h>
+#			#include <GLES2/gl2.h>
+#			#include <GLES2/gl2ext.h>
 #		endif
 #	else
 #		ifdef __APPLE__
-#			include <OpenGL/gl.h>
-#			include <OpenGL/glext.h>
+#			#include <OpenGL/gl.h>
+#			#include <OpenGL/glext.h>
 #		else
-#			define GL_GLEXT_PROTOTYPES
-#			include <GL/gl.h>
-#			include <GL/glext.h>
+#			#define GL_GLEXT_PROTOTYPES
+#			#include <GL/gl.h>
+#			#include <GL/glext.h>
 #		endif
-#		define GL_SHADER_BINARY_FORMATS					0x8DF8
-#		define GL_RGB565								0x8D62
-#		define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS 	0x8CD9
+#		#define GL_SHADER_BINARY_FORMATS					0x8DF8
+#		#define GL_RGB565								0x8D62
+#		#define GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS 	0x8CD9
 #   endif
 
 
