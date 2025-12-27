@@ -60,6 +60,10 @@ def pkgconfig(*packages, **kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     lenviron = None
 
+    # For Android and iOS, don't use pkgconfig as it will return host paths
+    if platform in ('android', 'ios'):
+        return kw
+
     if platform == 'win32':
         pconfig = join(sys.prefix, 'libs', 'pkgconfig')
         if isdir(pconfig):
@@ -158,6 +162,8 @@ platform = sys.platform
 # Detect Python for android project (http://github.com/kivy/python-for-android)
 ndkplatform = environ.get('NDKPLATFORM')
 if ndkplatform is not None and environ.get('LIBLINK'):
+    platform = 'android'
+elif environ.get('ANDROIDSDK') or environ.get('ANDROIDNDK'):
     platform = 'android'
 kivy_ios_root = environ.get('KIVYIOSROOT', None)
 if kivy_ios_root is not None:
@@ -443,15 +449,17 @@ if platform == 'ios':
     print('Kivy-IOS project located at {0}'.format(kivy_ios_root))
     c_options['use_ios'] = True
     c_options['use_sdl3'] = True
+    c_options['use_gstreamer'] = False
 
 elif platform == 'android':
     c_options['use_android'] = True
+    c_options['use_gstreamer'] = False
 
 # detect gstreamer, only on desktop
 # works if we forced the options or in autodetection
+gstreamer_valid = False
 if platform not in ('ios', 'android') and (c_options['use_gstreamer']
                                            in (None, True)):
-    gstreamer_valid = False
     if c_options['use_osx_frameworks'] and platform == 'darwin':
         # check the existence of frameworks
         f_path = '/Library/Frameworks/GStreamer.framework'
@@ -1274,7 +1282,7 @@ def glob_paths(*patterns, excludes=('.pyc', )):
 # setup !
 if not build_examples:
     setup(
-        name='protonox-kivy',
+        name='protonox_kivy',
         version=__version__,
         author='ProtonoxDEV (fork maintainers)',
         author_email='contact@protonox.dev',

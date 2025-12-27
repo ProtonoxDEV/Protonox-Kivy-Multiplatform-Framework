@@ -345,6 +345,102 @@ All advanced features are **opt-in** and **development-only**.
 
 ---
 
+## Android Development Experience
+
+Protonox-Kivy provides an enhanced Android development workflow with automated tools, comprehensive documentation, and optimized build configurations to eliminate common cross-compilation issues.
+
+### Quick Android Setup
+
+Get started with Android development in minutes:
+
+```bash
+# 1. Run automated setup (creates venv, installs buildozer, checks Android tools)
+./scripts/setup_android_dev.sh
+
+# 2. Create new app from template
+cp -r templates/protonox-app-minimal my_app
+cd my_app
+
+# 3. Build APK (optimized for ARM64, Android 16+)
+../scripts/build_android.sh
+
+# 4. Deploy and test on device
+../scripts/build_android.sh --deploy
+```
+
+### Key Improvements
+
+#### 🔧 Automated Development Environment
+- **One-command setup**: `setup_android_dev.sh` handles venv creation, dependency installation, and Android tool verification
+- **Build optimization**: `build_android.sh` with colored output, error checking, and deployment options
+- **Cross-compilation fixes**: Recipes optimized for ARM64 architecture with proper environment isolation
+
+#### 📚 Comprehensive Documentation
+- **Troubleshooting guide**: `docs/ANDROID_BUILD_LESSONS.md` covers common issues and solutions
+- **Build lessons learned**: Documented solutions for architecture mismatches, NDK requirements, and environment setup
+- **Best practices**: Configuration examples and debugging commands
+
+#### 🏗️ Project Templates
+- **Minimal app template**: Pre-configured with optimized `buildozer.spec` for Android 16+
+- **ARM64 optimized**: Built specifically for modern Android devices
+- **Ready-to-build**: Includes proper dependencies, permissions, and asset placeholders
+
+#### 🚀 CI/CD Integration
+- **Automated APK builds**: GitHub Actions workflow for continuous integration
+- **Framework testing**: Automated test suite with coverage reporting
+- **Release automation**: APK artifacts and release creation
+
+### Android Build Configuration
+
+The framework includes optimized configurations for Android 16+:
+
+- **NDK r28c**: Required for 16KB page sizes and modern Android compatibility
+- **ARM64 architecture**: Primary target for current Android devices
+- **API 36**: Latest Android API with backward compatibility
+- **SDL3 backend**: Modern graphics and input handling
+- **Material Design**: KivyMD integration for modern UI
+
+### Common Issues Solved
+
+- ❌ **Architecture mismatch**: Extensions compiled for wrong platform
+- ❌ **Complex debugging**: Hours spent on cross-compilation issues
+- ❌ **Manual environment setup**: Repeated dependency installation
+- ❌ **Poor error messages**: Unclear build failures
+- ❌ **Template complexity**: Starting from scratch each time
+
+### Development Workflow
+
+1. **Setup once**: Run `setup_android_dev.sh` to prepare development environment
+2. **Create apps**: Copy template and customize for your needs
+3. **Build & test**: Use optimized scripts for reliable APK generation
+4. **Deploy & debug**: Wireless debugging with Protonox-Studio
+5. **Iterate**: Hot reload and live debugging during development
+
+### Files Overview
+
+```
+scripts/
+├── setup_android_dev.sh    # Automated development environment setup
+└── build_android.sh        # Optimized APK build script
+
+templates/
+└── protonox-app-minimal/   # Ready-to-use app template
+    ├── main.py            # Sample Protonox-Kivy app
+    ├── buildozer.spec     # Optimized Android configuration
+    ├── README.md          # Template documentation
+    └── assets/            # Icon and presplash placeholders
+
+docs/
+└── ANDROID_BUILD_LESSONS.md  # Comprehensive troubleshooting guide
+
+.github/workflows/
+└── android-ci.yml         # CI/CD pipeline for automated builds
+```
+
+See `docs/ANDROID_BUILD_LESSONS.md` for detailed troubleshooting and `templates/protonox-app-minimal/README.md` for template usage.
+
+---
+
 ## Status
 
 This project is under active development.

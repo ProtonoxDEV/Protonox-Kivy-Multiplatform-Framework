@@ -28,15 +28,15 @@ from pythonforandroid.util import (
 
 def get_targets(sdk_dir):
     if exists(join(sdk_dir, 'cmdline-tools', 'latest', 'bin', 'avdmanager')):
-        avdmanager = sh.Command(join(sdk_dir, 'cmdline-tools', 'latest', 'bin', 'avdmanager'))
-        targets = avdmanager('list', 'target').stdout.decode('utf-8').split('\n')
+        result = subprocess.run([join(sdk_dir, 'cmdline-tools', 'latest', 'bin', 'avdmanager'), 'list', 'target'], capture_output=True, text=True)
+        targets = result.stdout.split('\n')
 
     elif exists(join(sdk_dir, 'tools', 'bin', 'avdmanager')):
-        avdmanager = sh.Command(join(sdk_dir, 'tools', 'bin', 'avdmanager'))
-        targets = avdmanager('list', 'target').stdout.decode('utf-8').split('\n')
+        result = subprocess.run([join(sdk_dir, 'tools', 'bin', 'avdmanager'), 'list', 'target'], capture_output=True, text=True)
+        targets = result.stdout.split('\n')
     elif exists(join(sdk_dir, 'tools', 'android')):
-        android = sh.Command(join(sdk_dir, 'tools', 'android'))
-        targets = android('list').stdout.decode('utf-8').split('\n')
+        result = subprocess.run([join(sdk_dir, 'tools', 'android'), 'list'], capture_output=True, text=True)
+        targets = result.stdout.split('\n')
     else:
         raise BuildInterruptingException(
             'Could not find `android` or `sdkmanager` binaries in Android SDK',

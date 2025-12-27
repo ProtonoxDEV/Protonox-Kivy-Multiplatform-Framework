@@ -1,0 +1,3 @@
+# Kivy Protonox with enhanced features
+-e ../kivy-protonox-version/
+requests>=2.31.0

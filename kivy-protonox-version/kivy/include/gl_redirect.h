@@ -56,7 +56,10 @@
 
 #else
 
-#	if __USE_OPENGL_ES2
+#	ifdef ANDROID
+#		include <GLES2/gl2.h>
+#		include <GLES2/gl2ext.h>
+#	elif __USE_OPENGL_ES2
 #		if __APPLE__
 #			include "common_subset.h"
 #		else

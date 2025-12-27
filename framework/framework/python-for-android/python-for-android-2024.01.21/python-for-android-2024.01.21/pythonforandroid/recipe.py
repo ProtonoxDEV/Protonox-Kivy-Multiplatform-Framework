@@ -3,6 +3,7 @@ import glob
 
 import hashlib
 from re import match
+import subprocess
 
 import sh
 import shutil
@@ -466,8 +467,8 @@ class Recipe(metaclass=RecipeMeta):
                     elif extraction_filename.endswith(
                             ('.tar.gz', '.tgz', '.tar.bz2', '.tbz2', '.tar.xz', '.txz')):
                         sh.tar('xf', extraction_filename)
-                        root_directory = sh.tar('tf', extraction_filename).stdout.decode(
-                                'utf-8').split('\n')[0].split('/')[0]
+                        result = subprocess.run(['tar', 'tf', extraction_filename], capture_output=True, text=True)
+                        root_directory = result.stdout.split('\n')[0].split('/')[0]
                         if root_directory != basename(directory_name):
                             move(root_directory, directory_name)
                     else:

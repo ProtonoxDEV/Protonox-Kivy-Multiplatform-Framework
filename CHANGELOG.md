@@ -9,7 +9,7 @@ MAJOR.MINOR.MICRO-protonox.devX
 
 ---
 
-## [3.0.0.dev12] — Android Build System Modernization
+## [3.0.0] — Android Build System Modernization
 **Status:** DEV preview
 
 ### Added

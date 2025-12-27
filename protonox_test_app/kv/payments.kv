@@ -1,0 +1,22 @@
+<PayView>:
+    name: 'payments'
+    BoxLayout:
+        orientation: 'vertical'
+        NavigationHeader:
+            title: 'Pagos'
+        BoxLayout:
+            orientation: 'vertical'
+            padding: '16dp'
+            spacing: '12dp'
+            Label:
+                text: 'Ingresa el monto a pagar'
+            TextInput:
+                id: amount
+                input_filter: 'float'
+                hint_text: 'Monto'
+            Button:
+                text: 'Iniciar pago'
+                on_release: root.start_payment(float(amount.text or 0))
+            Button:
+                text: 'Volver'
+                on_release: app.nav_manager.navigate('home')

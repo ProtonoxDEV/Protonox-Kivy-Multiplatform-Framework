@@ -1,0 +1,19 @@
+<ReportsView>:
+    name: 'reports'
+    BoxLayout:
+        orientation: 'vertical'
+        NavigationHeader:
+            title: 'Reportes'
+        BoxLayout:
+            orientation: 'vertical'
+            padding: '16dp'
+            spacing: '12dp'
+            Label:
+                id: status
+                text: 'Sin datos'
+            Button:
+                text: 'Cargar reportes'
+                on_release: status.text = root.load_reports()
+            Button:
+                text: 'Volver'
+                on_release: app.nav_manager.navigate('home')

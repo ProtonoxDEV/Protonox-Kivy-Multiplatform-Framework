@@ -38,10 +38,45 @@ En este fork se prepara la librería para estas exigencias: se añade compatibil
 
 ### Instalación vía PyPI
 
-- PyPI: `pip install protonox-kivy==3.0.0.dev1` (se distribuye como sdist, compila una wheel local al instalar).
-- TestPyPI (staging): `pip install --index-url https://test.pypi.org/simple protonox-kivy==3.0.0.dev1`.
+- **PyPI**: `pip install protonox-kivy==3.0.0` (se distribuye como sdist, compila una wheel local al instalar).
+- **TestPyPI (staging)**: `pip install --index-url https://test.pypi.org/simple protonox-kivy==3.0.0`.
 
 Si tienes instalaciones previas de `kivy` o `protonox-kivy` en editable, desinstala primero: `pip uninstall -y kivy protonox-kivy`.
+
+### 🎯 Android Development Experience (v3.0.0)
+
+Esta versión incluye **mejoras revolucionarias** en la experiencia de desarrollo Android:
+
+#### 🚀 Desarrollo Android Simplificado
+- **Setup automatizado**: Script `setup_android_dev.sh` para entorno completo
+- **Build optimizado**: `build_android.sh` con verificación y despliegue automático
+- **Templates listos**: Proyecto base con configuración ARM64 optimizada
+- **Documentación completa**: Guía de troubleshooting y mejores prácticas
+
+#### 🔧 Corrección de Arquitectura
+- **ARM64 nativo**: Compilación correcta para dispositivos Android modernos
+- **Cross-compilación fija**: Resueltos problemas de arquitectura mixta
+- **Android 16+ ready**: Compatibilidad con últimas versiones del SO
+
+#### 📚 Herramientas para Desarrolladores
+- **Scripts automatizados**: Setup, build y deploy con un comando
+- **CI/CD integrado**: Workflows de GitHub Actions para builds automáticos
+- **Mensajes de error mejorados**: Diagnósticos claros y guías de solución
+
+#### 📱 Ejemplo de Uso
+```bash
+# 1. Setup del entorno
+./scripts/setup_android_dev.sh
+
+# 2. Crear app desde template
+cp -r templates/protonox-app-minimal mi_app
+cd mi_app
+
+# 3. Build y deploy
+../scripts/build_android.sh --deploy
+```
+
+Ver `docs/ANDROID_BUILD_LESSONS.md` para troubleshooting detallado.
 
 The aim is to allow for quick and easy interaction design and rapid prototyping
 whilst making your code reusable and deployable: Innovative user interfaces made
