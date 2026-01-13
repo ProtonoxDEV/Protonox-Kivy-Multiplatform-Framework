@@ -111,6 +111,9 @@ DEV_INJECT_SCRIPT = r"""
   let ghost = null;
   let clone = null;
   let miniToolbar = null;
+  let miniToolbarPinned = false;
+  let miniToolbarTimer = null;
+  let miniToolbarTarget = { x: 0, y: 0 };
   let altOverlay = null;
   let cheatSheet = null;
   let tooltip = null;
@@ -126,6 +129,11 @@ DEV_INJECT_SCRIPT = r"""
   let colorContextMenu = null;
   let colorTarget = null;
   let lastAiRequest = 0;
+  let snapGuide = null;
+  let snapGuideTimer = null;
+  let arcDragging = false;
+  let positionHint = null;
+  let positionHintTimer = null;
   let dropZoneCache = { elements: [], timestamp: 0, ttl: 600 };
   let arcDropZones = [];
   let hoverGhost = null;
@@ -202,6 +210,104 @@ DEV_INJECT_SCRIPT = r"""
       requestAnimationFrame(updateHoverGhostPosition);
     }
   }, { passive: true });
+
+  const ensureSnapGuide = () => {
+    if (snapGuide) return;
+    const container = document.createElement('div');
+    container.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:999999995;';
+    const vline = document.createElement('div');
+    vline.style.cssText = 'position:fixed;width:2px;height:100vh;top:0;background:rgba(88,166,255,0.35);border-left:2px dashed rgba(88,166,255,0.8);display:none;';
+    container.appendChild(vline);
+    const hline = document.createElement('div');
+    hline.style.cssText = 'position:fixed;height:2px;width:100vw;left:0;background:rgba(88,166,255,0.25);border-top:2px dashed rgba(88,166,255,0.7);display:none;';
+    container.appendChild(hline);
+    const hint = document.createElement('div');
+    hint.style.cssText = 'position:fixed;pointer-events:none;background:rgba(13,17,23,0.92);color:#e6edf3;padding:6px 10px;border-radius:8px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,0.55);transition:opacity 0.15s ease;opacity:0;';
+    container.appendChild(hint);
+    document.body.appendChild(container);
+    snapGuide = { container, vline, hline, hint };
+  };
+
+  const hideSnapGuide = () => {
+    if (!snapGuide) return;
+    snapGuide.vline.style.display = 'none';
+    snapGuide.hline.style.display = 'none';
+    snapGuide.hint.style.opacity = '0';
+  };
+
+  const scheduleHideSnapGuide = (delay = 600) => {
+    if (arcDragging) return;
+    if (snapGuideTimer) clearTimeout(snapGuideTimer);
+    snapGuideTimer = setTimeout(() => {
+      hideSnapGuide();
+      snapGuideTimer = null;
+    }, delay);
+  };
+
+  const showSnapGuide = (targetLeft, targetTop, pointerX, pointerY) => {
+    ensureSnapGuide();
+    if (!snapGuide) return;
+    const snapX = Math.round(targetLeft / 8) * 8;
+    const snapY = Math.round(targetTop / 4) * 4;
+    const deltaX = Math.abs(targetLeft - snapX);
+    const deltaY = Math.abs(targetTop - snapY);
+    const nearX = deltaX <= 8;
+    const nearY = deltaY <= 8;
+    snapGuide.vline.style.left = `${snapX}px`;
+    snapGuide.hline.style.top = `${snapY}px`;
+    snapGuide.vline.style.display = nearX ? 'block' : 'none';
+    snapGuide.hline.style.display = nearY ? 'block' : 'none';
+    const freeX = Math.round(targetLeft);
+    const freeY = Math.round(targetTop);
+    snapGuide.hint.textContent = `Snap to: X=${snapX}px Y=${snapY}px • Free: X=${freeX}px Y=${freeY}px`;
+    snapGuide.hint.style.left = `${Math.min(window.innerWidth - 220, (pointerX || 0) + 20)}px`;
+    snapGuide.hint.style.top = `${Math.max(12, Math.min(window.innerHeight - 40, (pointerY || 0) + 20))}px`;
+    const proximity = Math.min(deltaX, deltaY);
+    if (proximity <= 2) {
+      snapGuide.hint.style.opacity = '0.35';
+    } else if (nearX || nearY) {
+      snapGuide.hint.style.opacity = '0.85';
+    } else {
+      snapGuide.hint.style.opacity = '0.6';
+    }
+    if (!arcDragging) {
+      scheduleHideSnapGuide(900);
+    } else if (snapGuideTimer) {
+      clearTimeout(snapGuideTimer);
+      snapGuideTimer = null;
+    }
+  };
+
+  const ensurePositionHint = () => {
+    if (positionHint) return;
+    positionHint = document.createElement('div');
+    positionHint.style.cssText = 'position:fixed;pointer-events:none;padding:6px 10px;border-radius:8px;background:rgba(13,17,23,0.95);color:#e6edf3;font-size:12px;letter-spacing:0.5px;box-shadow:0 12px 40px rgba(0,0,0,0.45);opacity:0;transition:opacity 0.15s ease;z-index:999999998;';
+    document.body.appendChild(positionHint);
+  };
+
+  const showPositionHint = (text, x, y) => {
+    ensurePositionHint();
+    if (!positionHint) return;
+    positionHint.textContent = text;
+    const left = Math.min(window.innerWidth - 180, Math.max(12, x));
+    const top = Math.max(12, y - 28);
+    positionHint.style.left = `${left}px`;
+    positionHint.style.top = `${top}px`;
+    positionHint.style.opacity = '0.95';
+    if (positionHintTimer) clearTimeout(positionHintTimer);
+    positionHintTimer = setTimeout(() => {
+      positionHint.style.opacity = '0';
+    }, 1300);
+  };
+
+  const hidePositionHint = () => {
+    if (!positionHint) return;
+    positionHint.style.opacity = '0';
+    if (positionHintTimer) {
+      clearTimeout(positionHintTimer);
+      positionHintTimer = null;
+    }
+  };
 
   const setAltOverlay = (show, mode = 'hold') => {
     if (!altOverlay) {
@@ -342,6 +448,36 @@ DEV_INJECT_SCRIPT = r"""
     if ('top' in snapshot) el.style.top = snapshot.top || '';
     if ('position' in snapshot) el.style.position = snapshot.position || '';
   }};
+
+  const moveElement = (el, dx, dy) => {
+    if (!el) return;
+    const computed = getComputedStyle(el);
+    if (computed.position === 'static') {
+      el.style.position = 'relative';
+    }
+    const before = {
+      left: el.style.left || '',
+      top: el.style.top || '',
+      position: el.style.position || ''
+    };
+    const currentLeft = parsePx(el.style.left || computed.left);
+    const currentTop = parsePx(el.style.top || computed.top);
+    const afterLeft = currentLeft + dx;
+    const afterTop = currentTop + dy;
+    el.style.left = `${afterLeft}px`;
+    el.style.top = `${afterTop}px`;
+    const record = { action: 'move', el, before, after: { left: el.style.left, top: el.style.top } };
+    undoStack.push(record);
+    const change = { action: 'move', element: selectorFor(el), left: el.style.left, top: el.style.top };
+    changes.push(change);
+    send('layout-change', change);
+    if (typeof showExportButton === 'function') showExportButton();
+    updateOutline(el);
+    const rect = el.getBoundingClientRect();
+    showPositionHint(`Move → X=${afterLeft}px • Y=${afterTop}px`, rect.left + rect.width / 2, rect.top);
+    showSnapGuide(afterLeft, afterTop, rect.left + rect.width / 2, rect.top + rect.height / 2);
+    scheduleHideSnapGuide(1200);
+  };
 
   function beginResize(el, startEvent, source, direction = 'bottom-right') {{
     if (!el) return;
@@ -531,8 +667,22 @@ DEV_INJECT_SCRIPT = r"""
     }}
   }}, {{passive: true}});
 
-  document.addEventListener('keydown', e => {{
+  document.addEventListener('keydown', e => {
     console.log('[PROTONOX DEBUG] keydown event:', e.key, e.ctrlKey, e.altKey);
+    const arrowDelta = {
+      ArrowUp: { x: 0, y: -1 },
+      ArrowDown: { x: 0, y: 1 },
+      ArrowLeft: { x: -1, y: 0 },
+      ArrowRight: { x: 1, y: 0 }
+    };
+    const ctrlActive = e.ctrlKey || e.metaKey || isCtrlPressed || ctrlSticky;
+    const delta = arrowDelta[e.key];
+    if (delta && currentEl && ctrlActive) {
+      e.preventDefault();
+      const step = e.shiftKey ? 8 : (e.ctrlKey ? 16 : 1);
+      moveElement(currentEl, delta.x * step, delta.y * step);
+      return;
+    }
     if (e.key === 'Enter' && (e.altKey || altSticky)) {{
       console.log('[PROTONOX DEBUG] Alt+Enter triggered');
       e.preventDefault();
@@ -598,6 +748,7 @@ DEV_INJECT_SCRIPT = r"""
     console.log('[PROTONOX DEBUG] dragActive:', dragActive, 'currentEl:', !!currentEl);
     if (!dragActive || e.button !== 0 || !currentEl) return;
     hideHoverGhost();
+    arcDragging = true;
     console.log('[PROTONOX DEBUG] Starting ARC drag');
     e.preventDefault(); e.stopPropagation();
 
@@ -660,6 +811,9 @@ DEV_INJECT_SCRIPT = r"""
         if (dist < score && dist < 200) {{ score = dist; best = z; }}
       }});
       if (best) best.classList.add('arc-active');
+      const targetLeft = e.clientX - rect.width / 2;
+      const targetTop = e.clientY - rect.height / 2;
+      showSnapGuide(targetLeft, targetTop, e.clientX, e.clientY);
     }};
 
     const onUp = e => {{
@@ -668,6 +822,8 @@ DEV_INJECT_SCRIPT = r"""
       [clone, ghost].forEach(x => x?.remove());
       arcDropZones.forEach(x => x.classList.remove('arc-drop', 'arc-active'));
       arcDropZones = [];
+      arcDragging = false;
+      hideSnapGuide();
 
       const under = document.elementFromPoint(e.clientX, e.clientY);
       const target = under?.closest('.arc-drop') || under;
@@ -701,17 +857,108 @@ DEV_INJECT_SCRIPT = r"""
   } catch (e) {}
 
   // === MINI-TOOLBAR ===
+  const removeMiniToolbar = () => {{
+    if (miniToolbarTimer) {{
+      clearTimeout(miniToolbarTimer);
+      miniToolbarTimer = null;
+    }}
+    miniToolbar?.remove();
+    miniToolbar = null;
+  }};
+
+  const scheduleMiniToolbarDismiss = () => {{
+    if (miniToolbarTimer) {{
+      clearTimeout(miniToolbarTimer);
+      miniToolbarTimer = null;
+    }}
+    if (miniToolbar && !miniToolbarPinned) {{
+      miniToolbarTimer = setTimeout(() => removeMiniToolbar(), 6000);
+    }}
+  }};
+
+  const positionMiniToolbar = (x, y) => {{
+    if (!miniToolbar) return;
+    miniToolbarTarget.x = x;
+    miniToolbarTarget.y = y;
+    if (miniToolbarPinned) {{
+      miniToolbar.style.left = '20px';
+      miniToolbar.style.top = '50%';
+      miniToolbar.style.transform = 'translateY(-50%)';
+    }} else {{
+      const left = Math.min(window.innerWidth - 260, x + 20);
+      const top = Math.max(12, y);
+      miniToolbar.style.left = `${left}px`;
+      miniToolbar.style.top = `${top}px`;
+      miniToolbar.style.transform = 'translateY(0)';
+    }}
+  }};
+
+  const createToolbarButton = (label, handler, bg = '#21262d', color = '#e6edf3') => {{
+    const btn = document.createElement('button');
+    btn.textContent = label;
+    btn.style.cssText = `background:${{bg}};color:${{color}};border:none;border-radius:10px;padding:8px 14px;font-weight:600;cursor:pointer;transition:transform 0.15s ease,filter 0.15s ease;`;
+    btn.addEventListener('mouseenter', () => btn.style.transform = 'translateY(-1px)');
+    btn.addEventListener('mouseleave', () => btn.style.transform = 'translateY(0)');
+    btn.addEventListener('click', ev => {{
+      ev.stopPropagation();
+      handler();
+    }});
+    return btn;
+  }};
+
+  const toggleMiniToolbarPin = (pinButton) => {{
+    miniToolbarPinned = !miniToolbarPinned;
+    if (miniToolbar) {{
+      miniToolbar.classList.toggle('pinned', miniToolbarPinned);
+      miniToolbar.style.opacity = miniToolbarPinned ? '0.55' : '1';
+      positionMiniToolbar(miniToolbarTarget.x, miniToolbarTarget.y);
+    }}
+    pinButton.textContent = miniToolbarPinned ? 'Unpin' : 'Pin';
+    if (miniToolbarPinned) {{
+      if (miniToolbarTimer) {{
+        clearTimeout(miniToolbarTimer);
+        miniToolbarTimer = null;
+      }}
+    }} else {{
+      scheduleMiniToolbarDismiss();
+    }}
+  }};
+
   const showMiniToolbar = (el, x, y) => {{
-    if (miniToolbar) miniToolbar.remove();
+    removeMiniToolbar();
     miniToolbar = document.createElement('div');
-    miniToolbar.style.cssText = `position:fixed;left:${{x+20}}px;top:${{y}}px;background:#0d1117;border:2px solid #58a6ff;border-radius:16px;padding:12px;z-index:999999999;box-shadow:0 20px 50px rgba(0,0,0,0.8);display:flex;gap:12px;font:13px ui-monospace;`;
-    miniToolbar.innerHTML = `
-      <button onclick="this.closest('div').remove();undoLast()" style="background:#21262d;color:#58a6ff;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;">Undo</button>
-      <button onclick="this.closest('div').remove();el.remove()" style="background:#21262d;color:#f85149;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;">Delete</button>
-      <button onclick="this.closest('div').remove();el.style.opacity='0.5'" style="background:#21262d;color:#8b949e;padding:8px 16px;border:none;border-radius:8px;cursor:pointer;">Lock</button>
-    `;
+    miniToolbar.style.cssText = 'position:fixed;background:#0d1117;border:2px solid rgba(88,166,255,0.8);border-radius:20px;padding:12px;z-index:999999999;box-shadow:0 25px 55px rgba(0,0,0,0.85);display:flex;gap:10px;align-items:center;font:13px ui-monospace;transition:opacity 0.15s ease,transform 0.15s ease;';
+    const undoBtn = createToolbarButton('Undo', () => {{
+      removeMiniToolbar();
+      undoLast();
+    }}, '#21262d', '#58a6ff');
+    const deleteBtn = createToolbarButton('Delete', () => {{
+      removeMiniToolbar();
+      el.remove();
+    }}, '#21262d', '#f85149');
+    const lockBtn = createToolbarButton('Lock', () => {{
+      removeMiniToolbar();
+      el.style.opacity = '0.45';
+    }}, '#21262d', '#8b949e');
+    const pinButton = createToolbarButton(miniToolbarPinned ? 'Unpin' : 'Pin', () => toggleMiniToolbarPin(pinButton), '#0f172a', '#e6edf3');
+    const closeBtn = document.createElement('button');
+    closeBtn.textContent = '✕';
+    closeBtn.style.cssText = 'border:none;background:#161b22;color:#c9d1d9;width:30px;height:30px;border-radius:12px;cursor:pointer;font-size:16px;font-weight:700;';
+    closeBtn.addEventListener('click', () => removeMiniToolbar());
+    closeBtn.addEventListener('mouseenter', () => closeBtn.style.background = '#22272e');
+    closeBtn.addEventListener('mouseleave', () => closeBtn.style.background = '#161b22');
+    miniToolbar.append(undoBtn, deleteBtn, lockBtn, pinButton, closeBtn);
     document.body.appendChild(miniToolbar);
-    setTimeout(() => miniToolbar?.remove(), 6000);
+    positionMiniToolbar(x, y);
+    miniToolbar.addEventListener('mouseenter', () => {{
+      if (miniToolbarTimer) {{
+        clearTimeout(miniToolbarTimer);
+        miniToolbarTimer = null;
+      }}
+      miniToolbar.style.opacity = '1';
+    }});
+    miniToolbar.addEventListener('mouseleave', () => scheduleMiniToolbarDismiss());
+    scheduleMiniToolbarDismiss();
   }};
 
   const undoLast = () => {{
@@ -722,7 +969,7 @@ DEV_INJECT_SCRIPT = r"""
         last.before.parent.insertBefore(last.el, last.before.next);
       }}
       send('undo', {{ action: 'reparent', element: selectorFor(last.el) }});
-    }} else if (last.action === 'resize') {{
+    } else if (last.action === 'resize') {{
       applySnapshot(last.el, last.before);
       updateOutline(last.el);
       const payload = {{
@@ -734,6 +981,18 @@ DEV_INJECT_SCRIPT = r"""
       if ('left' in last.before) payload.left = last.before.left;
       if ('top' in last.before) payload.top = last.before.top;
       send('undo', payload);
+    }} else if (last.action === 'move') {{
+      applySnapshot(last.el, last.before);
+      updateOutline(last.el);
+      const payload = {{
+        action: 'move',
+        element: selectorFor(last.el),
+      }};
+      if ('left' in last.before) payload.left = last.before.left;
+      if ('top' in last.before) payload.top = last.before.top;
+      send('undo', payload);
+      const rect = last.el.getBoundingClientRect();
+      showPositionHint(`Undo → ${payload.left || 'auto'} • ${payload.top || 'auto'}`, rect.left + rect.width / 2, rect.top);
     }}
   }};
 
