@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "protonox-studio"
-version = "0.1.2"
+version = "0.1.6"
 description = "Normalized Protonox Kivy toolchain, templates, and build utilities"
 authors = [ { name = "Juan David Morales - Protonox" } ]
 readme = "README.md"
