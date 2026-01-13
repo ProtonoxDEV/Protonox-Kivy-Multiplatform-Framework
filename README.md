@@ -304,6 +304,19 @@ All advanced features are **opt-in** and **development-only**.
 
 ---
 
+## Development environment (recommended) ✅
+
+We recommend a **Kivy-specific, reproducible** environment for all contributors. Key points:
+
+- **Python:** 3.12 (officially supported: 3.10–3.14). Use a per-project `venv`.
+- **System deps:** install SDL2, GStreamer (optional), OpenGL headers, build tools (see `docs/ENVIRONMENT.md`).
+- **Install locally (editable):** `pip install -e .` and `pip install -e ./kivy-protonox-version` to use the Protonox Kivy fork.
+- **Verification:** `python -c "import kivy; print(kivy.__version__)"` (should report `3.0.x` for protonox-kivy) and `python3 run_tests.py`.
+
+Full, detailed instructions and an automated setup script are provided in `docs/ENVIRONMENT.md` and `scripts/setup_dev.sh`.
+
+---
+
 ## Status
 
 This project is under active development.
