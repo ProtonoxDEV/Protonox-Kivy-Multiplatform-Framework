@@ -126,6 +126,82 @@ DEV_INJECT_SCRIPT = r"""
   let colorContextMenu = null;
   let colorTarget = null;
   let lastAiRequest = 0;
+  let dropZoneCache = { elements: [], timestamp: 0, ttl: 600 };
+  let arcDropZones = [];
+  let hoverGhost = null;
+  let hoverGhostTarget = null;
+  const refreshDropZoneCache = () => {
+    dropZoneCache.elements = Array.from(document.querySelectorAll('*'));
+    dropZoneCache.timestamp = Date.now();
+  };
+  const getDropZoneCandidates = () => {
+    if (!dropZoneCache.elements.length || Date.now() - dropZoneCache.timestamp > dropZoneCache.ttl) {
+      refreshDropZoneCache();
+    }
+    return dropZoneCache.elements;
+  };
+  const dropZoneFilter = (node, el) => {
+    if (!node || node === document.body || node === el) return false;
+    if (el && node.contains(el)) return false;
+    const rect = node.getBoundingClientRect();
+    return rect.width > 60 && rect.height > 60;
+  };
+  const markArcDropZones = el => {
+    arcDropZones.forEach(z => z.classList?.remove('arc-drop', 'arc-active'));
+    arcDropZones = getDropZoneCandidates().filter(zone => dropZoneFilter(zone, el));
+    arcDropZones.forEach(z => z.classList?.add('arc-drop'));
+  };
+  const dropZoneObserver = new MutationObserver(() => {
+    dropZoneCache.timestamp = 0;
+  });
+  if (document.body) {
+    dropZoneObserver.observe(document.body, { childList: true, subtree: true });
+  } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      dropZoneObserver.observe(document.body, { childList: true, subtree: true });
+    });
+  }
+  const createHoverGhost = () => {
+    if (!hoverGhost) {
+      hoverGhost = document.createElement('div');
+      hoverGhost.style.cssText = 'position:fixed;pointer-events:none;z-index:9999998;border:2px dashed rgba(88,166,255,0.75);border-radius:14px;background:rgba(88,166,255,0.06);transition:all 0.12s ease;opacity:0;';
+      document.body.appendChild(hoverGhost);
+    }
+  };
+  const showHoverGhost = el => {
+    if (!el || el === document.body) {
+      hoverGhost?.remove();
+      hoverGhost = null;
+      hoverGhostTarget = null;
+      return;
+    }
+    createHoverGhost();
+    hoverGhostTarget = el;
+    const rect = el.getBoundingClientRect();
+    hoverGhost.style.left = `${rect.left}px`;
+    hoverGhost.style.top = `${rect.top}px`;
+    hoverGhost.style.width = `${rect.width}px`;
+    hoverGhost.style.height = `${rect.height}px`;
+    hoverGhost.style.opacity = '0.15';
+  };
+  const hideHoverGhost = () => {
+    hoverGhost?.remove();
+    hoverGhost = null;
+    hoverGhostTarget = null;
+  };
+  const updateHoverGhostPosition = () => {
+    if (!hoverGhost || !hoverGhostTarget) return;
+    const rect = hoverGhostTarget.getBoundingClientRect();
+    hoverGhost.style.left = `${rect.left}px`;
+    hoverGhost.style.top = `${rect.top}px`;
+    hoverGhost.style.width = `${rect.width}px`;
+    hoverGhost.style.height = `${rect.height}px`;
+  };
+  window.addEventListener('scroll', () => {
+    if (hoverGhost) {
+      requestAnimationFrame(updateHoverGhostPosition);
+    }
+  }, { passive: true });
 
   const setAltOverlay = (show, mode = 'hold') => {
     if (!altOverlay) {
@@ -438,6 +514,21 @@ DEV_INJECT_SCRIPT = r"""
       tooltip.style.left = `${{e.clientX + 18}}px`;
       tooltip.style.top = `${{e.clientY + 18}}px`;
     }}
+    const shouldShowGhost = (isCtrlPressed || ctrlSticky) && !(isAltPressed || altSticky);
+    if (shouldShowGhost) {{
+      const hoverTarget = el && el !== document.body ? el : null;
+      if (hoverTarget) {{
+        if (hoverGhostTarget !== hoverTarget) {{
+          showHoverGhost(hoverTarget);
+        }} else {{
+          updateHoverGhostPosition();
+        }}
+      }} else {{
+        hideHoverGhost();
+      }}
+    }} else {{
+      hideHoverGhost();
+    }}
   }}, {{passive: true}});
 
   document.addEventListener('keydown', e => {{
@@ -506,6 +597,7 @@ DEV_INJECT_SCRIPT = r"""
     const dragActive = isAltPressed || altSticky;
     console.log('[PROTONOX DEBUG] dragActive:', dragActive, 'currentEl:', !!currentEl);
     if (!dragActive || e.button !== 0 || !currentEl) return;
+    hideHoverGhost();
     console.log('[PROTONOX DEBUG] Starting ARC drag');
     e.preventDefault(); e.stopPropagation();
 
@@ -547,11 +639,7 @@ DEV_INJECT_SCRIPT = r"""
     document.body.appendChild(clone);
 
     // 3. Drop zones
-    document.querySelectorAll('*').forEach(n => {{
-      if (n === el || n.contains(el) || n === document.body) return;
-      const r = n.getBoundingClientRect();
-      if (r.width > 60 && r.height > 60) n.classList.add('arc-drop');
-    }});
+    markArcDropZones(el);
 
     if (!document.getElementById('arc-style')) {{
       const s = document.createElement('style');
@@ -565,7 +653,7 @@ DEV_INJECT_SCRIPT = r"""
       clone.style.transform = `translate(${{e.clientX - rect.width/2}}px,${{e.clientY - rect.height/2}}px)`;
 
       let best = null, score = Infinity;
-      document.querySelectorAll('.arc-drop').forEach(z => {{
+      arcDropZones.forEach(z => {{
         z.classList.remove('arc-active');
         const r = z.getBoundingClientRect();
         const dist = Math.hypot(e.clientX - (r.left + r.width/2), e.clientY - (r.top + r.height/2));
@@ -578,7 +666,8 @@ DEV_INJECT_SCRIPT = r"""
       document.removeEventListener('mousemove', onMove);
       document.removeEventListener('mouseup', onUp);
       [clone, ghost].forEach(x => x?.remove());
-      document.querySelectorAll('.arc-drop, .arc-active').forEach(x => x.classList.remove('arc-drop', 'arc-active'));
+      arcDropZones.forEach(x => x.classList.remove('arc-drop', 'arc-active'));
+      arcDropZones = [];
 
       const under = document.elementFromPoint(e.clientX, e.clientY);
       const target = under?.closest('.arc-drop') || under;
