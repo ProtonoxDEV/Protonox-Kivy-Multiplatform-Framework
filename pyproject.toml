@@ -23,6 +23,14 @@ dependencies = [
   "setuptools>=65.0.0",
   "wheel>=0.40.0",
 ]
+
+[project.optional-dependencies]
+# Install with Kivy integration: pip install "protonox-studio[kivy]"
+kivy = [
+  "protonox-kivy>=3.0.0,<4",
+  "kivy>=2.3.0",
+]
+
 scripts = { protonox = "protonox.__main__:main" }
 
 [project.urls]
