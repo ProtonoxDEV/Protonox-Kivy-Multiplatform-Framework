@@ -93,3 +93,13 @@ node_modules/
 *.bak
 *.orig
 *.rej
+
+# Archive local build artifacts
+/archive/*.whl
+/archive/*venv/
+/archive/.venv_build/
+/archive/dist_debug_wheel/
+/archive/dist/
+/archive/build/
+/archive/logs/
+/archive/.buildozer/
