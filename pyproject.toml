@@ -3,18 +3,27 @@ requires = ["setuptools>=69", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "protonox-kivy-framework"
-version = "0.1.0"
+name = "protonox-studio"
+version = "0.1.2"
 description = "Normalized Protonox Kivy toolchain, templates, and build utilities"
 authors = [ { name = "Juan David Morales - Protonox" } ]
 readme = "README.md"
 requires-python = ">=3.11"
 keywords = ["kivy", "android", "buildozer", "python-for-android", "pyjnius"]
+license = "MIT"
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent"
 ]
+dependencies = [
+  "kivy>=2.3.0",
+  "requests>=2.31.0",
+  "buildozer>=1.5.0",
+  "cython>=3.0.0,<=3.3.0",
+  "setuptools>=65.0.0",
+  "wheel>=0.40.0",
+]
+scripts = { protonox = "protonox.__main__:main" }
 
 [project.urls]
 Homepage = "https://example.com/protonox"

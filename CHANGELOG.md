@@ -106,6 +106,22 @@ KivyVersion-protonox.PATCH
 
 ---
 
+## [2.3.1-protonox.5] — ARC Mode polish & resource drag
+**Status:** Stable (DEV-focused)
+
+### Added
+- ARC Mode now lives inside a dedicated `#protonox-arc-shell` so the injected UI never captures events meant for the host page, and drop-zone detection ignores all Protonox overlays.
+- Hover ghosts, snap guides, position hints, and toolbar overlays share the new shell while keeping their `pointer-events:none` guard so they only react when ARC Mode/Alt is active.
+- Drag & drop from the desktop accepts `image/*` and `video/*` blobs, creates fitting media nodes, stores metadata in the change log, and shows resource hints while the user is dropping.
+- Undo supports inserted resources, revoking blob URLs and revealing where the removed item landed.
+
+### Improved
+- Keyboard nudging (Ctrl/Arrow + Shift, Ctrl, or none) records changes, speaks to the snap guide helpers, and keeps the tooling deterministic.
+- Compatibility tests now tolerate either Protonox-Kivy 3.0.x or stock Kivy 2.3.1 so the suite can run in both environments.
+
+### Notes
+- `python3 run_tests.py` passes end-to-end (framework structure + updated Kivy compatibility); window provider warnings are expected in headless CI.
+
 ## Compatibility Guarantee
 - Fully compatible with Kivy 2.3.1 public API
 - No breaking changes to existing applications
