@@ -134,10 +134,13 @@ DEV_INJECT_SCRIPT = r"""
   let arcDragging = false;
   let positionHint = null;
   let positionHintTimer = null;
+  let resourceDropHint = null;
+  let resourceDropTarget = null;
   let dropZoneCache = { elements: [], timestamp: 0, ttl: 600 };
   let arcDropZones = [];
   let hoverGhost = null;
   let hoverGhostTarget = null;
+  let arcShell = null;
   const refreshDropZoneCache = () => {
     dropZoneCache.elements = Array.from(document.querySelectorAll('*'));
     dropZoneCache.timestamp = Date.now();
@@ -148,32 +151,64 @@ DEV_INJECT_SCRIPT = r"""
     }
     return dropZoneCache.elements;
   };
-  const dropZoneFilter = (node, el) => {
-    if (!node || node === document.body || node === el) return false;
-    if (el && node.contains(el)) return false;
-    const rect = node.getBoundingClientRect();
-    return rect.width > 60 && rect.height > 60;
-  };
+    const dropZoneFilter = (node, el) => {
+      if (!node || node === document.body || node === el) return false;
+      if (node.closest('[data-protonox-arc]')) return false;
+      if (el && node.contains(el)) return false;
+      const rect = node.getBoundingClientRect();
+      return rect.width > 60 && rect.height > 60;
+    };
   const markArcDropZones = el => {
     arcDropZones.forEach(z => z.classList?.remove('arc-drop', 'arc-active'));
     arcDropZones = getDropZoneCandidates().filter(zone => dropZoneFilter(zone, el));
     arcDropZones.forEach(z => z.classList?.add('arc-drop'));
   };
-  const dropZoneObserver = new MutationObserver(() => {
-    dropZoneCache.timestamp = 0;
-  });
-  if (document.body) {
-    dropZoneObserver.observe(document.body, { childList: true, subtree: true });
-  } else {
-    document.addEventListener('DOMContentLoaded', () => {
-      dropZoneObserver.observe(document.body, { childList: true, subtree: true });
+    const attachWhenBodyReady = cb => {
+      if (document.body) return cb();
+      document.addEventListener('DOMContentLoaded', cb, { once: true });
+    };
+
+    const createArcShell = () => {
+      if (arcShell || !document.body) return;
+      arcShell = document.createElement('div');
+      arcShell.id = 'protonox-arc-shell';
+      arcShell.dataset.protonoxArc = 'true';
+      arcShell.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:99999990;mix-blend-mode:normal;';
+      document.body.appendChild(arcShell);
+    };
+
+    const ensureArcShell = () => {
+      if (arcShell) return;
+      if (document.body) {
+        createArcShell();
+        return;
+      }
+      attachWhenBodyReady(createArcShell);
+    };
+
+    const appendToArcShell = node => {
+      const place = () => {
+        ensureArcShell();
+        if (!arcShell) return;
+        node.dataset.protonoxArc = 'true';
+        arcShell.appendChild(node);
+      };
+      if (document.body && arcShell) {
+        place();
+      } else {
+        attachWhenBodyReady(place);
+      }
+    };
+
+    const dropZoneObserver = new MutationObserver(() => {
+      dropZoneCache.timestamp = 0;
     });
-  }
+    attachWhenBodyReady(() => dropZoneObserver.observe(document.body, { childList: true, subtree: true }));
   const createHoverGhost = () => {
     if (!hoverGhost) {
       hoverGhost = document.createElement('div');
       hoverGhost.style.cssText = 'position:fixed;pointer-events:none;z-index:9999998;border:2px dashed rgba(88,166,255,0.75);border-radius:14px;background:rgba(88,166,255,0.06);transition:all 0.12s ease;opacity:0;';
-      document.body.appendChild(hoverGhost);
+      appendToArcShell(hoverGhost);
     }
   };
   const showHoverGhost = el => {
@@ -224,7 +259,7 @@ DEV_INJECT_SCRIPT = r"""
     const hint = document.createElement('div');
     hint.style.cssText = 'position:fixed;pointer-events:none;background:rgba(13,17,23,0.92);color:#e6edf3;padding:6px 10px;border-radius:8px;font-size:12px;box-shadow:0 10px 30px rgba(0,0,0,0.55);transition:opacity 0.15s ease;opacity:0;';
     container.appendChild(hint);
-    document.body.appendChild(container);
+    appendToArcShell(container);
     snapGuide = { container, vline, hline, hint };
   };
 
@@ -282,7 +317,7 @@ DEV_INJECT_SCRIPT = r"""
     if (positionHint) return;
     positionHint = document.createElement('div');
     positionHint.style.cssText = 'position:fixed;pointer-events:none;padding:6px 10px;border-radius:8px;background:rgba(13,17,23,0.95);color:#e6edf3;font-size:12px;letter-spacing:0.5px;box-shadow:0 12px 40px rgba(0,0,0,0.45);opacity:0;transition:opacity 0.15s ease;z-index:999999998;';
-    document.body.appendChild(positionHint);
+    appendToArcShell(positionHint);
   };
 
   const showPositionHint = (text, x, y) => {
@@ -309,6 +344,42 @@ DEV_INJECT_SCRIPT = r"""
     }
   };
 
+    const ensureResourceDropHint = () => {
+      if (resourceDropHint) return;
+      resourceDropHint = document.createElement('div');
+      resourceDropHint.style.cssText = 'position:fixed;pointer-events:none;padding:8px 14px;border-radius:12px;background:rgba(7,11,17,0.95);color:#f8fafc;font-size:12px;font-weight:600;box-shadow:0 12px 36px rgba(0,0,0,0.55);transition:opacity 0.12s ease;opacity:0;z-index:999999997;';
+      resourceDropHint.textContent = 'Suelta un archivo para insertarlo';
+      appendToArcShell(resourceDropHint);
+    };
+
+    const showResourceDropHint = (text, x, y) => {
+      ensureResourceDropHint();
+      if (!resourceDropHint) return;
+      resourceDropHint.textContent = text;
+      const left = Math.min(window.innerWidth - 260, Math.max(12, x + 8));
+      const top = Math.min(window.innerHeight - 48, Math.max(12, y + 4));
+      resourceDropHint.style.left = `${left}px`;
+      resourceDropHint.style.top = `${top}px`;
+      resourceDropHint.style.opacity = '1';
+    };
+
+    const hideResourceDropHint = () => {
+      if (!resourceDropHint) return;
+      resourceDropHint.style.opacity = '0';
+    };
+
+    const isArcOverlayNode = node => Boolean(node && node.closest && node.closest('[data-protonox-arc]'));
+
+    const findResourceDropTarget = (x, y) => {
+      const hit = document.elementFromPoint(x, y);
+      if (!hit) return document.body;
+      if (hit === document.body || hit === document.documentElement) return document.body;
+      if (isArcOverlayNode(hit)) {
+        return document.body;
+      }
+      return hit;
+    };
+
   const setAltOverlay = (show, mode = 'hold') => {
     if (!altOverlay) {
       altOverlay = document.createElement('div');
@@ -328,7 +399,7 @@ DEV_INJECT_SCRIPT = r"""
           <span style="padding:10px 14px;border:1px solid #30363d;border-radius:10px;background:#0f172a;">Ctrl + Z → Undo</span>
           <span style="padding:10px 14px;border:1px solid #30363d;border-radius:10px;background:#0f172a;">Esc → Salir de los modos</span>
         </div>`;
-      document.body.appendChild(altOverlay);
+      appendToArcShell(altOverlay);
     }
     if (show) {
       altOverlay.style.opacity = '1';
@@ -361,7 +432,7 @@ DEV_INJECT_SCRIPT = r"""
         cheatSheet.style.display = 'none';
         localStorage.setItem('protonox_cheatsheet_dismissed', '1');
       };
-      document.body.appendChild(cheatSheet);
+      appendToArcShell(cheatSheet);
     }
   };
 
@@ -379,7 +450,7 @@ DEV_INJECT_SCRIPT = r"""
       localStorage.setItem('protonox_welcome_seen', '1');
       wrap.remove();
     };
-    document.body.appendChild(wrap);
+    appendToArcShell(wrap);
   };
 
   const ensureTooltip = () => {
@@ -387,7 +458,7 @@ DEV_INJECT_SCRIPT = r"""
       tooltip = document.createElement('div');
       tooltip.id = 'protonox-tooltip';
       tooltip.style.cssText = 'position:fixed;pointer-events:none;z-index:999999999;background:#0d1117;border:1px solid #30363d;border-radius:10px;padding:10px 12px;font-size:12px;color:#e6edf3;box-shadow:0 10px 30px rgba(0,0,0,0.55);transition:opacity 0.1s ease;opacity:0;max-width:260px;line-height:1.5;';
-      document.body.appendChild(tooltip);
+      appendToArcShell(tooltip);
     }
   };
 
@@ -478,6 +549,63 @@ DEV_INJECT_SCRIPT = r"""
     showSnapGuide(afterLeft, afterTop, rect.left + rect.width / 2, rect.top + rect.height / 2);
     scheduleHideSnapGuide(1200);
   };
+
+    const releaseResourceUrl = el => {
+      if (!el) return;
+      const blob = el.dataset?.blobUrl;
+      if (blob) {
+        URL.revokeObjectURL(blob);
+        delete el.dataset.blobUrl;
+      }
+    };
+
+    const createResourceElement = file => {
+      if (!file) return null;
+      const isImage = file.type.startsWith('image/');
+      const isVideo = file.type.startsWith('video/');
+      if (!isImage && !isVideo) return null;
+      const media = document.createElement(isVideo ? 'video' : 'img');
+      media.style.cssText = 'max-width:100%;max-height:100%;display:block;object-fit:contain;border-radius:12px;';
+      if (isVideo) {
+        media.controls = true;
+        media.muted = true;
+        media.loop = true;
+        media.preload = 'metadata';
+      }
+      media.alt = file.name;
+      media.dataset.resourceName = file.name;
+      media.dataset.resourceType = file.type;
+      media.loading = 'lazy';
+      const blobUrl = URL.createObjectURL(file);
+      media.src = blobUrl;
+      media.dataset.blobUrl = blobUrl;
+      return media;
+    };
+
+    const handleDroppedFiles = (files, target) => {
+      if (!files || !files.length) return;
+      const dropParent = target && target.nodeType === 1 ? target : document.body;
+      const rect = dropParent.getBoundingClientRect ? dropParent.getBoundingClientRect() : { left: 0, top: 0, width: window.innerWidth, height: window.innerHeight };
+      Array.from(files).forEach(file => {
+        const media = createResourceElement(file);
+        if (!media) return;
+        dropParent.appendChild(media);
+        const record = { action: 'insert', el: media, parent: dropParent };
+        undoStack.push(record);
+        const change = {
+          action: 'insert',
+          element: selectorFor(media),
+          parent: selectorFor(dropParent),
+          type: file.type,
+          name: file.name,
+        };
+        changes.push(change);
+        send('layout-change', change);
+        const hintX = rect.left + rect.width / 2;
+        const hintY = rect.top + rect.height / 2;
+        showPositionHint(`Recurso insertado → ${file.name}`, hintX, hintY);
+      });
+    };
 
   function beginResize(el, startEvent, source, direction = 'bottom-right') {{
     if (!el) return;
@@ -634,7 +762,41 @@ DEV_INJECT_SCRIPT = r"""
     beginResize(currentEl, event, 'pointer', dir || 'bottom-right');
   }}
 
-  document.addEventListener('mousemove', e => {{
+    const canAcceptResourceDrop = () => (isAltPressed || altSticky) && !arcDragging;
+
+    document.addEventListener('dragover', e => {{
+      if (!canAcceptResourceDrop()) return;
+      if (!e.dataTransfer) return;
+      const hasFiles = Array.from(e.dataTransfer.types || []).includes('Files');
+      if (!hasFiles) return;
+      e.preventDefault();
+      resourceDropTarget = findResourceDropTarget(e.clientX, e.clientY);
+      const label = resourceDropTarget?.tagName ? resourceDropTarget.tagName.toLowerCase() : 'body';
+      showResourceDropHint(`Suelta aquí para colocar un recurso en <${label}>`, e.clientX, e.clientY);
+    }}, { passive: false });
+
+    document.addEventListener('drop', e => {{
+      if (!canAcceptResourceDrop()) return;
+      if (!e.dataTransfer) return;
+      e.preventDefault();
+      hideResourceDropHint();
+      const files = e.dataTransfer.files;
+      const target = resourceDropTarget || findResourceDropTarget(e.clientX, e.clientY);
+      handleDroppedFiles(files, target);
+      resourceDropTarget = null;
+    }});
+
+    document.addEventListener('dragleave', e => {{
+      if (!canAcceptResourceDrop()) return;
+      hideResourceDropHint();
+    }});
+
+    document.addEventListener('dragend', () => {{
+      hideResourceDropHint();
+      resourceDropTarget = null;
+    }});
+
+    document.addEventListener('mousemove', e => {{
     console.log('[PROTONOX DEBUG] mousemove event:', e.clientX, e.clientY);
     const el = document.elementFromPoint(e.clientX, e.clientY);
     if (el !== currentEl) updateOutline(el);
@@ -782,12 +944,12 @@ DEV_INJECT_SCRIPT = r"""
     // 1. Ghost original
     ghost = document.createElement('div');
     ghost.style.cssText = `position:fixed;pointer-events:none;opacity:0.25;border:3px dashed #58a6ff;border-radius:12px;left:${{rect.left}}px;top:${{rect.top}}px;width:${{rect.width}}px;height:${{rect.height}}px;z-index:9999998;background:rgba(88,166,255,0.03);`;
-    document.body.appendChild(ghost);
+    appendToArcShell(ghost);
 
     // 2. Clone flotante
     clone = el.cloneNode(true);
     clone.style.cssText = `position:fixed;pointer-events:none;opacity:0.95;z-index:999999999;box-shadow:0 40px 80px rgba(0,0,0,0.7);border:4px solid #58a6ff;border-radius:16px;transform:translate(${{e.clientX - rect.width/2}}px,${{e.clientY - rect.height/2}}px);transition:transform 0.08s cubic-bezier(0.2,0.8,0.2,1);`;
-    document.body.appendChild(clone);
+    appendToArcShell(clone);
 
     // 3. Drop zones
     markArcDropZones(el);
@@ -948,7 +1110,7 @@ DEV_INJECT_SCRIPT = r"""
     closeBtn.addEventListener('mouseenter', () => closeBtn.style.background = '#22272e');
     closeBtn.addEventListener('mouseleave', () => closeBtn.style.background = '#161b22');
     miniToolbar.append(undoBtn, deleteBtn, lockBtn, pinButton, closeBtn);
-    document.body.appendChild(miniToolbar);
+    appendToArcShell(miniToolbar);
     positionMiniToolbar(x, y);
     miniToolbar.addEventListener('mouseenter', () => {{
       if (miniToolbarTimer) {{
@@ -993,6 +1155,14 @@ DEV_INJECT_SCRIPT = r"""
       send('undo', payload);
       const rect = last.el.getBoundingClientRect();
       showPositionHint(`Undo → ${payload.left || 'auto'} • ${payload.top || 'auto'}`, rect.left + rect.width / 2, rect.top);
+      }} else if (last.action === 'insert') {{
+        if (!last.el) return;
+        const rect = last.el.getBoundingClientRect();
+        const payload = {{ action: 'insert', element: selectorFor(last.el) }};
+        releaseResourceUrl(last.el);
+        last.el.remove();
+        send('undo', payload);
+        showPositionHint(`Undo → recurso ${last.el.dataset.resourceName || 'insertado'}`, rect.left + rect.width / 2, rect.top);
     }}
   }};
 
@@ -1074,7 +1244,7 @@ DEV_INJECT_SCRIPT = r"""
     if (!colorTooltip) {{
       colorTooltip = document.createElement('div');
       colorTooltip.style.cssText = 'position:fixed;z-index:999999999;background:#0d1117;border:1px solid #30363d;padding:10px 12px;border-radius:10px;color:#e6edf3;font-size:12px;box-shadow:0 18px 40px rgba(0,0,0,0.6);pointer-events:none;opacity:0;transition:opacity 0.1s ease;';
-      document.body.appendChild(colorTooltip);
+      appendToArcShell(colorTooltip);
     }}
   }};
 
@@ -1082,7 +1252,7 @@ DEV_INJECT_SCRIPT = r"""
     const t = document.createElement('div');
     t.textContent = text;
     t.style.cssText = 'position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#111827;color:#e5e7eb;padding:10px 16px;border-radius:12px;border:1px solid #1f2937;box-shadow:0 14px 40px rgba(0,0,0,0.45);z-index:999999999;font-weight:600;';
-    document.body.appendChild(t);
+    appendToArcShell(t);
     setTimeout(() => t.remove(), 2000);
   }};
 
@@ -1198,7 +1368,7 @@ DEV_INJECT_SCRIPT = r"""
     ['hex', 'rgb', 'hsl', 'oklch', 'tailwind', 'css var', 'figma token', 'contrast'].forEach(fmt => {{
       addBtn(`Copy color as ${{fmt.toUpperCase()}}`, () => copyColor(fmt, color, target));
     }});
-    document.body.appendChild(colorContextMenu);
+    appendToArcShell(colorContextMenu);
     const {{ innerWidth, innerHeight }} = window;
     const rect = colorContextMenu.getBoundingClientRect();
     colorContextMenu.style.left = Math.min(e.clientX, innerWidth - rect.width - 12) + 'px';
@@ -1232,7 +1402,7 @@ DEV_INJECT_SCRIPT = r"""
           <small>Tu paleta actual (12 colores más usados)</small>
           <div data-palette class="flex gap-2 mt-2 flex-wrap" style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;"></div>
         </div>`;
-      document.body.appendChild(colorPicker);
+      appendToArcShell(colorPicker);
 
       const sbCanvas = colorPicker.querySelector('#sb-canvas');
       const sbCtx = sbCanvas.getContext('2d');
@@ -1301,7 +1471,7 @@ DEV_INJECT_SCRIPT = r"""
     if (!colorOverlay) {{
       colorOverlay = document.createElement('div');
       colorOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.05);z-index:999999998;pointer-events:none;';
-      document.body.appendChild(colorOverlay);
+      appendToArcShell(colorOverlay);
     }}
     ensureColorTooltip();
     showToast('Color Mode activado — Ctrl+C');

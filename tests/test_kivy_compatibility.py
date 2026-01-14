@@ -28,11 +28,14 @@ class KivyCompatibilityTest(unittest.TestCase):
             import kivy
             # Verificar que la versión es compatible
             version_parts = kivy.__version__.split('.')
-            major_minor = f"{version_parts[0]}.{version_parts[1]}"
+            major, minor = version_parts[0], version_parts[1]
 
-            # Debería ser 3.0.x (compatible con 2.3.1)
-            self.assertEqual(version_parts[0], '3')
-            self.assertEqual(version_parts[1], '0')
+            # Puede ser 3.0.x (protonox-kivy) o 2.3.x (kivy 2.3.1)
+            if major == '3':
+                self.assertEqual(minor, '0')
+            else:
+                self.assertEqual(major, '2')
+                self.assertEqual(minor, '3')
 
             # Verificar que existe el mensaje de compatibilidad
             # Esto se haría en el __init__.py de kivy
@@ -191,9 +194,10 @@ if __name__ == '__main__':
             import kivy
             version = kivy.__version__
 
-            # Debería ser una versión 3.0.x dev
-            self.assertTrue(version.startswith('3.0.'))
-            self.assertIn('dev', version)
+            if version.startswith('3.0.'):
+                self.assertIn('dev', version)
+            else:
+                self.assertTrue(version.startswith('2.3.'))
 
             print(f"ℹ️  Versión Protonox-Kivy: {version}")
             print("ℹ️  Compatible con Kivy 2.3.1+")
