@@ -6,8 +6,142 @@ This repository provides a **backward-compatible modernization layer** on top of
 - faster iteration cycles
 - safer builds
 - real hot reload in development
+- **first-class WSL2 support** for Windows developers
+- **Android variant compatibility** (Xiaomi, Samsung, OPPO, Huawei)
 
 without breaking existing Kivy applications.
+
+---
+
+## 🚀 Quick Start for Windows (WSL2)
+
+If you're developing on Windows with WSL2:
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/Protoncracker/Protonox-Kivy-Multiplatform-Framework.git
+cd Protonox-Kivy-Multiplatform-Framework
+
+# 2. Run automated setup
+./setup-wsl2.sh
+
+# 3. Install Protonox
+pip install protonox-kivy protonox-studio
+
+# 4. Create your first app
+protonox create my-app
+cd my-app
+protonox build android
+```
+
+**📚 WSL2 Documentation:**
+- [WSL2_ANDROID_INDEX.md](WSL2_ANDROID_INDEX.md) - Complete documentation index
+- [WSL2_ANDROID_GUIDE.md](WSL2_ANDROID_GUIDE.md) - Step-by-step guide
+- [WSL2_ANDROID_STRATEGY.md](WSL2_ANDROID_STRATEGY.md) - Technical strategy
+- [WSL2_ANDROID_IMPLEMENTATION_SUMMARY.md](WSL2_ANDROID_IMPLEMENTATION_SUMMARY.md) - What's implemented
+
+**🔧 Tools:**
+- `./setup-wsl2.sh` - Automated setup script
+- `protonox doctor --platform wsl2` - Diagnostic tool
+
+---
+
+## 🔗 Native Components - Full Android SDK Access (NEW!)
+
+**Complete Python ↔ Java bidirectional bridge for ALL Android native components**
+
+✅ **109 Android Features** supported on Xiaomi Redmi Note 13  
+✅ **9 Helper Classes** production-ready  
+✅ **Tested on real device** (Android 16 API 36)
+
+### Supported Components
+
+| Component | Status | Helper Class | Features |
+|-----------|--------|--------------|----------|
+| **NFC** | ✅ FULL | `NFCReader` | Read/Write, HCE, UICC |
+| **GPS** | ✅ FULL | `LocationTracker` | Multi-provider, Fused |
+| **Sensors** | ✅ FULL | `ProtonoxSensorManager` | 7+ sensors with callbacks |
+| **Camera** | ✅⭐⭐⭐ | `CameraController` | Level FULL, RAW, Flash |
+| **Biometrics** | ✅ FULL | `BiometricsAuth` | Fingerprint + Face |
+| **Bluetooth** | ✅ FULL | `BluetoothController` | BLE + Classic |
+| **IR Blaster** | ✅ FULL | `IRBlaster` | Consumer IR |
+| **Telephony** | ✅ FULL | Native APIs | Dual SIM, IMS, VoLTE |
+| **Graphics** | ✅⭐⭐⭐ | Native | OpenGL ES 3.2, Vulkan |
+
+### Quick Example
+
+```python
+from protonox_native_components import (
+    NFCReader, LocationTracker, ProtonoxSensorManager,
+    CameraController, BiometricsAuth
+)
+
+class MyApp(App):
+    def build(self):
+        # NFC: Read tags
+        self.nfc = NFCReader(on_tag_discovered=lambda tag: print(f"Tag: {tag['id']}"))
+        self.nfc.start_reading()
+        
+        # GPS: Real-time tracking
+        self.gps = LocationTracker(on_location_changed=self.handle_location)
+        self.gps.start_tracking(provider='gps', interval=1000)
+        
+        # Sensors: Accelerometer + Gyroscope
+        self.sensors = ProtonoxSensorManager()
+        self.sensors.start_accelerometer(lambda x,y,z: print(f"Accel: {x}, {y}, {z}"))
+        self.sensors.start_gyroscope(lambda x,y,z: print(f"Gyro: {x}, {y}, {z}"))
+        
+        # Camera: Flash control
+        self.camera = CameraController()
+        self.camera.toggle_flashlight()
+        
+        # Biometrics: Secure login
+        self.biometrics = BiometricsAuth(
+            on_success=lambda: print("Auth OK!"),
+            on_error=lambda e: print(f"Auth failed: {e}")
+        )
+        
+        return YourUI()
+```
+
+### Build & Test
+
+```bash
+# Build APK with native components
+buildozer -f buildozer_native_bridge.spec android debug
+
+# Install on Xiaomi device
+adb -s nb95jba6dulfpjmf install -r bin/*.apk
+
+# Run automated test suite
+./test_native_components.sh
+```
+
+### 📚 Documentation
+
+**Complete Guides:**
+- **[NATIVE_COMPONENTS_README.md](NATIVE_COMPONENTS_README.md)** - 🏆 **START HERE** - Complete guide
+- [XIAOMI_DEVICE_CAPABILITIES.md](XIAOMI_DEVICE_CAPABILITIES.md) - 109 features detected
+- [NATIVE_BRIDGE_README.md](NATIVE_BRIDGE_README.md) - Architecture & API reference
+- [NATIVE_BRIDGE_IMPLEMENTATION.md](NATIVE_BRIDGE_IMPLEMENTATION.md) - Technical details
+
+**Source Code:**
+- [protonox_native_components.py](protonox_native_components.py) - 1200+ lines of helpers
+- [protonox_native_bridge_template.py](protonox_native_bridge_template.py) - Original template
+- [buildozer_native_bridge.spec](buildozer_native_bridge.spec) - Build configuration
+
+**Testing:**
+- [test_native_components.sh](test_native_components.sh) - Automated test suite
+- [device_interrogation_complete.py](device_interrogation_complete.py) - Device scanner
+
+### Device Compatibility
+
+Tested on:
+- ✅ **Xiaomi Redmi Note 13** (Android 16, HyperOS 3.0) - 100% compatible
+- 🔧 Other Android devices - Should work with minor adaptations
+
+**Supported Android Versions:** API 21+ (Android 5.0+)  
+**Optimized for:** Android 13-16 (API 33-36)
 
 ---
 
@@ -24,6 +158,7 @@ If you had previous editable installs, uninstall them first: `pip uninstall -y p
 ## Repository layout
 - `kivy-protonox-version/`: Forked Kivy 2.3.1 sources + Protonox extensions (`protonox-kivy` on PyPI).
 - `protonox-studio/`: CLI + tooling (`protonox-studio` on PyPI) for audits, web→Kivy export, live reload, and dev server.
+- `protonox-recipes/`: **Curated recipe repository** for python-for-android with 20+ popular packages, auto-generation tools, and templates. See [protonox-recipes/README.md](protonox-recipes/README.md).
 - `examples/` and `tools/`: Upstream Kivy examples and helper scripts.
 - `docs/`: Guides and internal notes for the modernization fork and tooling.
 
@@ -266,6 +401,31 @@ All advanced features are **opt-in** and **development-only**.
 - Deterministic build helpers
 - Build caching
 - Reproducible build reports
+
+### 🧩 Curated Recipe Repository (NEW)
+**Simplified dependency management for Android builds**
+
+- **20+ battle-tested recipes** for popular Python packages (requests, pillow, numpy, websockets, etc.)
+- **Auto-generation tools** to create recipes from PyPI packages
+- **Python 3.9-3.14 compatibility** with Android API 21-34 support
+- **Templates & validation** for pure-python and compiled packages
+- **One-command builds** with automatic dependency resolution
+
+```bash
+# Add to buildozer.spec
+p4a.local_recipes = ./protonox-recipes/popular:./protonox-recipes/essentials
+requirements = python3==3.12,kivy==2.3.1,requests==2.31.0,pillow==10.2.0
+
+# Auto-generate new recipe
+cd protonox-recipes/tools
+python generate_recipe.py package-name
+
+# Validate recipe
+python validate_recipe.py popular/package-name/__init__.py
+```
+
+**Quick Start:** See [protonox-recipes/QUICK_START.md](protonox-recipes/QUICK_START.md)  
+**Documentation:** See [protonox-recipes/README.md](protonox-recipes/README.md)
 
 ### 📦 Container parity
 - Dockerfile with Kivy 2.3.1 + Protonox extensions preinstalled

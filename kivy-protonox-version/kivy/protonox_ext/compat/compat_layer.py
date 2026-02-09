@@ -6,6 +6,9 @@ like vanilla Kivy 2.3.1 unless developers **opt in** to Protonox extensions.
 Profiles are lightweight helpers that toggle a curated set of environment flags
 so downstream modules know whether to activate diagnostics, layout telemetry, or
 UI polish. They never modify the core widgets or providers.
+
+AUTO-ENABLED FEATURES:
+- Emoji rendering support (can be disabled with PROTONOX_EMOJI_DISABLE=1)
 """
 from __future__ import annotations
 
@@ -133,18 +136,49 @@ def _profile_from_env() -> Dict[str, str] | None:
 def auto_enable_if_fork() -> CompatReport:
     """Apply safe-mode defaults only when the Protonox fork is detected.
 
-    Upstream Kivy users remain untouched; Protonox fork users get the
-    compatibility guardrails unless they've already opted into a profile.
+    Upstream Kivy users remain untouched; Protonox fork users get:
+    - Compatibility guardrails
+    - Automatic emoji font rendering support
+    - Auto-hook emoji support into Kivy widgets
+    
+    Unless they've already opted into a profile.
     """
 
     if not is_protonox_runtime():
         return CompatReport(applied={}, flags={})
+    
     env_profile = _profile_from_env()
     if env_profile:
-        return enable_profile(env_profile)
-    if os.environ.get("PROTONOX_COMPAT_MODE"):
-        return CompatReport(applied={}, flags={"PROTONOX_COMPAT_MODE": os.environ["PROTONOX_COMPAT_MODE"]})
-    return enable_safe_mode()
+        result = enable_profile(env_profile)
+    elif os.environ.get("PROTONOX_COMPAT_MODE"):
+        result = CompatReport(applied={}, flags={"PROTONOX_COMPAT_MODE": os.environ["PROTONOX_COMPAT_MODE"]})
+    else:
+        result = enable_safe_mode()
+    
+    # Auto-enable emoji support
+    try:
+        from kivy.protonox_ext.ui.emoji import auto_enable_globally, is_enabled
+        if is_enabled():
+            emoji_status = auto_enable_globally()
+            if emoji_status:
+                result.applied["EMOJI_SUPPORT"] = "enabled"
+                result.flags["EMOJI_SUPPORT"] = "enabled"
+                
+                # Install auto-hooks into widgets
+                try:
+                    from kivy.protonox_ext.ui.emoji_autohook import install_hooks
+                    if install_hooks():
+                        result.applied["EMOJI_AUTOHOOK"] = "enabled"
+                        result.flags["EMOJI_AUTOHOOK"] = "enabled"
+                except Exception as exc:
+                    import logging
+                    logging.getLogger("kivy_protonox").debug("Emoji autohook install failed: %s", exc)
+    except Exception as exc:
+        # Emoji support is optional; don't fail app startup
+        import logging
+        logging.getLogger("kivy_protonox").debug("Emoji auto-init failed: %s", exc)
+    
+    return result
 
 
 __all__ = [

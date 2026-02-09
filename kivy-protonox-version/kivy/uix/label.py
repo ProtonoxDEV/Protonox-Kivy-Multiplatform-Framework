@@ -336,8 +336,26 @@ class Label(Widget):
         self._label = None
         self._create_label()
 
+        # 🔥 PROTONOX RADICAL CHANGE: Auto-apply emoji font if text has emoji
+        self._apply_emoji_font_if_needed()
+
         # force the texture creation
         self._trigger_texture()
+
+    def _apply_emoji_font_if_needed(self):
+        """PROTONOX: Auto-apply emoji font if text contains emoji characters."""
+        try:
+            from kivy.protonox_ext.ui.emoji import contains_emoji, enable
+            
+            # Only apply if text contains emoji
+            if self.text and contains_emoji(self.text):
+                if enable(self, auto_detect=False):
+                    from kivy.logger import Logger
+                    Logger.debug('[EMOJI] Auto-applied emoji font to Label: %s...', 
+                                self.text[:20])
+        except Exception as e:
+            # Silently fail - emoji support is optional
+            pass
 
     def _create_label(self):
         # create the core label class according to markup value

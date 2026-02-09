@@ -1090,3 +1090,10 @@ if 'KIVY_DOC' not in os.environ:
 
 # For the first initialization, register the default font
     Label.register(DEFAULT_FONT, *_default_font_paths)
+
+    # 🔥 PROTONOX RADICAL CHANGE: Install emoji support at core level
+    try:
+        from kivy.core.text._emoji_core import install_emoji_core_patch
+        install_emoji_core_patch(Label)
+    except Exception as e:
+        Logger.debug('[EMOJI-CORE] Could not install emoji core patch: %s', e)
