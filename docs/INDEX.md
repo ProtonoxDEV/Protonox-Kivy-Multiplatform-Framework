@@ -31,8 +31,8 @@ Last Updated: Feb 2026 | Status: ✅ Production Ready | Audience: All developers
 | Document | Purpose | Audience | Time |
 |----------|---------|----------|------|
 | **[QUICK_START.md](QUICK_START.md)** ✅ | 5-minute setup & build | Beginners | 5 min |
-| **[QUICK_REFERENCE.md](#)** ⏳ Coming soon | Copy-paste configs | Busy developers | 2 min |
-| **[FAQ.md](#)** ⏳ Coming soon | Common questions | Everyone | 10 min |
+| **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** ✅ | Copy-paste commands & configs | Busy developers | 2 min |
+| **[FAQ.md](FAQ.md)** ✅ | 30 common questions answered | Everyone | 10 min |
 
 ---
 
